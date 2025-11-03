@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { Menu, Search, ShoppingCart } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { Button } from "./ui/button";
 import { SideDrawer } from "./SideDrawer";

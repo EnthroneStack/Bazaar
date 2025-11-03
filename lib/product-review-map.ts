@@ -1,11 +1,15 @@
 import { productDummyData, reviewData } from "@/assets/assets";
+import { StaticImageData } from "next/image";
 
 type ProductsType = typeof productDummyData;
 type ReviewsType = typeof reviewData;
 
 interface Review {
   productId: string | number;
-  [key: string]: any;
+  rating: number;
+  comment?: string;
+  user?: { name: string; avatar: string | StaticImageData };
+  createdAt?: string;
 }
 
 const mapReviewsToProducts = (products: ProductsType, reviews: ReviewsType) => {

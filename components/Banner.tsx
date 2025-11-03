@@ -13,7 +13,7 @@ const Banner = () => {
       await navigator.clipboard.writeText("COUPON");
       setIsOpen(false);
       toast.success("Coupon copied to clipboard!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy coupon!");
     }
   };
