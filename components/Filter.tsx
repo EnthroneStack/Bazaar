@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "./ui/button";
-import { ChevronDown, ChevronUp, Star, X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { categories } from "@/assets/assets";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -97,7 +97,7 @@ const Filter = () => {
   return (
     <div className="w-full">
       {/* Mobile Filter Toggle */}
-      <div className="lg:hidden mb-4 sticky top-16 z-30 bg-white">
+      <div className="lg:hidden mb-4 top-16 z-30 bg-white">
         <Button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           variant="outline"
