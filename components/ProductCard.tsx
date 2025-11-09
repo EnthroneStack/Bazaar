@@ -1,9 +1,172 @@
+// import Image from "next/image";
+// import Link from "next/link";
+// import type { productDummyData } from "@/assets/assets";
+// import { productAverageRatings } from "@/lib/product-review-map";
+// import { ShoppingCart, StarIcon } from "lucide-react";
+// import { Button } from "./ui/button";
+
+// type Product = (typeof productDummyData)[0];
+
+// const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
+
+// interface ProductCardProps {
+//   product: Product;
+//   viewMode?: string;
+// }
+
+// const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
+//   const productWithRating = productAverageRatings.find(
+//     (p) => p.id === product.id
+//   );
+//   const rating = productWithRating?.averageRating ?? 0;
+
+//   if (viewMode === "list") {
+//     return (
+//       <Link
+//         href={`/product/${product.id}`}
+//         // className="group flex gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
+//         className="group flex flex-col sm:flex-row gap-4 w-full max-w-2xl mx-auto p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
+//       >
+//         {/* <div className="bg-[#F5F5F5] w-24 h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 rounded-lg"> */}
+//         <div className="bg-[#F5F5F5] w-full sm:w-24 h-48 sm:h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 rounded-lg">
+//           <Image
+//             src={product.images[0]}
+//             width={96}
+//             height={96}
+//             alt={product.name}
+//             className="max-h-20 w-auto group-hover:scale-110 duration-300 transition-transform"
+//           />
+//         </div>
+
+//         <div className="flex-1 min-w-0">
+//           <h3 className="font-semibold text-lg text-gray-900 group-hover:text-primary transition-colors">
+//             {product.name}
+//           </h3>
+//           <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+//             {product.description}
+//           </p>
+
+//           <div className="flex items-center gap-1 mt-2">
+//             {Array.from({ length: 5 }, (_, index) => {
+//               const fillColor =
+//                 rating >= index + 1
+//                   ? "#0d97d9"
+//                   : rating > index && rating < index + 1
+//                   ? "url(#half-star)"
+//                   : "#D1D5DB";
+
+//               return (
+//                 <StarIcon
+//                   key={index}
+//                   size={16}
+//                   fill={fillColor}
+//                   className="text-transparent transition-transform duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_3px_rgba(13, 151, 217, 0.5)]"
+//                 />
+//               );
+//             })}
+
+//             <span className="text-xs text-gray-600 ml-1">
+//               {rating.toFixed(1)}
+//             </span>
+//             <span className="text-xs text-gray-400 ml-2">
+//               {product.category}
+//             </span>
+//           </div>
+
+//           <div className="flex justify-between items-center mt-3">
+//             <div className="flex items-center gap-2">
+//               <span className="text-lg font-bold text-gray-900">
+//                 {currency}
+//                 {product.price}
+//               </span>
+//               {product.mrp > product.price && (
+//                 <span className="text-sm font-normal text-gray-500 line-through">
+//                   {currency}
+//                   {product.mrp}
+//                 </span>
+//               )}
+//             </div>
+
+//             <Button className="bg-primary text-white hover:bg-primary-100 group-hover:scale-110 shadow-sm shadow-slate-300 hover:shadow-md duration-300 transition-all">
+//               <ShoppingCart size={16} />
+//               <span className="text-sm font-normal">Add to Cart</span>
+//             </Button>
+//           </div>
+//         </div>
+
+//         <svg width="0" height="0">
+//           <defs>
+//             <linearGradient id="half-star">
+//               <stop offset="50%" stopColor="#0d97d9" />
+//               <stop offset="50%" stopColor="#D1D5DB" />
+//             </linearGradient>
+//           </defs>
+//         </svg>
+//       </Link>
+//     );
+//   }
+
+//   return (
+//     <Link
+//       href={`/product/${product.id}`}
+//       className="group transition-transform duration-300 hover:scale-[1.02]"
+//     >
+//       <div className="bg-[#F5F5F5] h-40 sm:h-68 sm:w-60 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+//         <Image
+//           src={product.images[0]}
+//           width={500}
+//           height={500}
+//           alt={product.name}
+//           className="max-h-30 sm:max-h-40 w-auto group-hover:scale-110 duration-300 transition-transform"
+//         />
+//       </div>
+
+//       <div>
+//         <div>
+//           <p className="font-medium">{product.name}</p>
+
+//           <div className="flex items-center gap-1 mt-0.5">
+//             {Array.from({ length: 5 }, (_, index) => {
+//               const fillColor =
+//                 rating > index + 1
+//                   ? "#0d97d9"
+//                   : rating > index && index < index + 1
+//                   ? "url(#half-star)"
+//                   : "#D1D5DB";
+
+//               return (
+//                 <StarIcon
+//                   key={index}
+//                   size={16}
+//                   fill={fillColor}
+//                   className="text-transparent transition-transform duration-200 group-hover:scale-110 group-hover:"
+//                 />
+//               );
+//             })}
+//           </div>
+//         </div>
+//       </div>
+
+//       <svg width="0" height="0">
+//         <defs>
+//           <linearGradient id="half-star">
+//             <stop offset="50%" stopColor="#0d97d9" />
+//             <stop offset="50%" stopColor="#D1D5DB" />
+//           </linearGradient>
+//         </defs>
+//       </svg>
+//     </Link>
+//   );
+// };
+
+// export default ProductCard;
+
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import type { productDummyData } from "@/assets/assets";
 import { productAverageRatings } from "@/lib/product-review-map";
 import { ShoppingCart, StarIcon } from "lucide-react";
+import { Button } from "./ui/button";
 
 type Product = (typeof productDummyData)[0];
 
@@ -11,93 +174,84 @@ const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
 
 interface ProductCardProps {
   product: Product;
-  viewMode?: "grid" | "list";
+  viewMode?: string;
 }
 
 const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
   const productWithRating = productAverageRatings.find(
     (p) => p.id === product.id
   );
-
   const rating = productWithRating?.averageRating ?? 0;
 
   if (viewMode === "list") {
     return (
       <Link
-        href=""
-        className="group flex gap-4 p-4 border border-gray-200 rounded-lg bg-white hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
+        href={`/product/${product.id}`}
+        className="group flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 mx-2 sm:mx-0"
       >
-        <div className="bg-[#F5F5F5] rounded-lg w-24 h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+        <div className="bg-[#F5F5F5] w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 rounded-lg flex-shrink-0">
           <Image
             src={product.images[0]}
             width={96}
             height={96}
-            className="max-h-20 w-auto group-hover:scale-110 duration-300 transition-transform"
             alt={product.name}
+            className="max-h-12 sm:max-h-20 w-auto group-hover:scale-110 duration-300 transition-transform"
           />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg text-gray-900 group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-sm sm:text-lg text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
             {product.name}
           </h3>
-
-          <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+          <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">
             {product.description}
           </p>
 
-          <div className="flex items-center gap-1 mt-2">
-            {Array(5)
-              .fill("")
-              .map((_, index) => {
-                const fillColor =
-                  rating >= index + 1
-                    ? "#0d97d9"
-                    : rating > index && rating < index + 1
-                    ? "url(#half-star)"
-                    : "#D1D5DB";
+          <div className="flex items-center gap-1 mt-2 flex-wrap">
+            {Array.from({ length: 5 }, (_, index) => {
+              const fillColor =
+                rating >= index + 1
+                  ? "#0d97d9"
+                  : rating > index && rating < index + 1
+                  ? "url(#half-star)"
+                  : "#D1D5DB";
 
-                return (
-                  <StarIcon
-                    key={index}
-                    size={16}
-                    className="text-transparent transition-transform duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_3px_rgba(13, 151, 217, 0.5)]"
-                    fill={fillColor}
-                  />
-                );
-              })}
+              return (
+                <StarIcon
+                  key={index}
+                  size={14}
+                  className="text-transparent transition-transform duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_3px_rgba(13, 151, 217, 0.5)] flex-shrink-0"
+                  fill={fillColor}
+                />
+              );
+            })}
 
-            <span className="text-xs text-gray-600 ml-1">
+            <span className="text-xs text-gray-600 ml-1 flex-shrink-0">
               {rating.toFixed(1)}
             </span>
-            <span className="text-xs text-gray-400 ml-2">
+            <span className="text-xs text-gray-400 ml-2 hidden sm:inline flex-shrink-0">
               {product.category}
             </span>
           </div>
 
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-base sm:text-lg font-bold text-gray-900">
                 {currency}
                 {product.price}
               </span>
               {product.mrp > product.price && (
-                <span className="text-sm text-gray-500 line-through">
+                <span className="text-sm font-normal text-gray-500 line-through">
                   {currency}
                   {product.mrp}
                 </span>
               )}
             </div>
 
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-              className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-100 transition-colors duration-200"
-            >
+            <Button className="bg-primary text-white hover:bg-primary-100 shadow-sm shadow-slate-300 hover:shadow-md duration-300 transition-all w-full sm:w-auto">
               <ShoppingCart size={16} />
-              <span className="text-sm">Add to Cart</span>
-            </button>
+              <span className="text-sm font-normal ml-2">Add to Cart</span>
+            </Button>
           </div>
         </div>
 
@@ -115,52 +269,54 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
 
   return (
     <Link
-      href=""
-      className="group max-xl:mx-auto transition-transform duration-300 hover:scale-[1.02]"
+      href={`/product/${product.id}`}
+      className="group transition-transform duration-300 hover:scale-[1.02]"
     >
-      <div className="bg-[#F5F5F5] rounded-lg h-40 sm:h-68 sm:w-60 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="bg-[#F5F5F5] h-40 sm:h-68 sm:w-60 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
         <Image
           src={product.images[0]}
           width={500}
           height={500}
-          className="max-h-30 sm:max-h-40 w-auto group-hover:scale-110 duration-300 transition-transform"
           alt={product.name}
+          className="max-h-30 sm:max-h-40 w-auto group-hover:scale-110 duration-300 transition-transform"
         />
       </div>
 
-      <div className="flex justify-between text-sm gap-3 text-slate-800 pt-2 max-w-60">
-        <div>
-          <p className="font-medium">{product.name}</p>
+      <div className="mt-2">
+        <p className="font-medium text-sm sm:text-base">{product.name}</p>
 
-          <div className="flex items-center gap-1 mt-0.5">
-            {Array(5)
-              .fill("")
-              .map((_, index) => {
-                const fillColor =
-                  rating >= index + 1
-                    ? "#0d97d9"
-                    : rating > index && rating < index + 1
-                    ? "url(#half-star)"
-                    : "#D1D5DB";
+        <div className="flex items-center gap-1 mt-0.5">
+          {Array.from({ length: 5 }, (_, index) => {
+            const fillColor =
+              rating >= index + 1
+                ? "#0d97d9"
+                : rating > index && rating < index + 1
+                ? "url(#half-star)"
+                : "#D1D5DB";
 
-                return (
-                  <StarIcon
-                    key={index}
-                    size={16}
-                    className="text-transparent transition-transform duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_3px_rgba(13, 151, 217, 0.5)]"
-                    fill={fillColor}
-                  />
-                );
-              })}
-
-            <span className="text-xs text-gray-600 ml-1">{rating}</span>
-          </div>
+            return (
+              <StarIcon
+                key={index}
+                size={14}
+                fill={fillColor}
+                className="text-transparent transition-transform duration-200 group-hover:scale-110"
+              />
+            );
+          })}
         </div>
 
-        <p className="font-semibold">
-          {currency}
-          {product.price}
-        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-base font-bold text-gray-900">
+            {currency}
+            {product.price}
+          </span>
+          {product.mrp > product.price && (
+            <span className="text-sm text-gray-500 line-through">
+              {currency}
+              {product.mrp}
+            </span>
+          )}
+        </div>
       </div>
 
       <svg width="0" height="0">

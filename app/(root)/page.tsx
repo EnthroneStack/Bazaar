@@ -6,7 +6,6 @@ import Hero from "@/components/Hero";
 import LatestProducts from "@/components/LatestProducts";
 import Newsletter from "@/components/Newsletter";
 import OurSpec from "@/components/OurSpec";
-import React from "react";
 
 const Home = () => {
   return (

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Title from "./Title";
 import { useAppSelector } from "@/hooks/redux-hook";
 import ProductCard from "./ProductCard";

@@ -5,7 +5,7 @@ import Sort from "@/components/Sort";
 import ProductCard from "@/components/ProductCard";
 import { useAppSelector } from "@/hooks/redux-hook";
 import Link from "next/link";
-import React, { Suspense, useState } from "react";
+import { Suspense, useState } from "react";
 import { MobileFilter } from "@/components/MobileFilter";
 
 const ShopContent = () => {
@@ -14,7 +14,7 @@ const ShopContent = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
-    <section className="max-w-7xl min-h-[70vh] mx-auto px-6 flex gap-6">
+    <section className="max-w-7xl w-full min-h-[70vh] mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-6 overflow-x-hidden">
       <div className="my-6 hidden lg:block">
         <Filter />
       </div>
@@ -47,8 +47,8 @@ const ShopContent = () => {
           mb-32
           ${
             viewMode === "grid"
-              ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 xl:gap-12"
-              : "flex flex-col gap-6"
+              ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 px-2 xl:gap-12"
+              : "flex flex-col items-center gap-6 px-4 sm:px-6 md:px-8"
           }
         `}
         >

@@ -40,7 +40,7 @@ export function MobileFilter() {
           </DrawerClose>
         </DrawerHeader>
 
-        <div className="p-4">
+        <div className="p-4 overflow-y-auto h-full">
           <Filter />
         </div>
       </DrawerContent>
