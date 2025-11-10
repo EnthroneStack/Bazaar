@@ -14,7 +14,7 @@ const ShopContent = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
-    <section className="max-w-7xl w-full min-h-[70vh] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8 overflow-x-hidden">
+    <section className="max-w-7xl w-full min-h-[70vh] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-8 overflow-x-hidden">
       <div className="my-6 hidden lg:block">
         <Filter />
       </div>
