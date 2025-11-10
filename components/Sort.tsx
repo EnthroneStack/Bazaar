@@ -1,5 +1,14 @@
-import React from "react";
-import { Grid, List, ChevronDown } from "lucide-react";
+import { Grid, List } from "lucide-react";
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "./ui/label";
 
 interface SortProps {
   sortBy: string;
@@ -9,13 +18,13 @@ interface SortProps {
   productCount?: number;
 }
 
-const Sort: React.FC<SortProps> = ({
+const Sort = ({
   sortBy,
   onSortChange,
   viewMode,
   onViewModeChange,
   productCount,
-}) => {
+}: SortProps) => {
   const sortOptions = [
     { value: "featured", label: "Featured" },
     { value: "newest", label: "Newest First" },
@@ -25,9 +34,8 @@ const Sort: React.FC<SortProps> = ({
     { value: "name-asc", label: "Name: A to Z" },
     { value: "name-desc", label: "Name: Z to A" },
   ];
-
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white border border-gray-200 rounded-lg gap-4 mb-6">
+    <div className="flex flex-col w-full sm:flex-row sm:items-center sm:justify-between p-4 bg-white border border-gray-200 rounded-lg gap-4 mb-6">
       {productCount !== undefined && (
         <div className="text-sm text-gray-600">
           <span className="font-medium text-gray-900">{productCount}</span>{" "}
@@ -37,51 +45,50 @@ const Sort: React.FC<SortProps> = ({
 
       <div className="flex items-center gap-4">
         <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => onViewModeChange("grid")}
-            className={`p-2 transition-colors duration-200 ${
+            title="Grid view"
+            className={`transition-colors duration-200 rounded-l-lg rounded-r-none ${
               viewMode === "grid"
                 ? "bg-primary text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
-            title="Grid view"
           >
             <Grid size={18} />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => onViewModeChange("list")}
-            className={`p-2 transition-colors duration-200 ${
+            title="List view"
+            className={`transition-colors duration-200 rounded-l-none ${
               viewMode === "list"
                 ? "bg-primary text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
-            title="List view"
           >
             <List size={18} />
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            Sort by:
-          </label>
-          <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => onSortChange(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white cursor-pointer min-w-40"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={16}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-          </div>
+          <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            Sort by:{" "}
+          </Label>
+          <Select value={sortBy} onValueChange={onSortChange}>
+            <SelectTrigger className="min-w-40 border border-gray-300 focus:ring-2 focus:ring-primary bg-white">
+              <SelectValue placeholder={sortOptions[0].label} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup className="bg-white">
+                {sortOptions.map((sortOption) => (
+                  <SelectItem value={sortOption.value} key={sortOption.value}>
+                    {sortOption.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

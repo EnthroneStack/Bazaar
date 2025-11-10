@@ -24,10 +24,8 @@
 //     return (
 //       <Link
 //         href={`/product/${product.id}`}
-//         // className="group flex gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
 //         className="group flex flex-col sm:flex-row gap-4 w-full max-w-2xl mx-auto p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
 //       >
-//         {/* <div className="bg-[#F5F5F5] w-24 h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 rounded-lg"> */}
 //         <div className="bg-[#F5F5F5] w-full sm:w-24 h-48 sm:h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 rounded-lg">
 //           <Image
 //             src={product.images[0]}
@@ -187,7 +185,7 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
     return (
       <Link
         href={`/product/${product.id}`}
-        className="group flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 mx-2 sm:mx-0"
+        className="group w-full flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300"
       >
         <div className="bg-[#F5F5F5] w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 rounded-lg flex-shrink-0">
           <Image
@@ -199,7 +197,7 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
           />
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
           <h3 className="font-semibold text-sm sm:text-lg text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
             {product.name}
           </h3>
@@ -248,7 +246,7 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
               )}
             </div>
 
-            <Button className="bg-primary text-white hover:bg-primary-100 shadow-sm shadow-slate-300 hover:shadow-md duration-300 transition-all w-full sm:w-auto">
+            <Button className="bg-primary text-white hover:bg-primary-100 shadow-sm shadow-slate-300 hover:shadow-md duration-300 transition-all w-full sm:w-auto flex-shrink-0">
               <ShoppingCart size={16} />
               <span className="text-sm font-normal ml-2">Add to Cart</span>
             </Button>
@@ -270,9 +268,9 @@ const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
   return (
     <Link
       href={`/product/${product.id}`}
-      className="group transition-transform duration-300 hover:scale-[1.02]"
+      className="group transition-transform duration-300 hover:scale-[1.02] w-full"
     >
-      <div className="bg-[#F5F5F5] h-40 sm:h-68 sm:w-60 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="bg-[#F5F5F5] h-40 sm:h-48 w-full sm:w-60 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
         <Image
           src={product.images[0]}
           width={500}
