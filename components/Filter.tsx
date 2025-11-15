@@ -224,7 +224,7 @@ const Filter = ({
             className="w-full flex justify-between items-center text-left cursor-pointer"
             onClick={() => toggleSection("availability")}
           >
-            <h3 className="font-medium text-gray-900">Avalability</h3>
+            <h3 className="font-medium text-gray-900">Availability</h3>
             {openSection.availability ? (
               <ChevronUp size={20} />
             ) : (

@@ -5,8 +5,9 @@ import Sort from "@/components/Sort";
 import ProductCard from "@/components/ProductCard";
 import { useAppSelector } from "@/hooks/redux-hook";
 import Link from "next/link";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { MobileFilter } from "@/components/MobileFilter";
+import { useProductFiltering } from "@/hooks/useProductFiltering";
 
 export interface FilterState {
   categories: string[];
@@ -16,7 +17,6 @@ export interface FilterState {
   };
   ratings: number[];
   inStock: boolean | null;
-  sortBy: string;
 }
 
 const ShopContent = () => {
@@ -28,7 +28,6 @@ const ShopContent = () => {
     priceRange: { min: 0, max: 200 },
     ratings: [],
     inStock: null,
-    sortBy: "Featured",
   });
 
   const handleCategoryChange = (category: string) => {
@@ -69,7 +68,6 @@ const ShopContent = () => {
       priceRange: { min: 0, max: 200 },
       ratings: [],
       inStock: null,
-      sortBy: "featured",
     });
   };
 
@@ -82,7 +80,11 @@ const ShopContent = () => {
     return count;
   };
 
-  console.log(filters);
+  const filteredProducts = useProductFiltering(products, filters, sortBy);
+
+  useEffect(() => {
+    console.log(filters.ratings);
+  }, [filters.ratings]);
 
   return (
     <section className="max-w-7xl w-full min-h-[70vh] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center sm:items-start justify-between gap-6 lg:gap-8 overflow-x-hidden">
@@ -141,7 +143,7 @@ const ShopContent = () => {
           }
         `}
         >
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard
               product={product}
               key={product.id}
