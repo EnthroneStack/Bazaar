@@ -257,7 +257,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setIsSyncing(true);
     try {
-      await searchStorage.triggerSync();
+      // await searchStorage.triggerSync();
       // Refresh cloud status after sync
       setIsCloudEnabled(searchStorage.getCloudStatus());
     } catch (error) {
