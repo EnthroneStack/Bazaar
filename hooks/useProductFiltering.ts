@@ -92,7 +92,6 @@ export const useProductFiltering = (
       }
     });
 
-    // Return enhanced products with highlighting info
     return filteredProducts.map((product) => ({
       product,
       matchesSearch: searchQuery

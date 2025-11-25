@@ -24,10 +24,9 @@ interface SearchContextType {
   recentSearches: string[];
   addToRecentSearches: (query: string) => void;
   clearRecentSearches: () => void;
-  // Future-proof methods
   syncSearchHistory: () => Promise<void>;
   isSyncing: boolean;
-  isCloudEnabled: boolean; // Add cloud status
+  isCloudEnabled: boolean;
 }
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
@@ -164,7 +163,6 @@ class SearchStorageService {
 
   private async clearCloudSearches(): Promise<void> {
     console.log("Clearing cloud search history...");
-    // Simulate API call
     return new Promise((resolve) => setTimeout(resolve, 500));
   }
 
@@ -200,14 +198,13 @@ class SearchStorageService {
     return this.isCloudEnabled;
   }
 
-  // Get only the query strings for UI
   async getRecentSearchQueries(): Promise<string[]> {
     const searches = await this.getLocalSearches();
     return searches.map((item) => item.query);
   }
 }
 
-// Create storage service instance
+// Storage service instance
 const searchStorage = new SearchStorageService();
 
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -220,7 +217,6 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCloudEnabled, setIsCloudEnabled] = useState(false);
 
-  // Load recent searches and cloud status on mount
   useEffect(() => {
     const loadInitialData = async () => {
       const searches = await searchStorage.getRecentSearchQueries();
@@ -257,8 +253,6 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setIsSyncing(true);
     try {
-      // await searchStorage.triggerSync();
-      // Refresh cloud status after sync
       setIsCloudEnabled(searchStorage.getCloudStatus());
     } catch (error) {
       console.error("Failed to sync search history:", error);
@@ -267,7 +261,6 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [isSyncing]);
 
-  // Toggle cloud sync (for demonstration)
   const toggleCloudSync = useCallback(() => {
     if (isCloudEnabled) {
       searchStorage.disableCloudSync();
@@ -278,7 +271,6 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [isCloudEnabled]);
 
-  // Listen for auth state changes
   useEffect(() => {
     const handleAuthChange = (event: CustomEvent) => {
       const { userId, isAuthenticated } = event.detail;
@@ -316,7 +308,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
         clearRecentSearches,
         syncSearchHistory,
         isSyncing,
-        isCloudEnabled, // Export cloud status
+        isCloudEnabled,
       }}
     >
       {children}

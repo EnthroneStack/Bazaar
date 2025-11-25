@@ -12,11 +12,11 @@ const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
 interface ProductCardProps {
   product: Product;
   viewMode?: "grid" | "list";
-  searchQuery?: string; // Make searchQuery optional
-  shouldHighlight?: boolean; // Add this prop to control highlighting
+  searchQuery?: string; 
+  shouldHighlight?: boolean;
 }
 
-// Enhanced helper function to highlight search terms
+
 const HighlightSearchTerm = ({
   text,
   searchTerm,
@@ -59,7 +59,7 @@ const ProductCard = ({
   );
   const rating = productWithRating?.averageRating ?? 0;
 
-  // Check if this product actually matches the search query
+
   const productMatchesSearch =
     !!searchQuery &&
     product.name.toLowerCase().includes(searchQuery.toLowerCase());

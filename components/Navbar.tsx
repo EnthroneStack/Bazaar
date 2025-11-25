@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import { Search, ShoppingCart } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { Button } from "./ui/button";
@@ -11,7 +10,7 @@ import { useSearch } from "@/context/SearchContext";
 import SearchOverlay from "./SearchOverlay";
 
 const Navbar = () => {
-  const { openSearch, isSearchOpen, closeSearch } = useSearch();
+  const { openSearch, isSearchOpen } = useSearch();
 
   return (
     <>

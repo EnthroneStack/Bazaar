@@ -12,7 +12,6 @@ import {
   Cloud,
   CloudOff,
   RefreshCw,
-  Settings,
 } from "lucide-react";
 import { Input } from "./ui/input";
 import { categories } from "@/assets/assets";
@@ -106,7 +105,6 @@ const SearchOverlay = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Enhanced Sync Status Indicator */}
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -136,7 +134,6 @@ const SearchOverlay = () => {
                   </span>
                 </Button>
 
-                {/* Cloud Status Badge */}
                 <div
                   className={`w-2 h-2 rounded-full ${
                     isCloudEnabled ? "bg-green-500" : "bg-gray-400"
