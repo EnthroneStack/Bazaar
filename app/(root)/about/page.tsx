@@ -12,6 +12,10 @@ import {
   Globe,
   ArrowRight,
   CheckCircle2,
+  Target,
+  Eye,
+  Rocket,
+  HeartHandshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { assets } from "@/assets/assets";
@@ -80,6 +84,7 @@ const AboutPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-slate-900 to-slate-800 text-white py-20 lg:py-28">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,7 +100,7 @@ const AboutPage = () => {
               </p>
               <div className="flex gap-4">
                 <Button size="lg">
-                  Show Now
+                  Shop Now
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
                 <Button
@@ -121,6 +126,7 @@ const AboutPage = () => {
         </div>
       </section>
 
+      {/* Stats Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
@@ -136,7 +142,121 @@ const AboutPage = () => {
         </div>
       </section>
 
-      <section className="py-20">
+      {/* Vision & Mission Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+              Our Purpose & Promise
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Driving innovation in e-commerce while staying true to our core
+              values
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Vision Card */}
+            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-blue-50 to-indigo-100">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-6">
+                  <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full mr-4">
+                    <Eye className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl lg:text-3xl font-bold text-slate-900">
+                    Our Vision
+                  </h3>
+                </div>
+                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                  To create a world where commerce is borderless, accessible,
+                  and empowering for everyone. We envision a future where
+                  anyone, anywhere can easily discover, connect, and transact
+                  with confidence and joy.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">
+                      Global commerce without boundaries
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">
+                      AI-powered personalized experiences
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">
+                      Sustainable and ethical commerce
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Mission Card */}
+            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-100">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-6">
+                  <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full mr-4">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl lg:text-3xl font-bold text-slate-900">
+                    Our Mission
+                  </h3>
+                </div>
+                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                  To build the most trusted and innovative commerce platform
+                  that empowers businesses of all sizes to thrive and enables
+                  customers to discover amazing products with unparalleled
+                  convenience and security.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <Rocket className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">
+                      Empower entrepreneurs worldwide
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <HeartHandshake className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">
+                      Build trust through transparency
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <Users className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">
+                      Create exceptional customer experiences
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Core Purpose */}
+          <div className="mt-16 text-center">
+            <Card className="border-0 shadow-lg bg-slate-900 text-white max-w-4xl mx-auto">
+              <CardContent className="p-8">
+                <h3 className="text-2xl lg:text-3xl font-bold mb-4">
+                  Our Core Purpose
+                </h3>
+                <p className="text-xl text-gray-300 leading-relaxed">
+                  To democratize commerce and create economic opportunities for
+                  people everywhere through technology that's both powerful and
+                  easy to use.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
@@ -171,7 +291,8 @@ const AboutPage = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50">
+      {/* Values Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
@@ -203,6 +324,7 @@ const AboutPage = () => {
         </div>
       </section>
 
+      {/* CTA Section */}
       <section className="py-20 bg-slate-900 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl lg:text-4xl font-bold mb-6">
@@ -231,3 +353,15 @@ const AboutPage = () => {
 };
 
 export default AboutPage;
+
+// import React from "react";
+
+// const page = () => {
+//   return (
+//     <section className="min-h-screen">
+//       <p>About</p>
+//     </section>
+//   );
+// };
+
+// export default page;

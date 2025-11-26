@@ -1,11 +1,12 @@
-import React from "react";
+import ProductDetailPage from "@/components/ProductDetail";
 
-const page = () => {
-  return (
-    <div>
-      <p>ProductId</p>
-    </div>
-  );
-};
+interface ProductPageProps {
+  params: {
+    id: string;
+  };
+}
 
-export default page;
+export default function ProductPage({ params }: ProductPageProps) {
+  console.log(params);
+  return <ProductDetailPage />;
+}
