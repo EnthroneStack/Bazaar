@@ -43,7 +43,7 @@ const CONFIG = {
   MAX_LOCAL_SEARCHES: 15,
   MAX_SYNCED_SEARCHES: 50,
   SYNC_THRESHOLD: 5,
-  CACHE_TTL: 7 * 24 * 60 * 60 * 1000,
+  CACHE_TTL: 30 * 24 * 60 * 60 * 1000,
 } as const;
 
 class SearchStorageService {

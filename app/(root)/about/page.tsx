@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
-  Truck,
   Shield,
   Headphones,
   Award,
@@ -18,16 +15,12 @@ import {
   HeartHandshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { assets } from "@/assets/assets";
+import { assets, milestones, stats } from "@/assets/assets";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 const AboutPage = () => {
-  const stats = [
-    { number: "10M+", label: "Happy Customers" },
-    { number: "100+", label: "Countries Served" },
-    { number: "50K+", label: "Brand Partners" },
-    { number: "24/7", label: "Customer Support" },
-  ];
+  const router = useRouter();
 
   const values = [
     {
@@ -54,34 +47,6 @@ const AboutPage = () => {
     },
   ];
 
-  const milestones = [
-    {
-      year: "2018",
-      event: "Bazaar Founded",
-      description: "Started with a vision to revolutionize e-commerce",
-    },
-    {
-      year: "2019",
-      event: "1M Customers",
-      description: "Reached our first million happy customers",
-    },
-    {
-      year: "2020",
-      event: "Global Expansion",
-      description: "Launched in 50+ countries worldwide",
-    },
-    {
-      year: "2022",
-      event: "Mobile App Launch",
-      description: "Award-winning mobile shopping experience",
-    },
-    {
-      year: "2023",
-      event: "AI Integration",
-      description: "Implemented advanced AI for personalized shopping",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -90,8 +55,9 @@ const AboutPage = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-                Revolutionizing <span className="text-primary">E-commerce</span>
+              <h1 className="text-4xl lg:text-6xl font-bold mb-6 flex flex-col">
+                <span>Revolutionizing</span>
+                <span className="text-primary ml-6">E-commerce</span>
               </h1>
               <p className="text-xl text-gray-300 mb-8 leading-relaxed">
                 Bazaar is more than just a marketplace. We're building the
@@ -99,7 +65,7 @@ const AboutPage = () => {
                 worldwide with cutting-edge technology.
               </p>
               <div className="flex gap-4">
-                <Button size="lg">
+                <Button size="lg" onClick={() => router.push("/shop")}>
                   Shop Now
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -335,7 +301,11 @@ const AboutPage = () => {
             to reach millions, we've got you covered.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-white">
+            <Button
+              size="lg"
+              className="text-white"
+              onClick={() => router.push("/shop")}
+            >
               Start Shopping
             </Button>
             <Button
@@ -353,15 +323,3 @@ const AboutPage = () => {
 };
 
 export default AboutPage;
-
-// import React from "react";
-
-// const page = () => {
-//   return (
-//     <section className="min-h-screen">
-//       <p>About</p>
-//     </section>
-//   );
-// };
-
-// export default page;

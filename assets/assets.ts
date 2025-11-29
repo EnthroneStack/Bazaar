@@ -54,6 +54,41 @@ export const categories = [
   "Cleaner",
 ];
 
+export const stats = [
+  { number: "10M+", label: "Happy Customers" },
+  { number: "100+", label: "Countries Served" },
+  { number: "50K+", label: "Brand Partners" },
+  { number: "24/7", label: "Customer Support" },
+];
+
+export const milestones = [
+  {
+    year: "2018",
+    event: "Bazaar Founded",
+    description: "Started with a vision to revolutionize e-commerce",
+  },
+  {
+    year: "2019",
+    event: "1M Customers",
+    description: "Reached our first million happy customers",
+  },
+  {
+    year: "2020",
+    event: "Global Expansion",
+    description: "Launched in 50+ countries worldwide",
+  },
+  {
+    year: "2022",
+    event: "Mobile App Launch",
+    description: "Award-winning mobile shopping experience",
+  },
+  {
+    year: "2023",
+    event: "AI Integration",
+    description: "Implemented advanced AI for personalized shopping",
+  },
+];
+
 export const slides = [
   {
     title: "Redefine your",

@@ -1,12 +1,13 @@
+"use client";
+
 import ProductDetailPage from "@/components/ProductDetail";
+import { useParams } from "next/navigation";
 
-interface ProductPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function ProductPage({ params }: ProductPageProps) {
-  console.log(params);
-  return <ProductDetailPage />;
+export default function ProductPage() {
+  const { productId } = useParams();
+  return (
+    <div>
+      <p>{productId}</p>
+    </div>
+  );
 }
