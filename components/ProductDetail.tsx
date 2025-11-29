@@ -1,106 +1,107 @@
-// components/ProductDetailPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 
-import { productAverageRatings, productData } from "@/lib/product-review-map";
 import {
-  StarIcon,
+  ShoppingCart,
   Heart,
   Share2,
-  Truck,
-  Shield,
-  RotateCcw,
+  Star,
+  ChevronLeft,
+  ChevronRight,
   Check,
-  X,
-  ShoppingCart,
+  Shield,
+  Truck,
+  RotateCcw,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import { productDummyData, reviewData } from "@/assets/assets";
+import { productAverageRatings } from "@/lib/product-review-map";
 
 const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
 
-interface ProductDetailPageProps {
-  productId?: string;
+interface ProductDetailProps {
+  productId: string;
 }
 
-const ProductDetail = ({ productId }: ProductDetailPageProps) => {
-  const params = useParams();
-  const id = productId || (params.id as string);
-
+const ProductDetailPage = ({ productId }: ProductDetailProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   const [recentlyViewed, setRecentlyViewed] = useState<any[]>([]);
 
-  // Find current product
-  const currentProduct =
-    productData.find((p) => p.id === id) ||
-    productDummyData.find((p) => p.id === id);
-  const productRating =
-    productAverageRatings.find((p) => p.id === id)?.averageRating || 0;
-  const productReviews = reviewData.filter(
-    (review: { productId: string }) => review.productId === id
-  );
+  const product = productDummyData.find((p) => p.id === productId);
+  const productRating = productAverageRatings.find((p) => p.id === productId);
+  const reviews = reviewData.filter((review) => review.productId === productId);
 
   // Get related products (same category)
-  const relatedProducts = productData
-    .filter((p) => p.category === currentProduct?.category && p.id !== id)
+  const relatedProducts = productDummyData
+    .filter((p) => p.category === product?.category && p.id !== productId)
     .slice(0, 4);
 
-  // Get sponsored products (different category, for demonstration)
-  const sponsoredProducts = productData
-    .filter((p) => p.category !== currentProduct?.category)
+  // Get sponsored products (different category)
+  const sponsoredProducts = productDummyData
+    .filter((p) => p.category !== product?.category)
     .slice(0, 4);
 
-  // Get "customers also viewed" products
-  const customersAlsoViewed = productData
-    .filter((p) => p.id !== id)
+  // Get customers also viewed
+  const customersAlsoViewed = productDummyData
+    .filter((p) => p.id !== productId)
     .sort(() => Math.random() - 0.5)
     .slice(0, 6);
 
-  // Simulate recently viewed products
   useEffect(() => {
-    const viewed = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
-    const updatedViewed = [
-      currentProduct,
-      ...viewed.filter((p: any) => p?.id !== id),
-    ].slice(0, 5);
-    localStorage.setItem("recentlyViewed", JSON.stringify(updatedViewed));
-    setRecentlyViewed(updatedViewed.filter(Boolean));
-  }, [id, currentProduct]);
+    // Simulate recently viewed products
+    const viewed = productDummyData
+      .filter((p) => p.id !== productId)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 4);
+    setRecentlyViewed(viewed);
 
-  if (!currentProduct) {
+    // In a real app, you would track viewed products in localStorage or database
+    const viewedProducts = JSON.parse(
+      localStorage.getItem("recentlyViewed") || "[]"
+    );
+    const updatedViewed = [
+      productId,
+      ...viewedProducts.filter((id: string) => id !== productId),
+    ].slice(0, 10);
+    localStorage.setItem("recentlyViewed", JSON.stringify(updatedViewed));
+  }, [productId]);
+
+  if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Product Not Found
           </h2>
-          <p className="text-gray-600 mb-8">
-            The product you're looking for doesn't exist.
-          </p>
           <Link href="/shop">
-            <Button className="bg-primary text-white">Continue Shopping</Button>
+            <Button>Back to Shop</Button>
           </Link>
         </div>
       </div>
     );
   }
 
+  const rating = productRating?.averageRating || 0;
+  const discount =
+    product.mrp > product.price
+      ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+      : 0;
+
   const handleAddToCart = () => {
     // Add to cart logic here
-    console.log(`Added ${quantity} of ${currentProduct.name} to cart`);
+    console.log(`Added ${quantity} ${product.name} to cart`);
   };
 
   const handleBuyNow = () => {
     // Buy now logic here
-    console.log(`Buying ${quantity} of ${currentProduct.name}`);
+    console.log(`Buying ${quantity} ${product.name}`);
   };
 
   return (
@@ -108,256 +109,257 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex space-x-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-primary">
+          <nav className="flex items-center space-x-2 text-sm text-gray-600">
+            <Link href="/" className="hover:text-gray-900">
               Home
             </Link>
-            <span>/</span>
-            <Link href="/shop" className="hover:text-primary">
+            <ChevronRight className="h-4 w-4" />
+            <Link href="/shop" className="hover:text-gray-900">
               Shop
             </Link>
-            <span>/</span>
-            <Link
-              href={`/category/${currentProduct.category.toLowerCase()}`}
-              className="hover:text-primary"
-            >
-              {currentProduct.category}
-            </Link>
-            <span>/</span>
-            <span className="text-gray-900 font-medium truncate">
-              {currentProduct.name}
-            </span>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-gray-900">{product.category}</span>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-gray-500 truncate">{product.name}</span>
           </nav>
         </div>
       </div>
 
-      {/* Main Product Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="bg-white rounded-lg border p-4 flex items-center justify-center aspect-square">
-              <Image
-                src={currentProduct.images[selectedImage]}
-                alt={currentProduct.name}
-                width={600}
-                height={600}
-                className="w-full h-full object-contain"
-              />
-            </div>
-
-            {/* Thumbnail Images */}
-            <div className="flex space-x-2 overflow-x-auto">
-              {currentProduct.images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-20 border-2 rounded-lg overflow-hidden ${
-                    selectedImage === index
-                      ? "border-primary"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <Image
-                    src={image}
-                    alt={`${currentProduct.name} view ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {currentProduct.name}
-              </h1>
-
-              {/* Rating and Reviews */}
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center space-x-1">
-                  {Array.from({ length: 5 }, (_, index) => (
-                    <StarIcon
-                      key={index}
-                      size={20}
-                      className={`${
-                        index < Math.floor(productRating)
-                          ? "text-yellow-400 fill-current"
-                          : index < productRating
-                          ? "text-yellow-400 fill-current opacity-50"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-sm text-gray-600 ml-1">
-                    {productRating.toFixed(1)} ({productReviews.length} reviews)
-                  </span>
-                </div>
-                <span className="text-sm text-green-600 font-medium">
-                  {currentProduct.inStock ? "In Stock" : "Out of Stock"}
-                </span>
+        {/* Main Product Section */}
+        <div className="bg-white rounded-lg shadow-sm border mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+            {/* Product Images */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <Image
+                  src={product.images[selectedImage]}
+                  alt={product.name}
+                  width={600}
+                  height={600}
+                  className="w-full h-full object-contain"
+                />
               </div>
 
-              {/* Price */}
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl font-bold text-gray-900">
-                  {currency}
-                  {currentProduct.price}
-                </span>
-                {currentProduct.mrp > currentProduct.price && (
-                  <>
-                    <span className="text-xl text-gray-500 line-through">
-                      {currency}
-                      {currentProduct.mrp}
+              {/* Thumbnail Images */}
+              <div className="flex space-x-2 overflow-x-auto">
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`flex-shrink-0 w-20 h-20 border-2 rounded-lg overflow-hidden ${
+                      selectedImage === index
+                        ? "border-primary"
+                        : "border-gray-200"
+                    }`}
+                  >
+                    <Image
+                      src={image}
+                      alt={`${product.name} view ${index + 1}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Info */}
+            <div className="space-y-6">
+              {/* Header */}
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                  {product.name}
+                </h1>
+
+                {/* Rating and Reviews */}
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="flex items-center space-x-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-5 w-5 ${
+                          star <= Math.floor(rating)
+                            ? "text-yellow-400 fill-current"
+                            : star === Math.ceil(rating) && rating % 1 !== 0
+                            ? "text-yellow-400 fill-current"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                    <span className="text-sm text-gray-600 ml-1">
+                      {rating.toFixed(1)}
                     </span>
-                    <span className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded">
-                      Save {currency}
-                      {currentProduct.mrp - currentProduct.price}
-                    </span>
-                  </>
-                )}
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {reviews.length} reviews
+                  </span>
+                  <span
+                    className={`text-sm font-medium ${
+                      product.inStock ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {product.inStock ? "In Stock" : "Out of Stock"}
+                  </span>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-center space-x-3 mb-4">
+                  <span className="text-3xl font-bold text-gray-900">
+                    {currency}
+                    {product.price}
+                  </span>
+                  {product.mrp > product.price && (
+                    <>
+                      <span className="text-xl text-gray-500 line-through">
+                        {currency}
+                        {product.mrp}
+                      </span>
+                      <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
+                        Save {discount}%
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Description */}
-              <p className="text-gray-600 mb-6">{currentProduct.description}</p>
-            </div>
+              <p className="text-gray-600 leading-relaxed">
+                {product.description}
+              </p>
 
-            {/* Quantity and Actions */}
-            <div className="space-y-4">
-              {/* Quantity Selector */}
-              <div className="flex items-center space-x-4">
-                <span className="text-sm font-medium text-gray-900">
-                  Quantity:
-                </span>
-                <div className="flex items-center border rounded-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 text-gray-600 hover:text-gray-900"
+              {/* Quantity and Actions */}
+              <div className="space-y-4">
+                {/* Quantity Selector */}
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm font-medium text-gray-700">
+                    Quantity:
+                  </span>
+                  <div className="flex items-center border border-gray-300 rounded-lg">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                    >
+                      -
+                    </button>
+                    <span className="px-4 py-2 min-w-12 text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={!product.inStock}
+                    className="flex-1 bg-primary hover:bg-primary-600 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
                   >
-                    -
-                  </button>
-                  <span className="px-4 py-2 border-x">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-2 text-gray-600 hover:text-gray-900"
+                    <ShoppingCart className="h-5 w-5" />
+                    <span>Add to Cart</span>
+                  </Button>
+
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={!product.inStock}
+                    className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors"
                   >
-                    +
+                    Buy Now
+                  </Button>
+
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      className="p-3 border-gray-300 hover:bg-gray-50"
+                    >
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="p-3 border-gray-300 hover:bg-gray-50"
+                    >
+                      <Share2 className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Truck className="h-5 w-5 text-green-600" />
+                  <span>Free shipping</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <RotateCcw className="h-5 w-5 text-green-600" />
+                  <span>30-day returns</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Shield className="h-5 w-5 text-green-600" />
+                  <span>2-year warranty</span>
+                </div>
+              </div>
+
+              {/* Seller Info */}
+              <div className="pt-6 border-t">
+                <h3 className="text-sm font-medium text-gray-900 mb-3">
+                  Sold by
+                </h3>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                    <Image
+                      src={product.store.logo}
+                      alt={product.store.name}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {product.store.name}
+                    </p>
+                    <div className="flex items-center space-x-1 text-sm text-gray-600">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span>4.8 • 98% Positive Feedback</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex space-x-4 text-sm">
+                  <button className="text-primary hover:text-primary-600 font-medium">
+                    Visit Store
+                  </button>
+                  <button className="text-primary hover:text-primary-600 font-medium">
+                    Contact Seller
                   </button>
                 </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3">
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={!currentProduct.inStock}
-                  className="flex-1 bg-primary text-white hover:bg-primary-600 py-3"
-                >
-                  <ShoppingCart size={20} className="mr-2" />
-                  Add to Cart
-                </Button>
-                <Button
-                  onClick={handleBuyNow}
-                  disabled={!currentProduct.inStock}
-                  className="flex-1 bg-orange-600 text-white hover:bg-orange-700 py-3"
-                >
-                  Buy Now
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className="p-3"
-                >
-                  <Heart
-                    size={20}
-                    className={
-                      isWishlisted
-                        ? "fill-red-500 text-red-500"
-                        : "text-gray-600"
-                    }
-                  />
-                </Button>
-                <Button variant="outline" className="p-3">
-                  <Share2 size={20} />
-                </Button>
-              </div>
-            </div>
-
-            {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-y">
-              <div className="flex items-center space-x-2">
-                <Truck size={20} className="text-green-600" />
-                <div>
-                  <div className="font-medium text-sm">Free Shipping</div>
-                  <div className="text-xs text-gray-500">
-                    On orders over $50
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield size={20} className="text-blue-600" />
-                <div>
-                  <div className="font-medium text-sm">2-Year Warranty</div>
-                  <div className="text-xs text-gray-500">
-                    Product protection
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RotateCcw size={20} className="text-purple-600" />
-                <div>
-                  <div className="font-medium text-sm">Easy Returns</div>
-                  <div className="text-xs text-gray-500">
-                    30-day return policy
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Seller Information */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Sold by</h3>
-              <div className="flex items-center space-x-3">
-                <Image
-                  src={currentProduct.store.logo}
-                  alt={currentProduct.store.name}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
-                <div className="flex-1">
-                  <div className="font-medium">{currentProduct.store.name}</div>
-                  <div className="text-sm text-gray-600">
-                    98% Positive Feedback
-                  </div>
-                </div>
-                <Button variant="outline" size="sm">
-                  View Store
-                </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs Section */}
-        <div className="mt-12">
+        {/* Product Details Tabs */}
+        <div className="bg-white rounded-lg shadow-sm border mb-8">
           <div className="border-b">
-            <nav className="flex space-x-8">
+            <nav className="flex space-x-8 px-6">
               {[
                 { id: "description", label: "Description" },
                 { id: "specifications", label: "Specifications" },
-                { id: "reviews", label: `Reviews (${productReviews.length})` },
+                { id: "reviews", label: `Reviews (${reviews.length})` },
                 { id: "shipping", label: "Shipping & Returns" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 font-medium text-sm border-b-2 transition-colors ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? "border-primary text-primary"
                       : "border-transparent text-gray-500 hover:text-gray-700"
@@ -369,22 +371,24 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
             </nav>
           </div>
 
-          <div className="py-8">
+          <div className="p-6">
             {activeTab === "description" && (
               <div className="prose max-w-none">
-                <p>{currentProduct.description}</p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-center">
-                    <Check size={16} className="text-green-600 mr-2" />
-                    Premium quality materials
+                <p className="text-gray-600 leading-relaxed">
+                  {product.description}
+                </p>
+                <ul className="mt-4 space-y-2 text-gray-600">
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-4 w-4 text-green-600" />
+                    <span>Premium quality materials</span>
                   </li>
-                  <li className="flex items-center">
-                    <Check size={16} className="text-green-600 mr-2" />
-                    Easy to use and maintain
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-4 w-4 text-green-600" />
+                    <span>1-year manufacturer warranty</span>
                   </li>
-                  <li className="flex items-center">
-                    <Check size={16} className="text-green-600 mr-2" />
-                    Customer support available
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-4 w-4 text-green-600" />
+                    <span>Free technical support</span>
                   </li>
                 </ul>
               </div>
@@ -393,34 +397,34 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
             {activeTab === "specifications" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium mb-4">Product Details</h4>
-                  <dl className="space-y-3">
+                  <h4 className="font-medium text-gray-900 mb-3">General</h4>
+                  <dl className="space-y-2">
                     <div className="flex justify-between">
                       <dt className="text-gray-600">Brand</dt>
-                      <dd className="font-medium">
-                        {currentProduct.store.name}
-                      </dd>
+                      <dd className="text-gray-900">{product.store.name}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-gray-600">Category</dt>
-                      <dd className="font-medium">{currentProduct.category}</dd>
+                      <dd className="text-gray-900">{product.category}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-gray-600">SKU</dt>
-                      <dd className="font-medium">{currentProduct.id}</dd>
+                      <dt className="text-gray-600">Model</dt>
+                      <dd className="text-gray-900">
+                        PRO-{product.id.split("_")[1]}
+                      </dd>
                     </div>
                   </dl>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-4">Dimensions</h4>
-                  <dl className="space-y-3">
+                  <h4 className="font-medium text-gray-900 mb-3">Dimensions</h4>
+                  <dl className="space-y-2">
                     <div className="flex justify-between">
                       <dt className="text-gray-600">Weight</dt>
-                      <dd className="font-medium">1.2 kg</dd>
+                      <dd className="text-gray-900">1.2 kg</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-gray-600">Dimensions</dt>
-                      <dd className="font-medium">15 x 10 x 8 cm</dd>
+                      <dd className="text-gray-900">15 × 10 × 5 cm</dd>
                     </div>
                   </dl>
                 </div>
@@ -430,55 +434,54 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
             {activeTab === "reviews" && (
               <div className="space-y-6">
                 {/* Rating Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex items-center space-x-8">
                   <div className="text-center">
-                    <div className="text-5xl font-bold text-gray-900 mb-2">
-                      {productRating.toFixed(1)}
+                    <div className="text-4xl font-bold text-gray-900">
+                      {rating.toFixed(1)}
                     </div>
-                    <div className="flex justify-center mb-2">
-                      {Array.from({ length: 5 }, (_, index) => (
-                        <StarIcon
-                          key={index}
-                          size={20}
-                          className={`${
-                            index < Math.floor(productRating)
+                    <div className="flex items-center justify-center space-x-1 mt-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-4 w-4 ${
+                            star <= Math.floor(rating)
+                              ? "text-yellow-400 fill-current"
+                              : star === Math.ceil(rating) && rating % 1 !== 0
                               ? "text-yellow-400 fill-current"
                               : "text-gray-300"
                           }`}
                         />
                       ))}
                     </div>
-                    <div className="text-gray-600">
-                      Based on {productReviews.length} reviews
+                    <div className="text-sm text-gray-600 mt-1">
+                      {reviews.length} reviews
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    {[5, 4, 3, 2, 1].map((star) => {
-                      const count = productReviews.filter(
-                        (r) => Math.floor(r.rating) === star
+                  <div className="flex-1 space-y-2">
+                    {[5, 4, 3, 2, 1].map((stars) => {
+                      const count = reviews.filter(
+                        (r) => Math.round(r.rating) === stars
                       ).length;
                       const percentage =
-                        productReviews.length > 0
-                          ? (count / productReviews.length) * 100
-                          : 0;
+                        reviews.length > 0 ? (count / reviews.length) * 100 : 0;
 
                       return (
-                        <div key={star} className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-600 w-8">
-                            {star}
+                        <div
+                          key={stars}
+                          className="flex items-center space-x-2"
+                        >
+                          <span className="text-sm text-gray-600 w-4">
+                            {stars}
                           </span>
-                          <StarIcon
-                            size={16}
-                            className="text-yellow-400 fill-current"
-                          />
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
                           <div className="flex-1 bg-gray-200 rounded-full h-2">
                             <div
                               className="bg-yellow-400 h-2 rounded-full"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
-                          <span className="text-sm text-gray-600 w-12 text-right">
+                          <span className="text-sm text-gray-600 w-8 text-right">
                             {count}
                           </span>
                         </div>
@@ -488,47 +491,46 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
                 </div>
 
                 {/* Reviews List */}
-                <div className="space-y-6">
-                  {productReviews.map((review) => (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
                     <div
                       key={review.id}
-                      className="border-b pb-6 last:border-b-0"
+                      className="border-b pb-4 last:border-b-0"
                     >
-                      <div className="flex items-start space-x-3">
-                        <Image
-                          src={review.user.avatar}
-                          alt={review.user.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <div className="font-medium">
-                                {review.user.name}
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                {Array.from({ length: 5 }, (_, index) => (
-                                  <StarIcon
-                                    key={index}
-                                    size={14}
-                                    className={`${
-                                      index < Math.floor(review.rating)
-                                        ? "text-yellow-400 fill-current"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                          <Image
+                            src={review.user.avatar}
+                            alt={review.user.name}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {review.user.name}
+                          </p>
+                          <div className="flex items-center space-x-1">
+                            <div className="flex items-center space-x-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-3 w-3 ${
+                                    star <= review.rating
+                                      ? "text-yellow-400 fill-current"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500">
                               {new Date(review.createdAt).toLocaleDateString()}
-                            </div>
+                            </span>
                           </div>
-                          <p className="text-gray-700">{review.comment}</p>
                         </div>
                       </div>
+                      <p className="text-gray-600">{review.comment}</p>
                     </div>
                   ))}
                 </div>
@@ -536,24 +538,29 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
             )}
 
             {activeTab === "shipping" && (
-              <div className="space-y-6">
+              <div className="space-y-4 text-gray-600">
                 <div>
-                  <h4 className="font-medium mb-3">Shipping Information</h4>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• Free standard shipping on orders over $50</li>
-                    <li>• Express shipping available for $9.99</li>
-                    <li>• International shipping available</li>
-                    <li>• Usually ships within 1-2 business days</li>
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Shipping Information
+                  </h4>
+                  <p>
+                    Free standard shipping on all orders. Express shipping
+                    available for an additional fee.
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    <li>• Standard shipping: 3-5 business days</li>
+                    <li>• Express shipping: 1-2 business days</li>
+                    <li>• Free returns within 30 days</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-3">Return Policy</h4>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• 30-day money-back guarantee</li>
-                    <li>• Free returns within 30 days</li>
-                    <li>• Product must be in original condition</li>
-                    <li>• Contact customer service for return authorization</li>
-                  </ul>
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Return Policy
+                  </h4>
+                  <p>
+                    We offer a 30-day return policy for all unused items in
+                    original packaging.
+                  </p>
                 </div>
               </div>
             )}
@@ -562,25 +569,22 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-16">
+          <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 Related Products
               </h2>
               <Link
-                href={`/category/${currentProduct.category.toLowerCase()}`}
-                className="text-primary hover:text-primary-600 font-medium"
+                href={`/shop?category=${product.category}`}
+                className="text-primary hover:text-primary-600 font-medium flex items-center space-x-1"
               >
-                View All
+                <span>View All</span>
+                <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  viewMode="grid"
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
@@ -588,17 +592,13 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
 
         {/* Sponsored Products */}
         {sponsoredProducts.length > 0 && (
-          <section className="mt-16">
+          <section className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Sponsored Products
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {sponsoredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  viewMode="grid"
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
@@ -606,46 +606,19 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
 
         {/* Customers Also Viewed */}
         {customersAlsoViewed.length > 0 && (
-          <section className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Customers Also Viewed
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Customers Also Viewed
+              </h2>
+              <div className="flex items-center space-x-1 text-gray-500">
+                <Eye className="h-4 w-4" />
+                <span className="text-sm">Based on your browsing history</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
               {customersAlsoViewed.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg border p-4"
-                >
-                  <Link href={`/product/${product.id}`}>
-                    <div className="aspect-square mb-3">
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        width={200}
-                        height={200}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <h3 className="font-medium text-sm text-gray-900 line-clamp-2 mb-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-900">
-                        {currency}
-                        {product.price}
-                      </span>
-                      <div
-                        className={`text-xs px-2 py-1 rounded ${
-                          product.inStock
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {product.inStock ? "In Stock" : "Out of Stock"}
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
@@ -653,46 +626,18 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
 
         {/* Recently Viewed */}
         {recentlyViewed.length > 0 && (
-          <section className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Recently Viewed
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Recently Viewed
+              </h2>
+              <button className="text-primary hover:text-primary-600 font-medium">
+                Clear History
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {recentlyViewed.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg border p-4"
-                >
-                  <Link href={`/product/${product.id}`}>
-                    <div className="aspect-square mb-3">
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        width={200}
-                        height={200}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <h3 className="font-medium text-sm text-gray-900 line-clamp-2 mb-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-900">
-                        {currency}
-                        {product.price}
-                      </span>
-                      <div
-                        className={`text-xs px-2 py-1 rounded ${
-                          product.inStock
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {product.inStock ? "In Stock" : "Out of Stock"}
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
@@ -702,4 +647,18 @@ const ProductDetail = ({ productId }: ProductDetailPageProps) => {
   );
 };
 
-export default ProductDetail;
+export default ProductDetailPage;
+
+// "use client";
+
+// import React from "react";
+
+// const ProductDetail = ({ productId }: { productId: string }) => {
+//   return (
+//     <div>
+//       <p>Product Detail for {productId}</p>
+//     </div>
+//   );
+// };
+
+// export default ProductDetail;
