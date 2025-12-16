@@ -35,8 +35,9 @@ interface ProductTrackingContextType {
   customersAlsoViewed: any[];
 
   // Recommendations
-  getPersonalizedRecommendations: () => any[];
-  getSimilarProducts: (productId: string) => any[];
+
+  getPersonalizedRecommendations: () => Promise<any[]>;
+  getSimilarProducts: (productId: string) => Promise<any[]>;
 
   // Analytics
   trackProductView: (productId: string) => void;
