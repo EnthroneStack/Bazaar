@@ -1219,6 +1219,8 @@ const ProductDetail = ({ productId }: { productId: string }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [loadingRelated, setLoadingRelated] = useState(false);
 
   const {
     recentlyViewed,
@@ -1234,7 +1236,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
   const reviews = reviewData.filter((review) => review.productId === productId);
 
   // Get recommendations using the tracking service
-  const relatedProducts = getSimilarProducts(productId);
+  // const relatedProducts = getSimilarProducts(productId);
   const sponsoredProducts = productDummyData
     .filter((p) => p.category !== product?.category)
     .slice(0, 4);
@@ -1245,6 +1247,18 @@ const ProductDetail = ({ productId }: { productId: string }) => {
       trackProductView(productId);
     }
   }, [productId, product, trackProductView]);
+  useEffect(() => {
+    const loadRelatedProducts = async () => {
+      setLoadingRelated(true);
+      const products = await getSimilarProducts(productId);
+      setRelatedProducts(products);
+      setLoadingRelated(false);
+    };
+
+    if (productId) {
+      loadRelatedProducts();
+    }
+  }, [productId, getSimilarProducts]);
 
   if (!product) {
     return (
