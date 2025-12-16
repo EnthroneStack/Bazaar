@@ -4,6 +4,7 @@ import type { productDummyData } from "@/assets/assets";
 import { productAverageRatings } from "@/lib/product-review-map";
 import { ShoppingCart, StarIcon } from "lucide-react";
 import { Button } from "./ui/button";
+import StarRating from "./StarRating";
 
 type Product = (typeof productDummyData)[0];
 
@@ -12,10 +13,9 @@ const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
 interface ProductCardProps {
   product: Product;
   viewMode?: "grid" | "list";
-  searchQuery?: string; 
+  searchQuery?: string;
   shouldHighlight?: boolean;
 }
-
 
 const HighlightSearchTerm = ({
   text,
@@ -59,7 +59,6 @@ const ProductCard = ({
   );
   const rating = productWithRating?.averageRating ?? 0;
 
-
   const productMatchesSearch =
     !!searchQuery &&
     product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -93,7 +92,7 @@ const ProductCard = ({
           </p>
 
           <div className="flex items-center gap-1 mt-2 flex-wrap">
-            {Array.from({ length: 5 }, (_, index) => {
+            {/* {Array.from({ length: 5 }, (_, index) => {
               const fillColor =
                 rating >= index + 1
                   ? "#0d97d9"
@@ -109,7 +108,14 @@ const ProductCard = ({
                   fill={fillColor}
                 />
               );
-            })}
+            })} */}
+
+            <StarRating
+              rating={rating}
+              size="sm"
+              showRating
+              className="flex-shrink-0"
+            />
 
             <span className="text-xs text-gray-600 ml-1 flex-shrink-0">
               {rating.toFixed(1)}
@@ -140,14 +146,14 @@ const ProductCard = ({
           </div>
         </div>
 
-        <svg width="0" height="0">
+        {/* <svg width="0" height="0">
           <defs>
             <linearGradient id="half-star">
               <stop offset="50%" stopColor="#0d97d9" />
               <stop offset="50%" stopColor="#D1D5DB" />
             </linearGradient>
           </defs>
-        </svg>
+        </svg> */}
       </Link>
     );
   }
@@ -176,7 +182,7 @@ const ProductCard = ({
           />
         </p>
 
-        <div className="flex items-center gap-1 mt-0.5">
+        {/* <div className="flex items-center gap-1 mt-0.5">
           {Array.from({ length: 5 }, (_, index) => {
             const fillColor =
               rating >= index + 1
@@ -198,6 +204,10 @@ const ProductCard = ({
           <span className="text-xs text-gray-600 ml-1 flex-shrink-0">
             {rating.toFixed(1)}
           </span>
+        </div> */}
+
+        <div className="flex items-center gap-1 mt-0.5">
+          <StarRating rating={rating} size="sm" showRating />
         </div>
 
         <div className="flex items-center justify-between">
@@ -220,14 +230,14 @@ const ProductCard = ({
         </div>
       </div>
 
-      <svg width="0" height="0">
+      {/* <svg width="0" height="0">
         <defs>
           <linearGradient id="half-star">
             <stop offset="50%" stopColor="#0d97d9" />
             <stop offset="50%" stopColor="#D1D5DB" />
           </linearGradient>
         </defs>
-      </svg>
+      </svg> */}
     </Link>
   );
 };

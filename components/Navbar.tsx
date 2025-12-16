@@ -2,15 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Search, ShoppingCart } from "lucide-react";
+import { PackageIcon, Search, ShoppingCart } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { Button } from "./ui/button";
 import { SideDrawer } from "./SideDrawer";
 import { useSearch } from "@/context/SearchContext";
 import SearchOverlay from "./SearchOverlay";
+import { useClerk, UserButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { openSearch, isSearchOpen } = useSearch();
+  const router = useRouter();
+  const { user } = useUser();
+  const { openSignIn } = useClerk();
 
   return (
     <>
@@ -59,7 +64,7 @@ const Navbar = () => {
                 size={18}
               />
 
-              <Link href="" className="relative">
+              <Link href="/cart" className="relative">
                 <ShoppingCart
                   size={18}
                   className="text-slate-700 size-4 sm:size-5"
@@ -69,9 +74,24 @@ const Navbar = () => {
                 </span>
               </Link>
 
-              <Button className="px-4 sm:px-6 py-1 sm:py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm h-7 sm:h-auto">
-                Login
-              </Button>
+              {!user ? (
+                <Button
+                  className="px-4 sm:px-6 py-1 sm:py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm h-7 sm:h-auto"
+                  onClick={() => openSignIn()}
+                >
+                  Login
+                </Button>
+              ) : (
+                <UserButton>
+                  <UserButton.MenuItems>
+                    <UserButton.Action
+                      labelIcon={<PackageIcon size={16} />}
+                      label="My Orders"
+                      onClick={() => router.push("/shop")}
+                    />
+                  </UserButton.MenuItems>
+                </UserButton>
+              )}
 
               <div className="sm:hidden">
                 <SideDrawer />

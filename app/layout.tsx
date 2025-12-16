@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import ReduxProvider from "@/lib/redux/ReduxProvider";
 import { SearchProvider } from "@/context/SearchContext";
+import { ProductTrackingProvider } from "@/context/ProductTrackingContext";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,17 +28,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ReduxProvider>
-          <SearchProvider>
-            {children}
-            <Toaster position="top-center" richColors />
-          </SearchProvider>
-        </ReduxProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <ReduxProvider>
+            <SearchProvider>
+              <ProductTrackingProvider>
+                {children}
+                <Toaster position="top-center" richColors />
+              </ProductTrackingProvider>
+            </SearchProvider>
+          </ReduxProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

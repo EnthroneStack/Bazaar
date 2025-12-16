@@ -168,7 +168,6 @@ export const slides = [
   },
 ];
 
-// export const dummyRatingsData = [
 //   {
 //     id: "rat_1",
 //     rating: 4.2,
