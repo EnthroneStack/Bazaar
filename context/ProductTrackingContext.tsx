@@ -28,20 +28,19 @@ interface CustomerBehavior {
 interface ProductTrackingContextType {
   // Recently Viewed
   recentlyViewed: any[];
-  addToRecentlyViewed: (productId: string) => void;
-  clearRecentlyViewed: () => void;
+  addToRecentlyViewed: (productId: string) => Promise<void>;
+  clearRecentlyViewed: () => Promise<void>;
 
   // Customers Also Viewed
   customersAlsoViewed: any[];
 
-  // Recommendations
-
+  // Recommendations (ASYNC)
   getPersonalizedRecommendations: () => Promise<any[]>;
   getSimilarProducts: (productId: string) => Promise<any[]>;
 
   // Analytics
-  trackProductView: (productId: string) => void;
-  trackProductPurchase: (productId: string) => void;
+  trackProductView: (productId: string) => Promise<void>;
+  trackProductPurchase: (productId: string) => Promise<void>;
 
   // Management
   isTrackingEnabled: boolean;
