@@ -35,10 +35,10 @@ export default function RootLayout({
         >
           <ReduxProvider>
             <SearchProvider>
-              <ProductTrackingProvider>
-                {children}
-                <Toaster position="top-center" richColors />
-              </ProductTrackingProvider>
+              {/* <ProductTrackingProvider> */}
+              {children}
+              <Toaster position="top-center" richColors />
+              {/* </ProductTrackingProvider> */}
             </SearchProvider>
           </ReduxProvider>
         </body>
