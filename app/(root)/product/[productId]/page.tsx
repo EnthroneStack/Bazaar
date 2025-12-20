@@ -8,7 +8,8 @@ export default function ProductPage() {
 
   return (
     <div>
-      <ProductDetailPage productId={productId as string} />
+      {/* <ProductDetailPage productId={productId as string} /> */}
+      <ProductDetailPage />
     </div>
   );
 }
