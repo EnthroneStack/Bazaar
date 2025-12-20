@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import ReduxProvider from "@/lib/redux/ReduxProvider";
 import { SearchProvider } from "@/context/SearchContext";
-import { ProductTrackingProvider } from "@/context/ProductTrackingContext";
+// import { ProductTrackingProvider } from "@/context/ProductTrackingContext";
 import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
