@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // Auth Seller
-export async function Get() {
+export async function GET() {
   try {
     const { userId } = await auth();
 
