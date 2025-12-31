@@ -9,7 +9,7 @@ import {
   TrashIcon,
   EyeIcon,
   ArrowUpTrayIcon,
-  FunnelIcon,
+  CubeIcon,
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
   ArchiveBoxIcon,
