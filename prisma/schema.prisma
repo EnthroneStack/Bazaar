@@ -10,39 +10,65 @@ datasource db {
 }
 
 
-// Required for creating a User: id, name, email, image, cart (optional JSON string)
+
 model User {
-    id    String @id
-    name  String
-    email String
-    image String
-    cart  Json   @default("{}")
+    // Scalar
+    id              String      @id
+    name            String
+    email           String      @unique
+    image           String
+    cart            Json        @default("{}")
 
     // Relations
-    ratings     Rating[]
-    Address     Address[]
-    store       Store?
-    buyerOrders Order[]   @relation("BuyerRelation")
+    ratings         Rating[]
+    Address         Address[]
+    store           Store?
+    buyerOrders     Order[]     @relation("BuyerRelation")
 }
 
-// Required for creating a Product: name, description, mrp, price, images, category, storeId
-model Product {
-    id          String   @id @default(cuid())
-    name        String
-    description String
-    mrp         Float
-    price       Float
-    images      String[]
-    category    String
-    inStock     Boolean  @default(true)
-    storeId     String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+model Category {
+    // Scalar
+    id              String      @id @default(cuid())
+    name            String
+    slug            String      @unique
+    description     String?
+    parentId        String?
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
 
     // Relations
-    store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
-    orderItems OrderItem[]
-    rating     Rating[]
+    parent          Category?    @relation("CategoryTree", fields: [parentId], references: [id])
+    children        Category[]   @relation("CategoryTree")
+    products         Product[]
+
+    @@index([parentId])
+}
+
+model Product {
+    //  Scalar
+    id              String      @id @default(cuid())
+    name            String
+    slug            String      @unique
+    description     String
+    mrp             Float
+    price           Float
+    images          String[]
+    inStock         Boolean     @default(true)
+    categoryId      String
+    storeId         String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+
+    // Relations
+    category        Category    @relation(fields: [categoryId], references: [id])
+    store           Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    orderItems      OrderItem[]
+    rating          Rating[]
+
+    @@unique([storeId, slug])
+    @@index([storeId])
+    @@index([categoryId])
+    @@index([createdAt])
 }
 
 enum OrderStatus {
@@ -57,108 +83,177 @@ enum PaymentMethod {
     STRIPE
 }
 
-// Required for creating an Order: total, userId, storeId, addressId, isPaid, paymentMethod, isCouponUsed, coupon (JSON), orderItems (nested)
-model Order {
-    id            String        @id @default(cuid())
-    total         Float
-    status        OrderStatus   @default(ORDER_PLACED)
-    userId        String
-    storeId       String
-    addressId     String
-    isPaid        Boolean       @default(false)
-    paymentMethod PaymentMethod
-    createdAt     DateTime      @default(now())
-    updatedAt     DateTime      @updatedAt
-    isCouponUsed  Boolean       @default(false)
-    coupon        Json          @default("{}")
-    orderItems    OrderItem[]
-
-    // Relations
-    user    User    @relation("BuyerRelation", fields: [userId], references: [id])
-    store   Store   @relation(fields: [storeId], references: [id])
-    address Address @relation(fields: [addressId], references: [id])
+enum BusinessType {
+  INDIVIDUAL
+  COMPANY
+  PARTNERSHIP
 }
 
-// Required for creating an OrderItem: orderId, productId, quantity, price
+enum ConsentSubjectType {
+  STORE
+  USER
+}
+
+enum ConsentType {
+  TERMS
+  MARKETING
+  PRIVACY
+}
+
 model OrderItem {
-    orderId   String
-    productId String
-    quantity  Int
-    price     Float
+    //  Scalar
+    quantity        Int
+    price           Float
+    productId       String
+    orderId         String
 
     // Relations
-    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-    product Product @relation(fields: [productId], references: [id])
+    product         Product         @relation(fields: [productId], references: [id])
+    order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
     @@id([orderId, productId])
 }
 
-// Required for creating a Rating: rating, review, userId, productId
-model Rating {
-    id        String   @id @default(cuid())
-    rating    Int
-    review    String
-    userId    String
-    productId String
-    orderId   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Order {
+    // Scalar
+    id              String          @id @default(cuid())
+    total           Float
+    status          OrderStatus     @default(ORDER_PLACED)
+    isPaid          Boolean         @default(false)
+    paymentMethod   PaymentMethod   
+    isCouponUsed    Boolean         @default(false)
+    coupon          Json            @default("{}")
+    userId          String
+    storeId         String
+    addressId       String
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+
 
     // Relations
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+    orderItems      OrderItem[]
+    user            User            @relation("BuyerRelation", fields: [userId], references: [id])
+    store           Store           @relation(fields: [storeId], references: [id])
+    address         Address         @relation(fields: [addressId], references: [id])
+
+    @@index([userId, createdAt])
+    @@index([storeId, createdAt])
+    @@index([status, createdAt])
+}
+
+model Rating {
+    // Scalar
+    id              String          @id @default(cuid())
+    rating          Int
+    review          String
+    userId          String
+    productId       String
+    orderId         String
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+
+    //Relations
+    user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
 
     @@unique([userId, productId, orderId])
 }
 
-// Required for creating an Address: userId, name, email, street, city, state, zip, country, phone
 model Address {
-    id        String   @id @default(cuid())
-    userId    String
-    name      String
-    email     String
-    street    String
-    city      String
-    state     String
-    zip       String
-    country   String
-    phone     String
-    createdAt DateTime @default(now())
+    // Scalar
+    id              String          @id @default(cuid())
+    name            String
+    email           String
+    street          String
+    city            String
+    state           String
+    zip             String
+    country         String
+    phone           String
+    userId          String
+    createdAt       DateTime        @default(now())
+    isArchived      Boolean         @default(false)    
 
     // Relations
-    Order Order[]
-    user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    Order           Order[]
+    user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([isArchived])
 }
 
-// Required for creating a Coupon: code, description, discount, forNewUser, isPublic, expiresAt
 model Coupon {
-    code        String   @id
-    description String
-    discount    Float
-    forNewUser  Boolean
-    forMember   Boolean  @default(false)
-    isPublic    Boolean
-    expiresAt   DateTime
-    createdAt   DateTime @default(now())
+    code            String          @id
+    description     String
+    discount        Float
+    forNewUser      Boolean
+    forMember       Boolean         @default(false)
+    isPublic        Boolean
+    expiresAt       DateTime
+    createdAt       DateTime        @default(now())
 }
 
-// Required for creating a Store: userId, name, username, email, contact, logo, description, address (optional: , status, isActive)
 model Store {
-    id          String   @id @default(cuid())
-    userId      String   @unique
-    name        String
-    description String
-    username    String   @unique
-    address     String
-    status      String   @default("pending")
-    isActive    Boolean  @default(false)
-    logo        String
-    email       String
-    contact     String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    // Scalar
+    id              String          @id @default(cuid())
+    name            String
+    description     String
+    username        String          @unique
+    email           String
+    contact         String
+    address         Json
+    businessType    BusinessType
+    registrationNo  String?
+    taxId           String?
+    status          String          @default("pending")
+    isActive        Boolean         @default(false)
+    slug            String          @unique
+    subdomain       String?
+    customDomain    String?
+    logo            String
+    coverImage      String?
+    favicon         String?
+    themeColor      String?
+    metaTitle       String?
+    metaDescription String?
+    userId          String          @unique
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
 
-    Product Product[]
-    Order   Order[]
-    user    User      @relation(fields: [userId], references: [id])
+    // Relations
+    products        Product[]
+    orders          Order[]
+    settings        StoreSettings?
+    user            User            @relation(fields: [userId], references: [id])
+
+    @@index([slug])
+    @@index([isActive, status])
+    @@index([createdAt])
+}
+
+model StoreSettings {
+    // Scalar
+    id              String          @id @default(cuid())
+    currency        String          @default("USD")
+    timezone        String          @default("UTC")
+    language        String          @default("en")
+    taxRate         Float           @default(0.0)
+    emailNotifications Json          @default("{}")
+    storeId         String          @unique
+
+    // Relations
+    store           Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model Consent {
+  id           String              @id @default(cuid())
+  subjectType  ConsentSubjectType
+  subjectId    String
+  type         ConsentType
+  version      String
+  accepted     Boolean
+  acceptedAt   DateTime            @default(now())
+  createdAt    DateTime            @default(now())
+
+  @@index([subjectType, subjectId])
+  @@index([type])
 }
