@@ -3,13 +3,13 @@ import authSeller from "@/middlewares/authSeller";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-interface RouteParams {
-  params: { id: string };
-}
-
 // Get Single Product
-export async function GET(_: NextRequest, { params }: RouteParams) {
+export async function GET(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await context.params;
     const { userId } = await auth();
     const storeId = await authSeller(userId as string);
 
@@ -18,7 +18,7 @@ export async function GET(_: NextRequest, { params }: RouteParams) {
     }
 
     const product = await prisma.product.findFirst({
-      where: { id: params.id, storeId },
+      where: { id, storeId },
       include: {
         category: true,
         rating: true,
@@ -54,8 +54,12 @@ export async function GET(_: NextRequest, { params }: RouteParams) {
 }
 
 // Update Product
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await context.params;
     const { userId } = await auth();
     const storeId = await authSeller(userId as string);
 
@@ -85,7 +89,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const product = await prisma.product.updateMany({
-      where: { id: params.id, storeId },
+      where: { id, storeId },
       data: productData,
     });
 
@@ -104,8 +108,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 // Delete Product
-export async function DELETE(_: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await context.params;
     const { userId } = await auth();
     const storeId = await authSeller(userId as string);
 
@@ -114,7 +122,7 @@ export async function DELETE(_: NextRequest, { params }: RouteParams) {
     }
 
     const product = await prisma.product.findFirst({
-      where: { id: params.id, storeId },
+      where: { id, storeId },
       include: {
         _count: { select: { orderItems: true } },
       },
@@ -131,7 +139,7 @@ export async function DELETE(_: NextRequest, { params }: RouteParams) {
       );
     }
 
-    await prisma.product.delete({ where: { id: params.id } });
+    await prisma.product.delete({ where: { id } });
 
     return NextResponse.json({ success: true, message: "Product deleted" });
   } catch (error) {
