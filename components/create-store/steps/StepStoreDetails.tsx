@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Globe, AlertCircle, CameraIcon } from "lucide-react";
+import { AlertCircle, CameraIcon, Loader2 } from "lucide-react";
 
 interface StepStoreDetailsProps {
   formData: any;
@@ -14,6 +14,7 @@ interface StepStoreDetailsProps {
     e: React.ChangeEvent<HTMLInputElement>,
     type: "logo"
   ) => void;
+  isGeneratingSlug?: boolean;
 }
 
 const StepStoreDetails = ({
@@ -23,12 +24,16 @@ const StepStoreDetails = ({
   previewLogo,
   handleFileUpload,
   onUsernameChange,
+  isGeneratingSlug = false,
 }: StepStoreDetailsProps) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+      <div className="space-y-4 md:space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="storeName" className="text-gray-700">
+          <Label
+            htmlFor="storeName"
+            className="text-gray-700 text-sm sm:text-base"
+          >
             Store Name *
           </Label>
           <Input
@@ -37,67 +42,98 @@ const StepStoreDetails = ({
             value={formData.storeName}
             onChange={onChange}
             placeholder="Tech Innovations Inc."
-            className={`w-full px-4 py-3 rounded-lg border ${
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
               errors.storeName ? "border-red-300" : "border-gray-300"
             } focus:ring focus:ring-primary focus:border-transparent transition`}
           />
           {errors.storeName && (
-            <p className="text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle className="w-4 h-4" />
+            <p className="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
               {errors.storeName}
             </p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="username">Store Username *</Label>
-          <Input
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={(e) => onUsernameChange(e.target.value)}
-            placeholder="zola-fashion"
-            className={`w-full px-4 py-3 rounded-lg border ${
-              errors.username ? "border-red-300" : "border-gray-300"
-            } focus:ring focus:ring-primary focus:border-transparent transition`}
-          />
+          <Label htmlFor="username" className="text-sm sm:text-base">
+            Store Username *
+          </Label>
+          <div className="relative">
+            <Input
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={(e) => onUsernameChange(e.target.value)}
+              placeholder="zola-fashion"
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
+                errors.username ? "border-red-300" : "border-gray-300"
+              } focus:ring focus:ring-primary focus:border-transparent transition`}
+            />
+            {isGeneratingSlug && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+              </div>
+            )}
+          </div>
           {errors.username && (
-            <p className="text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle className="w-4 h-4" />
+            <p className="text-xs sm:text-sm text-red-600 flex items-center gap-1 mt-1">
+              <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
               {errors.username}
+            </p>
+          )}
+          <p className="text-xs text-gray-500 mt-1">
+            Only letters, numbers, and hyphens allowed
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm sm:text-base">Store Slug</Label>
+          <div className="relative">
+            <Input
+              value={formData.slug}
+              disabled
+              className="text-sm sm:text-base pr-10"
+            />
+            {isGeneratingSlug && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-primary mt-1 break-words">
+            Your store will be accessible at: https://bazaar.com/
+            {formData.slug || "your-store"}
+          </p>
+          {formData.slug && !isGeneratingSlug && (
+            <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+              ✓ Unique slug generated
             </p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label>Store Slug</Label>
-          <Input value={formData.slug} disabled />
-          <p className="text-xs text-muted-foreground">
-            Your store will be accessible at: https://bazaar.com/
-            {formData.slug || "your-store"}
-          </p>
-        </div>
+          <Label className="text-gray-700 text-sm sm:text-base">
+            Store Logo
+          </Label>
 
-        <div className="space-y-2">
-          <Label className="text-gray-700">Store Logo</Label>
-
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <div className="relative self-start">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
                 {previewLogo ? (
                   <Image
                     src={previewLogo}
                     alt="Logo preview"
-                    fill
-                    className="object-cover"
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
                   />
                 ) : (
-                  <CameraIcon className="w-8 h-8 text-gray-400" />
+                  <CameraIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                 )}
               </div>
 
               <label className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground p-2 rounded-full cursor-pointer hover:opacity-90 transition">
-                <CameraIcon className="w-4 h-4 text-white" />
+                <CameraIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 <input
                   type="file"
                   accept="image/*"
@@ -119,27 +155,30 @@ const StepStoreDetails = ({
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-gray-700">
+          <Label
+            htmlFor="description"
+            className="text-gray-700 text-sm sm:text-base"
+          >
             Store Description *
           </Label>
           <Textarea
             id="description"
             name="description"
-            rows={6}
+            rows={5}
             value={formData.description}
             onChange={onChange}
             placeholder="Describe your business..."
-            className={`w-full px-4 py-3 rounded-lg border ${
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
               errors.description ? "border-red-300" : "border-gray-300"
-            } focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none`}
+            } focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none min-h-[120px]`}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>{formData.description.length}/500</span>
             {errors.description && (
-              <span className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
+              <span className="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                 {errors.description}
               </span>
             )}

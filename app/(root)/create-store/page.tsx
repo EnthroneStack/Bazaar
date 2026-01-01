@@ -3,7 +3,6 @@
 import { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import slugify from "slugify";
 import StepIndicator from "@/components/StepIndicator";
 import StoreHeader from "@/components/create-store/StoreHeader";
 import StepStoreDetails from "@/components/create-store/steps/StepStoreDetails";
@@ -52,12 +51,12 @@ const STEP_LABELS = [
 
 export default function CreateStorePage() {
   const router = useRouter();
-
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
   const [previewCover, setPreviewCover] = useState<string | null>(null);
+  const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
 
   const [formData, setFormData] = useState<StoreFormData>({
     storeName: "",
@@ -153,18 +152,52 @@ export default function CreateStorePage() {
       username: value,
     }));
 
-    if (!value) {
+    if (!value.trim()) {
       setFormData((prev) => ({ ...prev, slug: "" }));
       return;
     }
 
-    const res = await fetch(`/api/store/slug?username=${value}`);
-    const data = await res.json();
+    setIsGeneratingSlug(true);
 
-    setFormData((prev) => ({
-      ...prev,
-      slug: data.slug,
-    }));
+    try {
+      const res = await fetch(
+        `/api/store/slug?username=${encodeURIComponent(value)}`
+      );
+
+      const text = await res.text();
+
+      try {
+        const data = JSON.parse(text);
+        setFormData((prev) => ({
+          ...prev,
+          slug: data.slug || "",
+        }));
+      } catch (parseError) {
+        const fallbackSlug = value
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        setFormData((prev) => ({
+          ...prev,
+          slug: fallbackSlug || `store-${Date.now()}`,
+        }));
+      }
+    } catch (error) {
+      const fallbackSlug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      setFormData((prev) => ({
+        ...prev,
+        slug: fallbackSlug || `store-${Date.now()}`,
+      }));
+    } finally {
+      setIsGeneratingSlug(false);
+    }
   };
 
   const handleFileUpload = (
@@ -230,11 +263,11 @@ export default function CreateStorePage() {
   /* ----------------------------- RENDER ----------------------------- */
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6 px-3 sm:py-12 sm:px-4 lg:px-8 overflow-x-hidden">
+      <div className="max-w-4xl mx-auto w-full">
         <StoreHeader />
         <StepIndicator step={step} />
-        <h2 className="text-center text-2xl font-semibold mb-8 text-gray-800">
+        <h2 className="text-center text-xl sm:text-2xl font-semibold mb-6 sm:mb-8 text-gray-800 px-2">
           Step {step}: {STEP_LABELS[step - 1]}
         </h2>
         <motion.div
@@ -242,10 +275,11 @@ export default function CreateStorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
+          className="w-full"
         >
           <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-2xl shadow-xl p-8"
+            className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-4 sm:p-6 md:p-8 w-full overflow-hidden"
           >
             {step === 1 && (
               <StepStoreDetails
@@ -255,6 +289,7 @@ export default function CreateStorePage() {
                 onUsernameChange={handleUsernameChange}
                 previewLogo={previewLogo}
                 handleFileUpload={handleFileUpload}
+                isGeneratingSlug={isGeneratingSlug}
               />
             )}
 
@@ -301,14 +336,15 @@ export default function CreateStorePage() {
                         acceptTerms: !!v,
                       }))
                     }
+                    className="mt-1 shrink-0"
                   />
-                  <div>
-                    <p className="text-sm">
+                  <div className="min-w-0">
+                    <p className="text-sm text-gray-700">
                       I agree to the Terms of Service and Privacy Policy
                     </p>
                     {errors.acceptTerms && (
-                      <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
+                      <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
                         {errors.acceptTerms}
                       </p>
                     )}
@@ -318,35 +354,39 @@ export default function CreateStorePage() {
             )}
 
             {errors.submit && (
-              <p className="mt-6 text-sm text-destructive flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
+              <p className="mt-6 text-sm text-red-600 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 {errors.submit}
               </p>
             )}
 
-            <div className="flex justify-between mt-10 pt-6 border-t border-gray-300">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 sm:mt-10 pt-6 border-t border-gray-300">
               {step > 1 ? (
                 <Button
                   variant="outline"
                   onClick={prevStep}
                   type="button"
-                  className="border-gray-300 text-gray-700"
+                  className="border-gray-300 text-gray-700 w-full sm:w-auto order-2 sm:order-1"
                 >
                   Back
                 </Button>
               ) : (
-                <div />
+                <div className="order-2 sm:order-1" />
               )}
 
               {step < 4 ? (
-                <Button onClick={nextStep} type="button" className="text-white">
+                <Button
+                  onClick={nextStep}
+                  type="button"
+                  className="w-full sm:w-auto order-1 sm:order-2 text-white"
+                >
                   Continue
                 </Button>
               ) : (
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="text-white"
+                  className="w-full sm:w-auto order-1 sm:order-2 text-white"
                 >
                   {isSubmitting ? (
                     <>
@@ -355,7 +395,7 @@ export default function CreateStorePage() {
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
+                      <CheckCircle className="w-4 h-4 mr-2 text-white" />
                       Create Store
                     </>
                   )}
@@ -364,7 +404,7 @@ export default function CreateStorePage() {
             </div>
           </form>
         </motion.div>
-        <div className="mt-12 text-center text-sm text-gray-500">
+        <div className="mt-8 sm:mt-12 text-center text-sm text-gray-500 px-2">
           <p>Need help? Contact our seller support team at info@bazaar.com</p>
           <p className="mt-2">Average approval time: 24-48 hours</p>
         </div>

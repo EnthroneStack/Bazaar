@@ -21,17 +21,10 @@ import Image from "next/image";
 
 interface Props {
   formData: any;
-  previewLogo?: string | null;
-  previewCover?: string | null;
   errors?: Record<string, string>;
 }
 
-const StepReview = ({
-  formData,
-  previewLogo,
-  previewCover,
-  errors = {},
-}: Props) => {
+const StepReview = ({ formData, errors = {} }: Props) => {
   const formatBusinessType = (type: string) => {
     const types: Record<string, string> = {
       INDIVIDUAL: "Individual",
@@ -40,12 +33,6 @@ const StepReview = ({
     };
     return types[type] || type;
   };
-
-  const BUSINESS_TYPES = [
-    { id: "INDIVIDUAL", label: "Individual" },
-    { id: "COMPANY", label: "Company" },
-    { id: "PARTNERSHIP", label: "Partnership" },
-  ];
 
   return (
     <div className="space-y-8">
@@ -140,26 +127,26 @@ const StepReview = ({
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="min-w-0">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
                       Business Email
                     </p>
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <p className="font-medium text-gray-900">
+                      <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                      <p className="font-medium text-gray-900 text-xs break-all">
                         {formData.businessEmail}
                       </p>
                     </div>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
                       Phone Number
                     </p>
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <p className="font-medium text-gray-900">
+                      <Phone className="w-4 h-4 text-gray-400 shrink-0" />
+                      <p className="font-medium text-gray-900 text-xs">
                         {formData.phoneNumber}
                       </p>
                     </div>
@@ -282,7 +269,7 @@ const StepReview = ({
             </CardContent>
           </Card>
 
-          {/* Store Media Card - Updated to show both Logo and Cover */}
+          {/* Store Media Card */}
           <Card className="border border-gray-200 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -298,9 +285,9 @@ const StepReview = ({
                   </p>
                   <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                     <div className="w-16 h-16 rounded-lg border-2 border-gray-300 overflow-hidden bg-white flex items-center justify-center shadow-sm">
-                      {previewLogo ? (
+                      {formData.logo ? (
                         <Image
-                          src={previewLogo}
+                          src={URL.createObjectURL(formData.logo)}
                           alt="Logo preview"
                           width={64}
                           height={64}
@@ -315,16 +302,16 @@ const StepReview = ({
                         Store Logo
                       </p>
                       <p className="text-xs text-gray-500">
-                        {previewLogo ? "Uploaded ✓" : "Not uploaded"} •
+                        {formData.logo ? "Uploaded ✓" : "Not uploaded"} •
                         Recommended: 400×400px, max 2MB
                       </p>
                     </div>
-                    {previewLogo && (
+                    {formData.logo && (
                       <Badge
                         variant="outline"
                         className="bg-green-50 text-green-700 border-green-200"
                       >
-                        Uploaded
+                        Uploaded ✓
                       </Badge>
                     )}
                   </div>
@@ -336,11 +323,11 @@ const StepReview = ({
                     Store Cover Image
                   </p>
                   <div className="space-y-3">
-                    {previewCover ? (
+                    {formData.coverImage ? (
                       <>
                         <div className="relative h-32 rounded-lg border-2 border-gray-300 overflow-hidden bg-gray-100">
                           <Image
-                            src={previewCover}
+                            src={URL.createObjectURL(formData.coverImage)}
                             alt="Cover preview"
                             fill
                             className="object-cover"
