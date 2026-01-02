@@ -3,7 +3,7 @@
 import { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import StepIndicator from "@/components/StepIndicator";
+import StepIndicator from "@/components/create-store/StepIndicator";
 import StoreHeader from "@/components/create-store/StoreHeader";
 import StepStoreDetails from "@/components/create-store/steps/StepStoreDetails";
 import StepBusinessInfo from "@/components/create-store/steps/StepBusinessInfo";
