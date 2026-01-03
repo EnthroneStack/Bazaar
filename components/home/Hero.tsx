@@ -10,8 +10,8 @@ import {
   Truck,
 } from "lucide-react";
 import { slides } from "@/assets/assets";
-import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
+import { Button } from "../ui/button";
 
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);

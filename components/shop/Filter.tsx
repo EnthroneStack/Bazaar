@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "./ui/button";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { categories } from "@/assets/assets";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Input } from "./ui/input";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { FilterState } from "@/app/(root)/shop/page";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 interface FilterProps {
   filters: FilterState;

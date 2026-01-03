@@ -3,13 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PackageIcon, Search, ShoppingCart } from "lucide-react";
-import SearchBar from "./SearchBar";
-import { Button } from "./ui/button";
-import { SideDrawer } from "./SideDrawer";
 import { useSearch } from "@/context/SearchContext";
-import SearchOverlay from "./SearchOverlay";
 import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import SearchBar from "../SearchBar";
+import { Button } from "../ui/button";
+import { SideDrawer } from "../shop/SideDrawer";
+import SearchOverlay from "../SearchOverlay";
 
 const Navbar = () => {
   const { openSearch, isSearchOpen } = useSearch();

@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
-import Title from "./Title";
 import { useAppSelector } from "@/hooks/redux-hook";
-import ProductCard from "./ProductCard";
 import { productAverageRatings } from "@/lib/product-review-map";
+import ProductCard from "./ProductCard";
+import Title from "./Title";
 
 const BestSelling = () => {
   const displayQuantity = 8;

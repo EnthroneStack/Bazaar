@@ -1,15 +1,15 @@
 "use client";
 
-import Filter from "@/components/Filter";
-import Sort from "@/components/Sort";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/shop/ProductCard";
 import { useAppSelector } from "@/hooks/redux-hook";
 import { Suspense, useEffect, useState } from "react";
-import { MobileFilter } from "@/components/MobileFilter";
+import { MobileFilter } from "@/components/shop/MobileFilter";
 import { useProductFiltering } from "@/hooks/useProductFiltering";
 import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import Filter from "@/components/shop/Filter";
+import Sort from "@/components/shop/Sort";
 
 export interface FilterState {
   categories: string[];

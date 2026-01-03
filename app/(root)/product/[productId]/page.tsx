@@ -1,6 +1,6 @@
 "use client";
 
-import ProductDetailPage from "@/components/ProductDetail";
+import ProductDetailPage from "@/components/shop/ProductDetail";
 import { useParams } from "next/navigation";
 
 export default function ProductPage() {

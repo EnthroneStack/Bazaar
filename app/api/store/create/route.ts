@@ -24,6 +24,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user have already registered a store. If store is already registered then send status of store
+    const existingStore = await prisma.store.findUnique({
+      where: { userId: userId },
+    });
+
+    if (existingStore) {
+      if (
+        existingStore.status === "PENDING" ||
+        existingStore.status === "APPROVED"
+      ) {
+        return NextResponse.json<
+          ApiResponse<{ status: string; reason: string | null }>
+        >(
+          {
+            success: true,
+            data: {
+              status: existingStore.status,
+              reason: existingStore.reason,
+            },
+            error: {
+              code: "STORE_EXISTS",
+              message: "You already have a store request",
+            },
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Allow retry only if rejected
+    if (existingStore?.status === "REJECTED") {
+      await prisma.store.delete({
+        where: { id: existingStore.id },
+      });
+    }
+
+    // ---------------- Form Parsing ----------------
     const formData = await request.formData();
 
     const name = formData.get("storeName") as string;
@@ -79,22 +116,6 @@ export async function POST(request: NextRequest) {
 
         { status: 400 }
       );
-    }
-
-    // Check if user have already registered a store
-    const store = await prisma.store.findFirst({
-      where: { userId: userId },
-    });
-
-    // If store is already registered then send status of store
-    if (store) {
-      return NextResponse.json<ApiResponse<{ status: string }>>({
-        success: true,
-        data: {
-          status: store.status,
-        },
-        error: null,
-      });
     }
 
     // Check if usernmame is already taken
@@ -174,6 +195,7 @@ export async function POST(request: NextRequest) {
         registrationNo: businessRegistrationNumber,
         taxId,
         coverImage: coverUrl,
+        status: "PENDING",
       },
     });
 
@@ -199,7 +221,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json<ApiResponse<{ storeId: string; status: string }>>(
       {
         success: true,
-        message: "Store created successfully",
+        message: "Applied, awaiting for approval",
         data: {
           storeId: createStore.id,
           status: createStore.status,
@@ -224,17 +246,47 @@ export async function GET() {
   try {
     const { userId } = await auth();
 
+    if (!userId) {
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Authentication required",
+          },
+        },
+        { status: 401 }
+      );
+    }
+
     // Check if user have already registerd a store
-    const store = await prisma.store.findFirst({
-      where: { userId: userId as string },
+    const store = await prisma.store.findUnique({
+      where: { userId },
+      select: {
+        id: true,
+        status: true,
+        reason: true,
+        createdAt: true,
+      },
     });
 
     // If store is already registered then send status of store
     if (store) {
-      return NextResponse.json({
+      return NextResponse.json<
+        ApiResponse<{
+          status: string;
+          reason: string | null;
+          storeId: string;
+          createdAt: Date;
+        }>
+      >({
         success: true,
         data: {
+          storeId: store.id,
           status: store.status,
+          reason: store.reason,
+          createdAt: store.createdAt,
         },
         error: null,
       });

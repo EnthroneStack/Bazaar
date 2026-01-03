@@ -100,6 +100,12 @@ enum ConsentType {
   PRIVACY
 }
 
+enum StoreStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model OrderItem {
     //  Scalar
     quantity        Int
@@ -204,7 +210,8 @@ model Store {
     businessType    BusinessType
     registrationNo  String?
     taxId           String?
-    status          String          @default("pending")
+    status          StoreStatus     @default(PENDING)
+    reason          String?
     isActive        Boolean         @default(false)
     slug            String          @unique
     subdomain       String?

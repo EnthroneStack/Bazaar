@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { productDummyData } from "@/assets/assets";
 import { productAverageRatings } from "@/lib/product-review-map";
-import { ShoppingCart, StarIcon } from "lucide-react";
-import { Button } from "./ui/button";
+import { ShoppingCart } from "lucide-react";
 import StarRating from "./StarRating";
+import { Button } from "../ui/button";
 
 type Product = (typeof productDummyData)[0];
 
@@ -92,24 +92,6 @@ const ProductCard = ({
           </p>
 
           <div className="flex items-center gap-1 mt-2 flex-wrap">
-            {/* {Array.from({ length: 5 }, (_, index) => {
-              const fillColor =
-                rating >= index + 1
-                  ? "#0d97d9"
-                  : rating > index && rating < index + 1
-                  ? "url(#half-star)"
-                  : "#D1D5DB";
-
-              return (
-                <StarIcon
-                  key={index}
-                  size={14}
-                  className="text-transparent transition-transform duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_3px_rgba(13, 151, 217, 0.5)] flex-shrink-0"
-                  fill={fillColor}
-                />
-              );
-            })} */}
-
             <StarRating
               rating={rating}
               size="sm"
@@ -145,15 +127,6 @@ const ProductCard = ({
             </Button>
           </div>
         </div>
-
-        {/* <svg width="0" height="0">
-          <defs>
-            <linearGradient id="half-star">
-              <stop offset="50%" stopColor="#0d97d9" />
-              <stop offset="50%" stopColor="#D1D5DB" />
-            </linearGradient>
-          </defs>
-        </svg> */}
       </Link>
     );
   }
@@ -182,30 +155,6 @@ const ProductCard = ({
           />
         </p>
 
-        {/* <div className="flex items-center gap-1 mt-0.5">
-          {Array.from({ length: 5 }, (_, index) => {
-            const fillColor =
-              rating >= index + 1
-                ? "#0d97d9"
-                : rating > index && rating < index + 1
-                ? "url(#half-star)"
-                : "#D1D5DB";
-
-            return (
-              <StarIcon
-                key={index}
-                size={14}
-                fill={fillColor}
-                className="text-transparent transition-transform duration-200 group-hover:scale-110"
-              />
-            );
-          })}
-
-          <span className="text-xs text-gray-600 ml-1 flex-shrink-0">
-            {rating.toFixed(1)}
-          </span>
-        </div> */}
-
         <div className="flex items-center gap-1 mt-0.5">
           <StarRating rating={rating} size="sm" showRating />
         </div>
@@ -229,15 +178,6 @@ const ProductCard = ({
           </span>
         </div>
       </div>
-
-      {/* <svg width="0" height="0">
-        <defs>
-          <linearGradient id="half-star">
-            <stop offset="50%" stopColor="#0d97d9" />
-            <stop offset="50%" stopColor="#D1D5DB" />
-          </linearGradient>
-        </defs>
-      </svg> */}
     </Link>
   );
 };

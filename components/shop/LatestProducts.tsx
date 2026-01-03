@@ -1,8 +1,8 @@
 "use client";
 
-import Title from "./Title";
-import { useAppSelector } from "@/hooks/redux-hook";
 import ProductCard from "./ProductCard";
+import { useAppSelector } from "@/hooks/redux-hook";
+import Title from "./Title";
 
 const LatestProducts = () => {
   const displayQuantity = 4;

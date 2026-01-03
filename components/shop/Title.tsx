@@ -1,8 +1,6 @@
 import Link from "next/link";
-import React from "react";
 import { ArrowRight } from "lucide-react";
-import { Button } from "./ui/button";
-
+import { Button } from "../ui/button";
 type TitleProps = {
   title: string;
   description?: string;

@@ -8,10 +8,10 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
-import { Button } from "./ui/button";
 import { FilterIcon, X } from "lucide-react";
-import Filter from "./Filter";
 import { FilterState } from "@/app/(root)/shop/page";
+import { Button } from "../ui/button";
+import Filter from "./Filter";
 
 interface MobileFilterProps {
   filters: FilterState;

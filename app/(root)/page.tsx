@@ -1,11 +1,11 @@
 "use client";
 
-import BestSelling from "@/components/BestSelling";
-import CategoriesMarquee from "@/components/CategoriesMarquee";
-import Hero from "@/components/Hero";
-import LatestProducts from "@/components/LatestProducts";
-import Newsletter from "@/components/Newsletter";
-import OurSpec from "@/components/OurSpec";
+import BestSelling from "@/components/shop/BestSelling";
+import CategoriesMarquee from "@/components/home/CategoriesMarquee";
+import LatestProducts from "@/components/shop/LatestProducts";
+import Newsletter from "@/components/home/Newsletter";
+import OurSpec from "@/components/home/OurSpec";
+import Hero from "@/components/home/Hero";
 
 const Home = () => {
   return (
