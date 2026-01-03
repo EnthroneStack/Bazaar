@@ -35,13 +35,19 @@ export async function POST(request: NextRequest) {
         existingStore.status === "APPROVED"
       ) {
         return NextResponse.json<
-          ApiResponse<{ status: string; reason: string | null }>
+          ApiResponse<{
+            status: string;
+            reason: { primary: string; issues?: string[] } | null;
+          }>
         >(
           {
             success: true,
             data: {
               status: existingStore.status,
-              reason: existingStore.reason,
+              reason: existingStore.reason as {
+                primary: string;
+                issues?: string[];
+              } | null,
             },
             error: {
               code: "STORE_EXISTS",
@@ -279,7 +285,10 @@ export async function GET() {
       return NextResponse.json<
         ApiResponse<{
           status: string;
-          reason: string | null;
+          reason: {
+            primary: string;
+            issues?: string[];
+          } | null;
           storeId: string;
           createdAt: Date;
         }>
@@ -288,7 +297,10 @@ export async function GET() {
         data: {
           storeId: store.id,
           status: store.status,
-          reason: store.reason,
+          reason: store.reason as {
+            primary: string;
+            issues?: string[];
+          } | null,
           createdAt: store.createdAt,
         },
         error: null,
