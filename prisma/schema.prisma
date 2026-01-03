@@ -211,7 +211,7 @@ model Store {
     registrationNo  String?
     taxId           String?
     status          StoreStatus     @default(PENDING)
-    reason          String?
+    reason          Json?
     isActive        Boolean         @default(false)
     slug            String          @unique
     subdomain       String?

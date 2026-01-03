@@ -20,10 +20,15 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface RejectedStoreUIProps {
-  reason: string | null;
+  reason: {
+    primary: string;
+    issues?: string[];
+  } | null;
   onRetry: () => void;
   onNavigateHome?: () => void;
   onNavigateShop?: () => void;
+  applicationId: string;
+  submittedAt: string;
 }
 
 export default function RejectedStoreUI({
@@ -31,16 +36,9 @@ export default function RejectedStoreUI({
   onRetry,
   onNavigateHome,
   onNavigateShop,
+  applicationId,
+  submittedAt,
 }: RejectedStoreUIProps) {
-  const commonReasons = [
-    "Incomplete business information",
-    "Missing required documents",
-    "Business verification failed",
-    "Terms of service violation",
-    "Duplicate application",
-    "Insufficient business details",
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-4xl mx-auto">
@@ -100,30 +98,34 @@ export default function RejectedStoreUI({
                           <h4 className="font-medium text-red-800 mb-2">
                             Primary Reason for Rejection
                           </h4>
+
                           <p className="text-red-700">
-                            {reason ||
+                            {reason?.primary ??
                               "Your application requires additional verification or documentation."}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-800">
-                        Common Issues Found
-                      </h4>
-                      <ul className="space-y-2">
-                        {commonReasons.map((item, index) => (
-                          <li
-                            key={index}
-                            className="flex items-center gap-2 text-sm text-gray-600"
-                          >
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {reason?.issues && reason.issues.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-gray-800">
+                          Issues Identified
+                        </h4>
+
+                        <ul className="space-y-2">
+                          {reason.issues.map((item, index) => (
+                            <li
+                              key={index}
+                              className="flex items-center gap-2 text-sm text-gray-600"
+                            >
+                              <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="solutions" className="space-y-4 pt-4">
@@ -278,10 +280,10 @@ export default function RejectedStoreUI({
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              Application ID: #
-              {Math.random().toString(36).substr(2, 9).toUpperCase()} • Rejected
+              Application ID:{" "}
+              <span className="font-medium">#{applicationId}</span> • Rejected
               on{" "}
-              {new Date().toLocaleDateString("en-US", {
+              {new Date(submittedAt).toLocaleDateString("en-US", {
                 weekday: "long",
                 year: "numeric",
                 month: "long",

@@ -218,13 +218,16 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    return NextResponse.json<ApiResponse<{ storeId: string; status: string }>>(
+    return NextResponse.json<
+      ApiResponse<{ storeId: string; status: string; createdAt: Date }>
+    >(
       {
         success: true,
-        message: "Applied, awaiting for approval",
+        message: "Store application submitted successfully",
         data: {
           storeId: createStore.id,
           status: createStore.status,
+          createdAt: createStore.createdAt,
         },
         error: null,
       },
