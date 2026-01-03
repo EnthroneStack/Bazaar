@@ -4,15 +4,17 @@ import { generateUniqueSlug } from "@/lib/generateUniqueSlug";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import type { ApiResponse } from "@/lib/types/api";
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
+      return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
+          data: null,
           error: {
             code: "UNAUTHORIZED",
             message: "Authentication required",
@@ -39,12 +41,8 @@ export async function POST(request: NextRequest) {
     const coverImage = formData.get("coverImage") as File | null;
     const acceptTerms = formData.get("acceptTerms");
 
-    if (!businessTypeRaw || !(businessTypeRaw in BusinessType)) {
-      return NextResponse.json(
-        { error: "Invalid business type" },
-        { status: 400 }
-      );
-    }
+    const slug = await generateUniqueSlug(username);
+    const businessType = businessTypeRaw as BusinessType;
 
     if (
       !name ||
@@ -55,9 +53,12 @@ export async function POST(request: NextRequest) {
       !address ||
       !logo
     ) {
-      return NextResponse.json(
+      return NextResponse.json<ApiResponse<null>>(
         {
+          success: false,
+          data: null,
           error: {
+            code: "INVALID_INPUT",
             message: "Missing store info",
           },
         },
@@ -65,8 +66,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const slug = await generateUniqueSlug(username);
-    const businessType = businessTypeRaw as BusinessType;
+    if (!businessTypeRaw || !(businessTypeRaw in BusinessType)) {
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: "INVALID_BUSINESS_TYPE",
+            message: "Business type is not valid",
+          },
+        },
+
+        { status: 400 }
+      );
+    }
 
     // Check if user have already registered a store
     const store = await prisma.store.findFirst({
@@ -75,7 +88,13 @@ export async function POST(request: NextRequest) {
 
     // If store is already registered then send status of store
     if (store) {
-      return NextResponse.json({ status: store.status });
+      return NextResponse.json<ApiResponse<{ status: string }>>({
+        success: true,
+        data: {
+          status: store.status,
+        },
+        error: null,
+      });
     }
 
     // Check if usernmame is already taken
@@ -86,9 +105,14 @@ export async function POST(request: NextRequest) {
     if (isUsernameTaken) {
       return NextResponse.json(
         {
-          error: "Username is already taken",
+          success: false,
+          data: null,
+          error: {
+            code: "USERNAME_TAKEN",
+            message: "Username is already taken",
+          },
         },
-        { status: 400 }
+        { status: 409 }
       );
     }
 
@@ -172,7 +196,18 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    return NextResponse.json({ message: "Applied, waiting for approval" });
+    return NextResponse.json<ApiResponse<{ storeId: string; status: string }>>(
+      {
+        success: true,
+        message: "Store created successfully",
+        data: {
+          storeId: createStore.id,
+          status: createStore.status,
+        },
+        error: null,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -196,10 +231,20 @@ export async function GET() {
 
     // If store is already registered then send status of store
     if (store) {
-      return NextResponse.json({ status: store.status });
+      return NextResponse.json({
+        success: true,
+        data: {
+          status: store.status,
+        },
+        error: null,
+      });
     }
 
-    return NextResponse.json({ status: "Not registered" });
+    return NextResponse.json<ApiResponse<{ status: string }>>({
+      success: true,
+      data: { status: "NOT_REGISTERED" },
+      error: null,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

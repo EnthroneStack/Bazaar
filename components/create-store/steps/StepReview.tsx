@@ -20,11 +20,11 @@ import {
 import Image from "next/image";
 
 interface Props {
-  formData: any;
+  storeInfo: any;
   errors?: Record<string, string>;
 }
 
-const StepReview = ({ formData, errors = {} }: Props) => {
+const StepReview = ({ storeInfo, errors = {} }: Props) => {
   const formatBusinessType = (type: string) => {
     const types: Record<string, string> = {
       INDIVIDUAL: "Individual",
@@ -82,7 +82,7 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     Store Name
                   </p>
                   <p className="font-medium text-gray-900">
-                    {formData.storeName}
+                    {storeInfo.storeName}
                   </p>
                 </div>
 
@@ -93,7 +93,7 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-gray-400" />
                     <p className="font-medium text-blue-600">
-                      bazaar.com/{formData.slug}
+                      bazaar.com/{storeInfo.slug}
                     </p>
                     <Badge variant="secondary" className="text-xs">
                       Preview
@@ -106,10 +106,10 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     Description
                   </p>
                   <p className="text-gray-700 bg-gray-50 p-3 rounded-lg text-sm">
-                    {formData.description}
+                    {storeInfo.description}
                   </p>
                   <p className="text-xs text-gray-500 mt-1 text-right">
-                    {formData.description.length}/500 characters
+                    {storeInfo.description.length}/500 characters
                   </p>
                 </div>
               </div>
@@ -135,7 +135,7 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-gray-400 shrink-0" />
                       <p className="font-medium text-gray-900 text-xs break-all">
-                        {formData.businessEmail}
+                        {storeInfo.businessEmail}
                       </p>
                     </div>
                   </div>
@@ -147,7 +147,7 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4 text-gray-400 shrink-0" />
                       <p className="font-medium text-gray-900 text-xs">
-                        {formData.phoneNumber}
+                        {storeInfo.phoneNumber}
                       </p>
                     </div>
                   </div>
@@ -174,25 +174,25 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                   <div className="flex items-center gap-2">
                     <Badge
                       variant={
-                        formData.businessType === "COMPANY"
+                        storeInfo.businessType === "COMPANY"
                           ? "default"
                           : "outline"
                       }
                       className={
-                        formData.businessType === "COMPANY"
+                        storeInfo.businessType === "COMPANY"
                           ? "bg-blue-100 text-blue-800 border-blue-200"
-                          : formData.businessType === "PARTNERSHIP"
+                          : storeInfo.businessType === "PARTNERSHIP"
                           ? "bg-purple-100 text-purple-800 border-purple-200"
                           : "bg-gray-100 text-gray-800 border-gray-200"
                       }
                     >
-                      {formatBusinessType(formData.businessType)}
+                      {formatBusinessType(storeInfo.businessType)}
                     </Badge>
                   </div>
                 </div>
 
-                {formData.businessType === "COMPANY" &&
-                  formData.businessRegistrationNumber && (
+                {storeInfo.businessType === "COMPANY" &&
+                  storeInfo.businessRegistrationNumber && (
                     <div>
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
                         Registration Number
@@ -200,13 +200,13 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                       <div className="flex items-center gap-2">
                         <IdCard className="w-4 h-4 text-gray-400" />
                         <p className="font-medium text-gray-900">
-                          {formData.businessRegistrationNumber}
+                          {storeInfo.businessRegistrationNumber}
                         </p>
                       </div>
                     </div>
                   )}
 
-                {formData.taxId && (
+                {storeInfo.taxId && (
                   <div>
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
                       Tax ID
@@ -214,7 +214,7 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     <div className="flex items-center gap-2">
                       <IdCard className="w-4 h-4 text-gray-400" />
                       <p className="font-medium text-gray-900">
-                        {formData.taxId}
+                        {storeInfo.taxId}
                       </p>
                     </div>
                   </div>
@@ -241,13 +241,13 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                   </p>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="font-medium text-gray-900">
-                      {formData.address.street}
+                      {storeInfo.address.street}
                     </p>
                     <p className="text-gray-700">
-                      {formData.address.city}, {formData.address.state}{" "}
-                      {formData.address.postalCode}
+                      {storeInfo.address.city}, {storeInfo.address.state}{" "}
+                      {storeInfo.address.postalCode}
                     </p>
-                    <p className="text-gray-700">{formData.address.country}</p>
+                    <p className="text-gray-700">{storeInfo.address.country}</p>
                   </div>
                 </div>
 
@@ -285,9 +285,9 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                   </p>
                   <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                     <div className="w-16 h-16 rounded-lg border-2 border-gray-300 overflow-hidden bg-white flex items-center justify-center shadow-sm">
-                      {formData.logo ? (
+                      {storeInfo.logo ? (
                         <Image
-                          src={URL.createObjectURL(formData.logo)}
+                          src={URL.createObjectURL(storeInfo.logo)}
                           alt="Logo preview"
                           width={64}
                           height={64}
@@ -302,11 +302,11 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                         Store Logo
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formData.logo ? "Uploaded ✓" : "Not uploaded"} •
+                        {storeInfo.logo ? "Uploaded ✓" : "Not uploaded"} •
                         Recommended: 400×400px, max 2MB
                       </p>
                     </div>
-                    {formData.logo && (
+                    {storeInfo.logo && (
                       <Badge
                         variant="outline"
                         className="bg-green-50 text-green-700 border-green-200"
@@ -323,11 +323,11 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     Store Cover Image
                   </p>
                   <div className="space-y-3">
-                    {formData.coverImage ? (
+                    {storeInfo.coverImage ? (
                       <>
                         <div className="relative h-32 rounded-lg border-2 border-gray-300 overflow-hidden bg-gray-100">
                           <Image
-                            src={URL.createObjectURL(formData.coverImage)}
+                            src={URL.createObjectURL(storeInfo.coverImage)}
                             alt="Cover preview"
                             fill
                             className="object-cover"
@@ -399,14 +399,14 @@ const StepReview = ({ formData, errors = {} }: Props) => {
                     </p>
                   </div>
                   <Badge
-                    variant={formData.marketingOptIn ? "default" : "outline"}
+                    variant={storeInfo.marketingOptIn ? "default" : "outline"}
                     className={
-                      formData.marketingOptIn
+                      storeInfo.marketingOptIn
                         ? "bg-blue-100 text-blue-800 border-blue-200"
                         : ""
                     }
                   >
-                    {formData.marketingOptIn
+                    {storeInfo.marketingOptIn
                       ? "Subscribed ✓"
                       : "Not subscribed"}
                   </Badge>

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Camera } from "lucide-react";
 
 interface Props {
-  formData: any;
+  storeInfo: any;
   errors: Record<string, string>;
   onChange: (e: React.ChangeEvent<any>) => void;
   onBusinessTypeChange: (
@@ -20,7 +20,7 @@ interface Props {
 }
 
 const StepBusinessInfo = ({
-  formData,
+  storeInfo,
   errors,
   onChange,
   onBusinessTypeChange,
@@ -38,7 +38,7 @@ const StepBusinessInfo = ({
             </span>
             <Input
               name="businessEmail"
-              value={formData.businessEmail}
+              value={storeInfo.businessEmail}
               onChange={onChange}
               placeholder="contact@yourbusiness.com"
               className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-r-lg border text-sm sm:text-base ${
@@ -62,7 +62,7 @@ const StepBusinessInfo = ({
             </span>
             <Input
               name="phoneNumber"
-              value={formData.phoneNumber}
+              value={storeInfo.phoneNumber}
               onChange={onChange}
               placeholder="+1 (555) 123-4567"
               className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-r-lg border text-sm sm:text-base ${
@@ -82,14 +82,14 @@ const StepBusinessInfo = ({
           <Label className="text-sm sm:text-base">Business Type *</Label>
 
           <RadioGroup
-            value={formData.businessType}
+            value={storeInfo.businessType}
             onValueChange={onBusinessTypeChange}
             className="space-y-2 sm:space-y-3"
           >
             {[
-              { id: "individual", label: "Individual" },
-              { id: "company", label: "Company" },
-              { id: "partnership", label: "Partnership" },
+              { id: "INDIVIDUAL", label: "Individual" },
+              { id: "COMPANY", label: "Company" },
+              { id: "PARTNERSHIP", label: "Partnership" },
             ].map((type) => (
               <Label
                 key={type.id}
@@ -97,7 +97,7 @@ const StepBusinessInfo = ({
                 className={`
                   flex items-center gap-3 p-3 sm:p-4 rounded-lg border cursor-pointer transition text-sm sm:text-base
                   ${
-                    formData.businessType === type.id
+                    storeInfo.businessType === type.id
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary"
                   }
@@ -119,11 +119,11 @@ const StepBusinessInfo = ({
         <div className="space-y-2">
           <Label className="text-sm sm:text-base">
             Business Registration Number
-            {formData.businessType === "company" && " *"}
+            {storeInfo.businessType === "company" && " *"}
           </Label>
           <Input
             name="businessRegistrationNumber"
-            value={formData.businessRegistrationNumber}
+            value={storeInfo.businessRegistrationNumber}
             onChange={onChange}
             placeholder="Enter registration number if applicable"
             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -144,7 +144,7 @@ const StepBusinessInfo = ({
           <Label className="text-sm sm:text-base">Tax ID (Optional)</Label>
           <Input
             name="taxId"
-            value={formData.taxId}
+            value={storeInfo.taxId}
             onChange={onChange}
             className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition text-sm sm:text-base"
             placeholder="VAT, GST, EIN, etc."

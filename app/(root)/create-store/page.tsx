@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent, ChangeEvent, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import StepIndicator from "@/components/create-store/StepIndicator";
@@ -12,45 +12,22 @@ import StepReview from "@/components/create-store/steps/StepReview";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-
-interface StoreFormData {
-  storeName: string;
-  username: string;
-  slug: string;
-  businessEmail: string;
-  phoneNumber: string;
-  businessType: "INDIVIDUAL" | "COMPANY" | "PARTNERSHIP";
-  businessRegistrationNumber?: string;
-  taxId?: string;
-  description: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
-  logo: File | null;
-  coverImage: File | null;
-  acceptTerms: boolean;
-  marketingOptIn: boolean;
-}
-
-interface FormErrors {
-  [key: string]: string;
-}
-
-type BusinessType = "INDIVIDUAL" | "COMPANY" | "PARTNERSHIP";
-
-const STEP_LABELS = [
-  "Store Details",
-  "Business Info",
-  "Location",
-  "Review & Submit",
-];
+import { useAuth, useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
+import { useDebounce } from "@/hooks/useDebounce";
+import axios from "axios";
+import {
+  BusinessType,
+  FormErrors,
+  STEP_LABELS,
+  StorestoreInfo,
+} from "@/components/create-store/type";
 
 export default function CreateStorePage() {
+  const { user } = useUser();
   const router = useRouter();
+  const { getToken } = useAuth();
+
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -58,16 +35,12 @@ export default function CreateStorePage() {
   const [previewCover, setPreviewCover] = useState<string | null>(null);
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
 
-  const [formData, setFormData] = useState<StoreFormData>({
+  const [storeInfo, setStoreInfo] = useState<StorestoreInfo>({
     storeName: "",
+    description: "",
     username: "",
-    slug: "",
     businessEmail: "",
     phoneNumber: "",
-    businessType: "INDIVIDUAL",
-    businessRegistrationNumber: "",
-    taxId: "",
-    description: "",
     address: {
       street: "",
       city: "",
@@ -75,12 +48,74 @@ export default function CreateStorePage() {
       postalCode: "",
       country: "",
     },
-
+    businessType: "INDIVIDUAL",
+    businessRegistrationNumber: "",
+    taxId: "",
+    slug: "",
     logo: null,
     coverImage: null,
     acceptTerms: false,
     marketingOptIn: false,
   });
+
+  /* ----------------------------- SLUG (DEBOUNCED) ----------------------------- */
+
+  const debouncedUsername = useDebounce(storeInfo.username, 800);
+
+  const lastRequestId = useRef(0);
+
+  useEffect(() => {
+    if (!debouncedUsername.trim()) {
+      setStoreInfo((p) => ({ ...p, slug: "" }));
+      return;
+    }
+
+    const controller = new AbortController();
+    const requestId = ++lastRequestId.current;
+
+    const generateSlug = async () => {
+      setIsGeneratingSlug(true);
+
+      try {
+        const res = await fetch(
+          `/api/store/slug?username=${encodeURIComponent(debouncedUsername)}`,
+          { signal: controller.signal }
+        );
+
+        const data = await res.json();
+
+        if (requestId !== lastRequestId.current) return;
+
+        setStoreInfo((p) => ({
+          ...p,
+          slug: data.slug,
+        }));
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+
+        const fallback = debouncedUsername
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        setStoreInfo((p) => ({
+          ...p,
+          slug: fallback || `store-${Date.now()}`,
+        }));
+      } finally {
+        if (requestId === lastRequestId.current) {
+          setIsGeneratingSlug(false);
+        }
+      }
+    };
+
+    generateSlug();
+
+    return () => {
+      controller.abort();
+    };
+  }, [debouncedUsername]);
 
   /* ----------------------------- VALIDATION ----------------------------- */
 
@@ -88,26 +123,26 @@ export default function CreateStorePage() {
     const newErrors: FormErrors = {};
 
     if (stepNumber === 1) {
-      if (!formData.storeName.trim())
+      if (!storeInfo.storeName.trim())
         newErrors.storeName = "Store name is required";
 
-      if (!formData.username.trim())
+      if (!storeInfo.username.trim())
         newErrors.username = "Store username is required";
 
-      if (!formData.description.trim())
+      if (!storeInfo.description.trim())
         newErrors.description = "Description is required";
     }
 
     if (stepNumber === 2) {
-      if (!formData.businessEmail)
+      if (!storeInfo.businessEmail)
         newErrors.businessEmail = "Business email is required";
 
-      if (!formData.phoneNumber)
+      if (!storeInfo.phoneNumber)
         newErrors.phoneNumber = "Phone number is required";
 
       if (
-        formData.businessType === "COMPANY" &&
-        !formData.businessRegistrationNumber
+        storeInfo.businessType === "COMPANY" &&
+        !storeInfo.businessRegistrationNumber
       ) {
         newErrors.businessRegistrationNumber =
           "Registration number required for companies";
@@ -115,12 +150,12 @@ export default function CreateStorePage() {
     }
 
     if (stepNumber === 3) {
-      if (!formData.address.street) newErrors.street = "Street is required";
-      if (!formData.address.city) newErrors.city = "City is required";
-      if (!formData.address.state) newErrors.state = "State is required";
-      if (!formData.address.postalCode)
+      if (!storeInfo.address.street) newErrors.street = "Street is required";
+      if (!storeInfo.address.city) newErrors.city = "City is required";
+      if (!storeInfo.address.state) newErrors.state = "State is required";
+      if (!storeInfo.address.postalCode)
         newErrors.postalCode = "Postal code is required";
-      if (!formData.address.country) newErrors.country = "Country is required";
+      if (!storeInfo.address.country) newErrors.country = "Country is required";
     }
 
     setErrors(newErrors);
@@ -136,68 +171,18 @@ export default function CreateStorePage() {
 
     if (name.startsWith("address.")) {
       const field = name.replace("address.", "");
-      setFormData((prev) => ({
+      setStoreInfo((prev) => ({
         ...prev,
         address: { ...prev.address, [field]: value },
       }));
       return;
     }
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setStoreInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUsernameChange = async (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      username: value,
-    }));
-
-    if (!value.trim()) {
-      setFormData((prev) => ({ ...prev, slug: "" }));
-      return;
-    }
-
-    setIsGeneratingSlug(true);
-
-    try {
-      const res = await fetch(
-        `/api/store/slug?username=${encodeURIComponent(value)}`
-      );
-
-      const text = await res.text();
-
-      try {
-        const data = JSON.parse(text);
-        setFormData((prev) => ({
-          ...prev,
-          slug: data.slug || "",
-        }));
-      } catch (parseError) {
-        const fallbackSlug = value
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "");
-
-        setFormData((prev) => ({
-          ...prev,
-          slug: fallbackSlug || `store-${Date.now()}`,
-        }));
-      }
-    } catch (error) {
-      const fallbackSlug = value
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
-
-      setFormData((prev) => ({
-        ...prev,
-        slug: fallbackSlug || `store-${Date.now()}`,
-      }));
-    } finally {
-      setIsGeneratingSlug(false);
-    }
+  const handleUsernameChange = (value: string) => {
+    setStoreInfo((p) => ({ ...p, username: value }));
   };
 
   const handleFileUpload = (
@@ -213,13 +198,13 @@ export default function CreateStorePage() {
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, logo: "Logo must be less than 2MB" }));
+        setErrors((prev) => ({ ...prev, logo: "Max 2MB" }));
         return;
       }
-      setFormData((prev) => ({ ...prev, logo: file }));
+      setStoreInfo((prev) => ({ ...prev, logo: file }));
       setPreviewLogo(URL.createObjectURL(file));
     } else {
-      setFormData((prev) => ({ ...prev, coverImage: file }));
+      setStoreInfo((prev) => ({ ...prev, coverImage: file }));
       setPreviewCover(URL.createObjectURL(file));
     }
   };
@@ -236,31 +221,97 @@ export default function CreateStorePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const buildFormData = (data: StorestoreInfo) => {
+    const formData = new FormData();
+
+    formData.append("storeName", data.storeName);
+    formData.append("username", data.username);
+    formData.append("description", data.description);
+    formData.append("businessEmail", data.businessEmail);
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("businessType", data.businessType);
+    formData.append("address", JSON.stringify(data.address));
+
+    if (data.businessRegistrationNumber) {
+      formData.append(
+        "businessRegistrationNumber",
+        data.businessRegistrationNumber
+      );
+    }
+
+    if (data.taxId) {
+      formData.append("taxId", data.taxId);
+    }
+
+    if (data.logo) {
+      formData.append("logo", data.logo);
+    }
+
+    if (data.coverImage) {
+      formData.append("coverImage", data.coverImage);
+    }
+
+    formData.append("acceptTerms", String(data.acceptTerms));
+    formData.append("marketingOptIn", String(data.marketingOptIn));
+
+    return formData;
+  };
+
   /* ----------------------------- SUBMIT ----------------------------- */
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!validateStep(step)) return;
+    const submission = (async () => {
+      if (!storeInfo.acceptTerms) {
+        setErrors({ acceptTerms: "You must accept the terms" });
+        throw new Error("You must accept the terms");
+      }
 
-    if (!formData.acceptTerms) {
-      setErrors({ acceptTerms: "You must accept the terms" });
-      return;
-    }
+      setIsSubmitting(true);
 
-    setIsSubmitting(true);
+      try {
+        const token = await getToken();
+        const formData = buildFormData(storeInfo);
 
-    try {
-      await new Promise((res) => setTimeout(res, 1500));
-      router.push("/dashboard?store=created");
-    } catch {
-      setErrors({ submit: "Failed to create store" });
-    } finally {
-      setIsSubmitting(false);
-    }
+        const { data } = await axios.post("/api/store/create", formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        return data;
+      } catch (error: any) {
+        setErrors({ submit: "Failed to create store" });
+
+        throw new Error(
+          error?.response?.data?.error?.message ||
+            error?.response?.data?.error ||
+            error.message ||
+            "Failed to create store"
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    })();
+
+    notifyStoreCreation(submission);
+  };
+
+  const notifyStoreCreation = (promise: Promise<any>) => {
+    toast.promise(promise, {
+      loading: "Submitting data...",
+      success: (data) => {
+        router.push("/admin");
+        return data.message || "Store created successfully";
+      },
+      error: (err) => err.message,
+    });
   };
 
   /* ----------------------------- RENDER ----------------------------- */
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6 px-3 sm:py-12 sm:px-4 lg:px-8 overflow-x-hidden">
@@ -283,7 +334,7 @@ export default function CreateStorePage() {
           >
             {step === 1 && (
               <StepStoreDetails
-                formData={formData}
+                storeInfo={storeInfo}
                 errors={errors}
                 onChange={handleInputChange}
                 onUsernameChange={handleUsernameChange}
@@ -295,11 +346,11 @@ export default function CreateStorePage() {
 
             {step === 2 && (
               <StepBusinessInfo
-                formData={formData}
+                storeInfo={storeInfo}
                 errors={errors}
                 onChange={handleInputChange}
                 onBusinessTypeChange={(value: BusinessType) =>
-                  setFormData((p) => ({ ...p, businessType: value }))
+                  setStoreInfo((p) => ({ ...p, businessType: value }))
                 }
                 handleFileUpload={handleFileUpload}
                 previewCover={previewCover}
@@ -308,30 +359,30 @@ export default function CreateStorePage() {
 
             {step === 3 && (
               <StepLocation
-                formData={formData}
+                storeInfo={storeInfo}
                 errors={errors}
                 onChange={handleInputChange}
                 onCountryChange={(value) =>
-                  setFormData((p) => ({
+                  setStoreInfo((p) => ({
                     ...p,
                     address: { ...p.address, country: value },
                   }))
                 }
                 onCheckboxChange={(checked) =>
-                  setFormData((p) => ({ ...p, marketingOptIn: checked }))
+                  setStoreInfo((p) => ({ ...p, marketingOptIn: checked }))
                 }
               />
             )}
 
             {step === 4 && (
               <>
-                <StepReview formData={formData} />
+                <StepReview storeInfo={storeInfo} />
 
                 <div className="mt-6 flex items-start gap-3">
                   <Checkbox
-                    checked={formData.acceptTerms}
+                    checked={storeInfo.acceptTerms}
                     onCheckedChange={(v) =>
-                      setFormData((p) => ({
+                      setStoreInfo((p) => ({
                         ...p,
                         acceptTerms: !!v,
                       }))

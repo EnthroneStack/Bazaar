@@ -12,7 +12,7 @@ import { AlertCircle, MapPinIcon } from "lucide-react";
 import { getCountryOptions } from "@/lib/getCountries";
 
 interface Props {
-  formData: any;
+  storeInfo: any;
   errors: Record<string, string>;
   onChange: (e: React.ChangeEvent<any>) => void;
   onCheckboxChange: (checked: boolean) => void;
@@ -20,7 +20,7 @@ interface Props {
 }
 
 const StepLocation = ({
-  formData,
+  storeInfo,
   errors,
   onChange,
   onCheckboxChange,
@@ -39,7 +39,7 @@ const StepLocation = ({
             </span>
             <Input
               name="address.street"
-              value={formData.address.street}
+              value={storeInfo.address.street}
               onChange={onChange}
               placeholder="123 Main Street"
               className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-r-lg border text-sm sm:text-base ${
@@ -60,7 +60,7 @@ const StepLocation = ({
             <Label className="text-sm sm:text-base">City *</Label>
             <Input
               name="address.city"
-              value={formData.address.city}
+              value={storeInfo.address.city}
               onChange={onChange}
               placeholder="New York"
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -79,7 +79,7 @@ const StepLocation = ({
             <Label className="text-sm sm:text-base">State/Province *</Label>
             <Input
               name="address.state"
-              value={formData.address.state}
+              value={storeInfo.address.state}
               onChange={onChange}
               placeholder="NY"
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -102,7 +102,7 @@ const StepLocation = ({
             <Label className="text-sm sm:text-base">Postal Code *</Label>
             <Input
               name="address.postalCode"
-              value={formData.address.postalCode}
+              value={storeInfo.address.postalCode}
               onChange={onChange}
               placeholder="10001"
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -120,7 +120,7 @@ const StepLocation = ({
           <div className="space-y-2">
             <Label className="text-sm sm:text-base">Country *</Label>
             <Select
-              value={formData.address.country}
+              value={storeInfo.address.country}
               onValueChange={onCountryChange}
             >
               <SelectTrigger className="text-sm sm:text-base">
@@ -150,7 +150,7 @@ const StepLocation = ({
         <div className="flex flex-col gap-3 p-3 sm:p-4 rounded-lg border border-gray-300 bg-gray-50">
           <div className="flex items-start space-x-3">
             <Checkbox
-              checked={formData.marketingOptIn}
+              checked={storeInfo.marketingOptIn}
               onCheckedChange={(v) => onCheckboxChange(!!v)}
               className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-white shrink-0"
             />

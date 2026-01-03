@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
-
 import AdminSidebar from "./AdminSidebar";
 import AdminNavbar from "./AdminNavbar";
 import Loading from "@/components/Loading";
 import { Store } from "./types";
+import { useAuth, useUser } from "@clerk/nextjs";
+import axios from "axios";
 
 export default function AdminLayout({
   children,
@@ -16,6 +17,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { user } = useUser();
+  const { getToken } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [store, setStore] = useState<Store | null>(null);
@@ -24,18 +27,31 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true);
 
   const fetchIsAdmin = async () => {
-    setIsAdmin(true);
-    setLoading(false);
+    try {
+      const token = await getToken();
+      const { data } = await axios.get("/api/admin/is-admin", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setIsAdmin(data.isAdmin);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchIsAdmin();
+    if (user) {
+      fetchIsAdmin();
+    }
 
     fetch("/api/store")
       .then((res) => res.json())
       .then((data) => setStore(data.store))
       .catch(() => {});
-  }, []);
+  }, [user]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });

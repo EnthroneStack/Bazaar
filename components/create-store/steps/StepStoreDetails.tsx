@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle, CameraIcon, Loader2 } from "lucide-react";
 
 interface StepStoreDetailsProps {
-  formData: any;
+  storeInfo: any;
   errors: Record<string, string>;
   onChange: (e: React.ChangeEvent<any>) => void;
   onUsernameChange: (value: string) => void;
@@ -18,7 +18,7 @@ interface StepStoreDetailsProps {
 }
 
 const StepStoreDetails = ({
-  formData,
+  storeInfo,
   errors,
   onChange,
   previewLogo,
@@ -39,7 +39,7 @@ const StepStoreDetails = ({
           <Input
             id="storeName"
             name="storeName"
-            value={formData.storeName}
+            value={storeInfo.storeName}
             onChange={onChange}
             placeholder="Tech Innovations Inc."
             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -62,7 +62,7 @@ const StepStoreDetails = ({
             <Input
               id="username"
               name="username"
-              value={formData.username}
+              value={storeInfo.username}
               onChange={(e) => onUsernameChange(e.target.value)}
               placeholder="zola-fashion"
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -90,7 +90,7 @@ const StepStoreDetails = ({
           <Label className="text-sm sm:text-base">Store Slug</Label>
           <div className="relative">
             <Input
-              value={formData.slug}
+              value={storeInfo.slug}
               disabled
               className="text-sm sm:text-base pr-10"
             />
@@ -102,9 +102,9 @@ const StepStoreDetails = ({
           </div>
           <p className="text-xs text-primary mt-1 break-words">
             Your store will be accessible at: https://bazaar.com/
-            {formData.slug || "your-store"}
+            {storeInfo.slug || "your-store"}
           </p>
-          {formData.slug && !isGeneratingSlug && (
+          {storeInfo.slug && !isGeneratingSlug && (
             <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
               ✓ Unique slug generated
             </p>
@@ -167,7 +167,7 @@ const StepStoreDetails = ({
             id="description"
             name="description"
             rows={5}
-            value={formData.description}
+            value={storeInfo.description}
             onChange={onChange}
             placeholder="Describe your business..."
             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-sm sm:text-base ${
@@ -175,7 +175,7 @@ const StepStoreDetails = ({
             } focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none min-h-[120px]`}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{formData.description.length}/500</span>
+            <span>{storeInfo.description.length}/500</span>
             {errors.description && (
               <span className="text-xs sm:text-sm text-red-600 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
