@@ -48,11 +48,13 @@
 "use client";
 
 import { Bell, Search, ChevronDown, Menu } from "lucide-react";
-import { useState } from "react";
 
-export default function StoreHeader() {
-  const [storeName] = useState("My Awesome Store");
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+type StoreHeaderProps = {
+  onMenuClick: () => void;
+};
+
+export default function StoreHeader({ onMenuClick }: StoreHeaderProps) {
+  const storeName = "My Awesome Store";
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
@@ -61,7 +63,7 @@ export default function StoreHeader() {
           {/* RESPONSIVE CHANGE: Mobile menu button */}
           <button
             className="sm:hidden p-2 text-gray-600 hover:text-gray-900"
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            onClick={onMenuClick}
           >
             <Menu className="h-5 w-5" />
           </button>

@@ -108,6 +108,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
+type StoreSidebarProps = {
+  isMobileOpen: boolean;
+  onClose: () => void;
+};
+
 const navigation = [
   { name: "Dashboard", href: "/store", icon: Home },
   { name: "Add Product", href: "/store/add-product", icon: PlusCircle },
@@ -122,21 +127,23 @@ const navigation = [
   { name: "Settings", href: "/store/settings", icon: Settings },
 ];
 
-export default function StoreSidebar() {
+export default function StoreSidebar({
+  isMobileOpen,
+  onClose,
+}: StoreSidebarProps) {
   const pathname = usePathname();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Close mobile sidebar when route changes
   useEffect(() => {
-    setIsMobileOpen(false);
-  }, [pathname]);
+    onClose();
+  }, [pathname, onClose]);
 
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const sidebar = document.getElementById("store-sidebar");
       if (isMobileOpen && sidebar && !sidebar.contains(event.target as Node)) {
-        setIsMobileOpen(false);
+        onClose();
       }
     };
 
@@ -165,7 +172,7 @@ export default function StoreSidebar() {
             <p className="text-sm text-gray-500">Menu</p>
           </div>
           <button
-            onClick={() => setIsMobileOpen(false)}
+            onClick={onClose}
             className="p-2 text-gray-600 hover:text-gray-900"
           >
             <X className="h-5 w-5" />
