@@ -37,7 +37,23 @@ export default function RootLayout({
             <SearchProvider>
               {/* <ProductTrackingProvider> */}
               {children}
-              <Toaster position="top-center" richColors />
+              <Toaster
+                position="top-center"
+                richColors
+                closeButton
+                toastOptions={{
+                  classNames: {
+                    success:
+                      "bg-green-600 text-white border border-green-700 shadow-lg",
+                    error:
+                      "bg-red-600 text-white border border-red-700 shadow-lg",
+                    loading:
+                      "bg-blue-600 text-white border border-blue-700 shadow-lg",
+                    info: "bg-slate-800 text-white border border-slate-700 shadow-lg",
+                  },
+                }}
+              />
+
               {/* </ProductTrackingProvider> */}
             </SearchProvider>
           </ReduxProvider>

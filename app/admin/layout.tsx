@@ -10,14 +10,14 @@ export const metadata = {
 const RootAdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <SignedIn>
-        <AdminLayout>{children}</AdminLayout>
-      </SignedIn>
-      <SignedOut>
+      {/* <SignedIn> */}
+      <AdminLayout>{children}</AdminLayout>
+      {/* </SignedIn> */}
+      {/* <SignedOut>
         <div className="min-h-screen flex items-center justify-center">
           <SignIn fallbackRedirectUrl="/admin" routing="hash" />
         </div>
-      </SignedOut>
+      </SignedOut> */}
     </>
   );
 };
