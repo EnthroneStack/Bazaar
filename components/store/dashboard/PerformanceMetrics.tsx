@@ -1,3 +1,77 @@
+// // components/store/dashboard/PerformanceMetrics.tsx
+// "use client";
+
+// import { TrendingUp, MoreVertical } from "lucide-react";
+// import { useState } from "react";
+
+// export default function PerformanceMetrics() {
+//   const [timeRange, setTimeRange] = useState("30d");
+
+//   const metrics = {
+//     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+//     revenue: [6500, 8900, 7200, 9800, 12000, 10500, 14000],
+//     orders: [120, 150, 130, 180, 220, 190, 240],
+//   };
+
+//   return (
+//     <div className="bg-white rounded-xl border border-gray-200 p-6">
+//       <div className="flex items-center justify-between mb-6">
+//         <div>
+//           <h3 className="text-lg font-semibold text-gray-900">
+//             Performance Metrics
+//           </h3>
+//           <p className="text-sm text-gray-600">Track your store's growth</p>
+//         </div>
+//         <div className="flex items-center space-x-4">
+//           <select
+//             value={timeRange}
+//             onChange={(e) => setTimeRange(e.target.value)}
+//             className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+//           >
+//             <option value="7d">Last 7 days</option>
+//             <option value="30d">Last 30 days</option>
+//             <option value="90d">Last 90 days</option>
+//           </select>
+//           <button className="p-2 hover:bg-gray-100 rounded-lg">
+//             <MoreVertical className="h-5 w-5 text-gray-600" />
+//           </button>
+//         </div>
+//       </div>
+
+//       <div className="space-y-8">
+//         {/* Revenue Chart */}
+//         <div>
+//           <div className="flex items-center justify-between mb-4">
+//             <div>
+//               <p className="text-sm text-gray-600">Revenue</p>
+//               <p className="text-2xl font-bold text-gray-900">$14,250</p>
+//             </div>
+//             <div className="flex items-center text-green-600 text-sm">
+//               <TrendingUp className="h-4 w-4 mr-1" />
+//               +12.5% from last period
+//             </div>
+//           </div>
+//           <div className="h-48 flex items-end space-x-2">
+//             {metrics.revenue.map((value, index) => (
+//               <div key={index} className="flex-1 flex flex-col items-center">
+//                 <div
+//                   className="w-full bg-blue-500 rounded-t-lg transition-all hover:opacity-80"
+//                   style={{
+//                     height: `${(value / Math.max(...metrics.revenue)) * 100}%`,
+//                   }}
+//                 />
+//                 <span className="text-xs text-gray-500 mt-2">
+//                   {metrics.labels[index]}
+//                 </span>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 // components/store/dashboard/PerformanceMetrics.tsx
 "use client";
 
@@ -14,19 +88,21 @@ export default function PerformanceMetrics() {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+      {/* RESPONSIVE CHANGE: Stack header on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
             Performance Metrics
           </h3>
           <p className="text-sm text-gray-600">Track your store's growth</p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* RESPONSIVE CHANGE: Adjust select size for mobile */}
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+            className="flex-1 sm:flex-none border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -38,20 +114,23 @@ export default function PerformanceMetrics() {
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Revenue Chart */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2 sm:gap-0">
             <div>
               <p className="text-sm text-gray-600">Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">$14,250</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                $14,250
+              </p>
             </div>
             <div className="flex items-center text-green-600 text-sm">
               <TrendingUp className="h-4 w-4 mr-1" />
               +12.5% from last period
             </div>
           </div>
-          <div className="h-48 flex items-end space-x-2">
+          {/* RESPONSIVE CHANGE: Adjust chart height and spacing for mobile */}
+          <div className="h-36 sm:h-48 flex items-end space-x-1 sm:space-x-2">
             {metrics.revenue.map((value, index) => (
               <div key={index} className="flex-1 flex flex-col items-center">
                 <div
