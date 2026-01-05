@@ -45,9 +45,7 @@ const ShopContent = () => {
     return () => clearTimeout(timeoutId);
   }, [filters]);
 
-  // Handle back to all products
   const handleBackToAllProducts = () => {
-    // Clear the search query from URL
     router.push("/shop", { scroll: false });
   };
 
@@ -101,7 +99,6 @@ const ShopContent = () => {
     return count;
   };
 
-  // Pass searchQuery to the filtering hook
   const filteredProducts = useProductFiltering(
     products,
     debouncedFilters,
@@ -125,7 +122,6 @@ const ShopContent = () => {
       </div>
 
       <div className="flex-1 w-full">
-        {/* Search Results Header with Back Button */}
         {searchQuery ? (
           <div className="my-6">
             <div className="flex items-center gap-4 mb-4">
@@ -166,7 +162,6 @@ const ShopContent = () => {
             </div>
           </div>
         ) : (
-          // Regular All Products Header
           <div className="my-6">
             <h1 className="text-2xl text-slate-500 flex items-center gap-2">
               All <span className="text-slate-700 font-medium">Products</span>
