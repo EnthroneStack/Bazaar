@@ -54,7 +54,7 @@ export default function StoreSidebar() {
           <DrawerTitle>Store Navigation</DrawerTitle>
         </VisuallyHidden>
 
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="font-semibold text-gray-900">Store Management</h2>
           <DrawerClose asChild>
             <button className="p-2 text-gray-600 hover:text-gray-900 cursor-pointer">
@@ -105,7 +105,7 @@ function SidebarLinks({
         })}
       </ul>
 
-      <div className="border-t mt-6 pt-4">
+      <div className="border-t border-gray-200 mt-6 pt-4">
         <button className="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg w-full">
           <HelpCircle className="h-4 w-4" />
           <span>Help & Support</span>
