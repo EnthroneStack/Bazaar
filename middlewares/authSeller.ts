@@ -4,16 +4,24 @@ const authSeller = async (userId: string) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { store: true },
+      select: {
+        store: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+            username: true,
+            status: true,
+            isActive: true,
+          },
+        },
+      },
     });
+    if (!user?.store) return null;
+    if (user.store.status !== "APPROVED") return null;
+    if (!user.store.isActive) return null;
 
-    if (user?.store) {
-      if (user.store.status === "APPROVED") {
-        return user.store.id;
-      }
-    } else {
-      return false;
-    }
+    return user.store;
   } catch (error) {
     console.error(error);
     return false;
