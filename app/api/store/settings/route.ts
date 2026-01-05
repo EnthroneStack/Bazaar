@@ -21,9 +21,9 @@ export async function GET() {
       );
     }
 
-    const storeId = await authSeller(userId);
+    const store = await authSeller(userId);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json(
         {
           success: false,
@@ -34,7 +34,7 @@ export async function GET() {
     }
 
     const data = await prisma.store.findUnique({
-      where: { id: storeId },
+      where: { id: store.id },
       include: { settings: true },
     });
 
@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest) {
 
     if (store && Object.keys(store).length > 0) {
       await prisma.store.update({
-        where: { id: storeId },
+        where: { id: storeId.id },
         data: {
           name: store.name,
           description: store.description,
@@ -107,7 +107,7 @@ export async function PATCH(request: NextRequest) {
 
     if (settings && Object.keys(settings).length > 0) {
       await prisma.storeSettings.update({
-        where: { storeId },
+        where: { storeId: storeId.id },
         data: {
           currency: settings.currency,
           timezone: settings.timezone,
@@ -119,7 +119,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updatedStore = await prisma.store.findUnique({
-      where: { id: storeId },
+      where: { id: storeId.id },
       include: { settings: true },
     });
 

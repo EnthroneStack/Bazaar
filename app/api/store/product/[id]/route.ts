@@ -11,14 +11,14 @@ export async function GET(
   try {
     const { id } = await context.params;
     const { userId } = await auth();
-    const storeId = await authSeller(userId as string);
+    const store = await authSeller(userId as string);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json({ error: "Store not found" }, { status: 404 });
     }
 
     const product = await prisma.product.findFirst({
-      where: { id, storeId },
+      where: { id, store },
       include: {
         category: true,
         rating: true,
@@ -61,9 +61,9 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const { userId } = await auth();
-    const storeId = await authSeller(userId as string);
+    const store = await authSeller(userId as string);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json({ error: "Store not found" }, { status: 404 });
     }
 
@@ -89,7 +89,7 @@ export async function PATCH(
     }
 
     const product = await prisma.product.updateMany({
-      where: { id, storeId },
+      where: { id, store },
       data: productData,
     });
 
@@ -115,14 +115,14 @@ export async function DELETE(
   try {
     const { id } = await context.params;
     const { userId } = await auth();
-    const storeId = await authSeller(userId as string);
+    const store = await authSeller(userId as string);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json({ error: "Store not found" }, { status: 404 });
     }
 
     const product = await prisma.product.findFirst({
-      where: { id, storeId },
+      where: { id, store },
       include: {
         _count: { select: { orderItems: true } },
       },

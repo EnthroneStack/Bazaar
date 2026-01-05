@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const storeId = await authSeller(userId);
+    const store = await authSeller(userId);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json({ error: "Store not found" }, { status: 404 });
     }
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         price,
         categoryId,
         images: imageUrl,
-        storeId,
+        storeId: store.id,
       },
     });
 
@@ -128,9 +128,9 @@ export async function GET() {
       );
     }
 
-    const storeId = await authSeller(userId);
+    const store = await authSeller(userId);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json(
         { success: false, error: "Store not found" },
         { status: 404 }
@@ -138,7 +138,7 @@ export async function GET() {
     }
 
     const products = await prisma.product.findMany({
-      where: { storeId: storeId },
+      where: { storeId: store.id },
       orderBy: { createdAt: "desc" },
     });
 

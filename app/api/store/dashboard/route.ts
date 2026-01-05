@@ -14,9 +14,9 @@ export async function GET() {
       );
     }
 
-    const storeId = await authSeller(userId);
+    const store = await authSeller(userId);
 
-    if (!storeId) {
+    if (!store) {
       return NextResponse.json(
         { success: false, error: "Store not found" },
         { status: 404 }
@@ -25,12 +25,12 @@ export async function GET() {
 
     // Get all orders for seller
     const orders = await prisma.order.findMany({
-      where: { storeId },
+      where: { storeId: store.id },
     });
 
     // Get all products with ratings for seller
     const products = await prisma.product.findMany({
-      where: { storeId },
+      where: { storeId: store.id },
     });
 
     const ratings = await prisma.rating.findMany({
