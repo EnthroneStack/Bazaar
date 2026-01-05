@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, Menu } from "lucide-react";
+import { Bell, ChevronDown, Eye, Menu, Settings, User } from "lucide-react";
 import { DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 type Store = {
   id: string;
@@ -16,6 +24,7 @@ type Store = {
 export default function StoreHeader() {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -57,10 +66,10 @@ export default function StoreHeader() {
 
     return (
       <>
-        <h2 className="text-lg font-semibold truncate max-w-[200px]">
+        <h2 className="text-2xl font-bold truncate max-w-[300px]">
           {store.name}
         </h2>
-        <p className="text-sm text-gray-500">#{store.id.slice(0, 8)}</p>
+        <p className="text-sm text-gray-500">ID: #{store.id.slice(0, 8)}</p>
       </>
     );
   };
@@ -68,7 +77,7 @@ export default function StoreHeader() {
   const renderAvatar = () => {
     if (loading) {
       return (
-        <div className="h-8 w-8 rounded-full bg-primary/20 animate-pulse" />
+        <div className="h-12 w-12 rounded-full bg-primary/20 animate-pulse" />
       );
     }
 
@@ -81,12 +90,65 @@ export default function StoreHeader() {
         .toUpperCase() || "ST";
 
     return (
-      <Avatar className="h-8 w-8">
-        <AvatarImage src={store?.logo ?? undefined} />
-        <AvatarFallback className="bg-primary/10 text-primary font-medium">
-          {initials}
-        </AvatarFallback>
-      </Avatar>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild disabled={!store}>
+          <Button
+            variant="ghost"
+            className={`focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full transition-all ${
+              store ? "hover:scale-105 cursor-pointer" : "cursor-default"
+            }`}
+          >
+            <Avatar
+              className={`h-12 w-12 border-2 ${
+                store ? "border-primary/20" : "border-gray-200"
+              }`}
+            >
+              <AvatarImage src={store?.logo ?? undefined} />
+              <AvatarFallback
+                className={`text-lg font-semibold ${
+                  store
+                    ? "bg-primary/10 text-primary"
+                    : "bg-gray-100 text-gray-400"
+                }`}
+              >
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+
+        {store && (
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem
+              onClick={() => {
+                if (store?.logo) {
+                  window.open(store.logo, "_blank");
+                }
+              }}
+              className="cursor-pointer"
+              disabled={!store?.logo}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              {store?.logo ? "View Logo" : "No Logo Available"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => router.push("/store/profile")}
+              className="cursor-pointer"
+            >
+              <User className="mr-2 h-4 w-4" />
+              Store Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push("/store/settings")}
+              className="cursor-pointer"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        )}
+      </DropdownMenu>
     );
   };
 
@@ -114,8 +176,6 @@ export default function StoreHeader() {
           </Button>
 
           {renderAvatar()}
-
-          <ChevronDown className="h-4 w-4 text-gray-500 hidden sm:block" />
         </div>
       </div>
 
