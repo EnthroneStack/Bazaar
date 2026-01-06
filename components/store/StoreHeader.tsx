@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, Eye, Menu, Settings, User } from "lucide-react";
+import { ArrowLeft, Bell, Eye, Menu, Settings, User } from "lucide-react";
 import { DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 type Store = {
   id: string;
@@ -25,24 +25,37 @@ export default function StoreHeader() {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isMainStorePage = pathname === "/store";
+
+  const fetchStore = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/store");
+
+      const data = await res.json();
+      setStore(data.store);
+    } catch (error) {
+      console.error("Failed to load store: ", error);
+      setStore(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStore = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/store");
+    fetchStore();
 
-        const data = await res.json();
-        setStore(data.store);
-      } catch (error) {
-        console.error("Failed to load store: ", error);
-        setStore(null);
-      } finally {
-        setLoading(false);
-      }
+    const refetchStore = () => {
+      fetchStore();
     };
 
-    fetchStore();
+    window.addEventListener("store-updated", refetchStore);
+
+    return () => {
+      window.removeEventListener("store-updated", refetchStore);
+    };
   }, []);
 
   const renderStoreInfo = () => {
@@ -118,7 +131,10 @@ export default function StoreHeader() {
         </DropdownMenuTrigger>
 
         {store && (
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent
+            align="end"
+            className="w-56 bg-white border border-gray-200 shadow-lg"
+          >
             <DropdownMenuItem
               onClick={() => {
                 if (store?.logo) {
@@ -156,6 +172,17 @@ export default function StoreHeader() {
     <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          {!isMainStorePage && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              className="hover:bg-gray-100"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          )}
           <DrawerTrigger asChild>
             <Button variant="ghost" size="icon-lg" className="sm:hidden">
               <Menu className="h-5 w-5" />

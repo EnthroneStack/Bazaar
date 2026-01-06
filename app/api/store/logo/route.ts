@@ -43,14 +43,12 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Image upload to imagekit
     const response = await imagekit.files.upload({
       file: image,
       fileName: image.name,
       folder: "logos",
     });
 
-    // URL with basic transformations
     const logoUrl = imagekit.helper.buildSrc({
       urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT as string,
       src: response.filePath as string,

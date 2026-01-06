@@ -43,12 +43,10 @@ export default function StoreSidebar() {
 
   return (
     <>
-      {/* Desktop sidebar (unchanged) */}
       <aside className="hidden lg:block w-64 bg-white border-r border-gray-200">
         <SidebarLinks pathname={pathname} />
       </aside>
 
-      {/* Mobile drawer */}
       <DrawerContent className="fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-[9999]">
         <VisuallyHidden>
           <DrawerTitle>Store Navigation</DrawerTitle>

@@ -18,13 +18,7 @@ import StepLocation from "@/components/create-store/steps/StepLocation";
 import StepReview from "@/components/create-store/steps/StepReview";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  Home,
-  ShoppingBag,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/useDebounce";

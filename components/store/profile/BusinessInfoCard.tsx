@@ -53,6 +53,7 @@ export function BusinessInfoCard({ store }: BusinessInfoCardProps) {
                     ? "secondary"
                     : "destructive"
                 }
+                className="text-white"
               >
                 {store.status}
               </Badge>

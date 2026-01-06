@@ -1,5 +1,6 @@
 "use client";
 
+import { StoreProfile } from "@/app/store/profile/page";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -14,15 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Store } from "lucide-react";
 
 interface BasicInfoCardProps {
-  store: {
-    name: string;
-    username: string;
-    email: string;
-    contact: string;
-    description: string;
-  };
+  store: StoreProfile;
   editing: boolean;
   onFieldChange: (field: string, value: string) => void;
+  hasUnsavedChanges: boolean;
 }
 
 export function BasicInfoCard({
@@ -45,7 +41,7 @@ export function BasicInfoCard({
                 id="name"
                 value={store.name}
                 onChange={(e) => onFieldChange("name", e.target.value)}
-                className="focus:ring-2 focus:ring-primary"
+                className="focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
               />
             ) : (
               <div className="flex items-center gap-2 p-2 border rounded-md">
@@ -79,7 +75,7 @@ export function BasicInfoCard({
                 id="contact"
                 value={store.contact}
                 onChange={(e) => onFieldChange("contact", e.target.value)}
-                className="focus:ring-2 focus:ring-primary"
+                className="focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
               />
             ) : (
               <div className="flex items-center gap-2 p-2 border rounded-md">
@@ -98,7 +94,7 @@ export function BasicInfoCard({
               value={store.description}
               onChange={(e) => onFieldChange("description", e.target.value)}
               rows={3}
-              className="focus:ring-2 focus:ring-primary"
+              className="focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
             />
           ) : (
             <p className="p-2 border rounded-md">{store.description}</p>

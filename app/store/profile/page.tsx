@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -9,8 +9,9 @@ import { LogoUploadCard } from "@/components/store/profile/LogoUploadCard";
 import { BasicInfoCard } from "@/components/store/profile/BasicInfoCard";
 import { BusinessInfoCard } from "@/components/store/profile/BusinessInfoCard";
 import { MetadataCard } from "@/components/store/profile/MetadataCard";
+import { toast } from "sonner";
 
-type StoreProfile = {
+export type StoreProfile = {
   id: string;
   name: string;
   description: string;
@@ -31,12 +32,14 @@ type StoreProfile = {
 
 export default function StoreProfilePage() {
   const [store, setStore] = useState<StoreProfile | null>(null);
+  const [originalStore, setOriginalStore] = useState<StoreProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchStore();
@@ -51,64 +54,112 @@ export default function StoreProfilePage() {
 
       const data = await res.json();
       setStore(data.store);
+      setOriginalStore(data.store);
     } catch (error) {
       console.error("Failed to load store:", error);
-      setError("Failed to load store information");
+      toast.error("Failed to load store information");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async () => {
-    if (!store) return;
-
-    try {
-      setSaving(true);
-      setError(null);
-
-      const res = await fetch("/api/store/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: store.name,
-          description: store.description,
-          contact: store.contact,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to update store");
-
-      setSuccess(true);
-      setEditing(false);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to update");
-    } finally {
-      setSaving(false);
+  const handleLogoPreview = (file: File | null) => {
+    if (!file) {
+      setLogoPreview(null);
+      setLogoFile(null);
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogoPreview(reader.result as string);
+      setLogoFile(file);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleLogoUpload = async (file: File) => {
+  const uploadLogoToServer = async (file: File): Promise<string> => {
     try {
       const formData = new FormData();
       formData.append("logo", file);
 
-      const res = await fetch("/api/store/upload-logo", {
-        method: "POST",
+      const res = await fetch("/api/store/logo", {
+        method: "PATCH",
         body: formData,
       });
 
       if (!res.ok) throw new Error("Failed to upload logo");
 
       const data = await res.json();
-      setStore((prev) => (prev ? { ...prev, logo: data.logoUrl } : null));
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      return data.logo;
     } catch (error) {
-      setError("Failed to upload logo");
+      console.error("Logo upload error:", error);
+      throw error;
     }
+  };
+
+  const handleSave = async () => {
+    if (!store) return;
+
+    setSaving(true);
+
+    await toast.promise(
+      async () => {
+        let logoUrl = store.logo;
+
+        if (logoFile) {
+          logoUrl = await uploadLogoToServer(logoFile);
+        }
+
+        const res = await fetch("/api/store/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: store.name,
+            description: store.description,
+            contact: store.contact,
+          }),
+        });
+
+        if (!res.ok) throw new Error("Failed to update store");
+
+        const updatedData = await res.json();
+
+        setStore(updatedData.store);
+        setOriginalStore(updatedData.store);
+
+        window.dispatchEvent(new Event("store-updated"));
+
+        setLogoPreview(null);
+        setLogoFile(null);
+        setEditing(false);
+      },
+      {
+        loading: logoFile
+          ? "Uploading logo & saving changes..."
+          : "Saving changes...",
+        success: "Profile updated successfully",
+        error: (err) =>
+          err instanceof Error ? err.message : "Failed to update profile",
+      }
+    );
+
+    setSaving(false);
+  };
+
+  const handleCancel = () => {
+    if (originalStore) {
+      setStore(originalStore);
+    }
+
+    setLogoPreview(null);
+    setLogoFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    setEditing(false);
   };
 
   const handleFieldChange = (field: string, value: string) => {
@@ -139,6 +190,8 @@ export default function StoreProfilePage() {
     );
   }
 
+  const currentLogo = logoPreview || store.logo;
+
   return (
     <div className="container mx-auto p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
@@ -146,16 +199,24 @@ export default function StoreProfilePage() {
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-bold">Store Profile</h1>
+          <h1 className="text-2xl font-bold text-gray-700">Store Profile</h1>
         </div>
 
         <div className="flex gap-2">
           {editing ? (
             <>
-              <Button variant="outline" onClick={() => setEditing(false)}>
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                className="border border-gray-300 text-gray-600"
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button
+                onClick={handleSave}
+                className="text-white"
+                disabled={saving}
+              >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
@@ -165,37 +226,28 @@ export default function StoreProfilePage() {
               </Button>
             </>
           ) : (
-            <Button onClick={() => setEditing(true)}>Edit Profile</Button>
+            <Button onClick={() => setEditing(true)} className="text-white">
+              Edit Profile
+            </Button>
           )}
         </div>
       </div>
 
-      {success && (
-        <Alert className="mb-6 bg-green-50 border-green-200">
-          <AlertDescription className="text-green-700">
-            Profile updated successfully!
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       <div className="grid gap-6">
         <LogoUploadCard
-          logo={store.logo}
+          logo={currentLogo}
           storeName={store.name}
           editing={editing}
-          onLogoUpload={handleLogoUpload}
+          onLogoPreview={handleLogoPreview}
+          fileInputRef={fileInputRef}
+          hasUnsavedLogo={!!logoFile}
         />
 
         <BasicInfoCard
           store={store}
           editing={editing}
           onFieldChange={handleFieldChange}
+          hasUnsavedChanges={editing}
         />
 
         <BusinessInfoCard store={store} />
