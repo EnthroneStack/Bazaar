@@ -1794,15 +1794,3 @@
 // };
 
 // export default ProductDetail;
-
-import React from "react";
-
-const ProductDetail = () => {
-  return (
-    <div>
-      <p>Product Details</p>
-    </div>
-  );
-};
-
-export default ProductDetail;

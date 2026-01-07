@@ -1,407 +1,252 @@
-// // components/store/products/ProductForm.tsx
-// "use client";
-
-// import { useState } from "react";
-// import { Upload, X } from "lucide-react";
-
-// export default function ProductForm() {
-//   const [images, setImages] = useState<string[]>([]);
-
-//   const categories = [
-//     "Electronics",
-//     "Fashion",
-//     "Home & Garden",
-//     "Beauty",
-//     "Sports",
-//     "Books",
-//   ];
-//   const tags = ["Featured", "New Arrival", "Best Seller", "Clearance"];
-
-//   return (
-//     <div className="bg-white rounded-xl border border-gray-200 p-6">
-//       <form className="space-y-8">
-//         {/* Basic Information */}
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-//             Basic Information
-//           </h3>
-//           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Product Name *
-//               </label>
-//               <input
-//                 type="text"
-//                 required
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//                 placeholder="Enter product name"
-//               />
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 SKU *
-//               </label>
-//               <input
-//                 type="text"
-//                 required
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//                 placeholder="Enter SKU"
-//               />
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Category *
-//               </label>
-//               <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-//                 <option value="">Select category</option>
-//                 {categories.map((cat) => (
-//                   <option key={cat} value={cat}>
-//                     {cat}
-//                   </option>
-//                 ))}
-//               </select>
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Price *
-//               </label>
-//               <input
-//                 type="number"
-//                 step="0.01"
-//                 required
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//                 placeholder="0.00"
-//               />
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Description */}
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-//             Description
-//           </h3>
-//           <textarea
-//             rows={4}
-//             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//             placeholder="Describe your product in detail..."
-//           />
-//         </div>
-
-//         {/* Images */}
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-//             Product Images
-//           </h3>
-//           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-//             <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-//             <p className="text-gray-600 mb-2">
-//               Drag & drop images here or click to browse
-//             </p>
-//             <p className="text-sm text-gray-500 mb-4">
-//               Recommended: 1200x1200px, max 10MB each
-//             </p>
-//             <button
-//               type="button"
-//               className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200"
-//             >
-//               Browse Files
-//             </button>
-//           </div>
-//           {images.length > 0 && (
-//             <div className="grid grid-cols-4 gap-4 mt-4">
-//               {images.map((img, idx) => (
-//                 <div key={idx} className="relative group">
-//                   <div className="aspect-square bg-gray-100 rounded-lg"></div>
-//                   <button
-//                     type="button"
-//                     className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-//                   >
-//                     <X className="h-4 w-4" />
-//                   </button>
-//                 </div>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-
-//         {/* Inventory */}
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-//             Inventory
-//           </h3>
-//           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Stock Quantity *
-//               </label>
-//               <input
-//                 type="number"
-//                 required
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//                 placeholder="0"
-//               />
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Low Stock Threshold
-//               </label>
-//               <input
-//                 type="number"
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//                 placeholder="10"
-//               />
-//             </div>
-//             <div>
-//               <label className="flex items-center space-x-2">
-//                 <input type="checkbox" className="rounded text-blue-600" />
-//                 <span className="text-sm text-gray-700">Track inventory</span>
-//               </label>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Tags */}
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900 mb-4">Tags</h3>
-//           <div className="flex flex-wrap gap-2">
-//             {tags.map((tag) => (
-//               <label
-//                 key={tag}
-//                 className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg"
-//               >
-//                 <input type="checkbox" className="rounded text-blue-600" />
-//                 <span className="text-sm text-gray-700">{tag}</span>
-//               </label>
-//             ))}
-//           </div>
-//         </div>
-
-//         {/* Actions */}
-//         <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-//           <button
-//             type="button"
-//             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-//           >
-//             Save as Draft
-//           </button>
-//           <button
-//             type="submit"
-//             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-//           >
-//             Publish Product
-//           </button>
-//         </div>
-//       </form>
-//     </div>
-//   );
-// }
-
-// components/store/products/ProductForm.tsx
 "use client";
 
 import { useState } from "react";
-import { Upload, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import CategorySelect from "./CategorySelect";
+import ImageUploader from "./ImageUploader";
+import InventoryInput from "./InventoryInput";
+import TagInput from "./TagInput";
 
 export default function ProductForm() {
-  const [images, setImages] = useState<string[]>([]);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [isDraft, setIsDraft] = useState(false);
 
-  const categories = [
-    "Electronics",
-    "Fashion",
-    "Home & Garden",
-    "Beauty",
-    "Sports",
-    "Books",
-  ];
-  const tags = ["Featured", "New Arrival", "Best Seller", "Clearance"];
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    mrp: "",
+    price: "",
+    categoryId: "",
+    images: [] as string[],
+    inStock: true,
+    stockQuantity: 0,
+    lowStockThreshold: 10,
+    tags: [] as string[],
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (!formData.name || !formData.price || !formData.categoryId) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      const productData = {
+        name: formData.name,
+        description: formData.description,
+        mrp: parseFloat(formData.mrp) || parseFloat(formData.price),
+        price: parseFloat(formData.price),
+        categoryId: formData.categoryId,
+        images: formData.images,
+        inStock: formData.inStock,
+        tags: formData.tags,
+        status: isDraft ? "draft" : "published",
+      };
+
+      const response = await fetch("/api/store/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create product");
+      }
+
+      const result = await response.json();
+
+      toast.success(
+        isDraft ? "Product saved as draft" : "Product published successfully"
+      );
+
+      setTimeout(() => {
+        router.push("/store/manage-product");
+      }, 1500);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-      <form className="space-y-6 sm:space-y-8">
-        {/* Basic Information */}
-        <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">
             Basic Information
-          </h3>
-          {/* RESPONSIVE CHANGE: 1 column mobile, 2 columns desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">
                 Product Name *
-              </label>
-              <input
-                type="text"
-                required
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter product name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                SKU *
-              </label>
-              <input
-                type="text"
+                className="text-sm sm:text-base"
                 required
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="Enter SKU"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+
+            <div className="space-y-2">
+              <Label htmlFor="category" className="text-sm font-medium">
                 Category *
-              </label>
-              <select className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
-                <option value="">Select category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              </Label>
+              <CategorySelect
+                value={formData.categoryId}
+                onChange={(value) => handleInputChange("categoryId", value)}
+              />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price *
-              </label>
-              <input
+
+            <div className="space-y-2">
+              <Label htmlFor="mrp" className="text-sm font-medium">
+                MRP (Maximum Retail Price)
+              </Label>
+              <Input
+                id="mrp"
                 type="number"
                 step="0.01"
-                required
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                value={formData.mrp}
+                onChange={(e) => handleInputChange("mrp", e.target.value)}
                 placeholder="0.00"
+                className="text-sm sm:text-base"
               />
             </div>
-          </div>
-        </div>
 
-        {/* Description */}
-        <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-            Description
-          </h3>
-          <textarea
-            rows={3}
-            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-            placeholder="Describe your product in detail..."
-          />
-        </div>
-
-        {/* Images */}
-        <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-            Product Images
-          </h3>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center">
-            <Upload className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
-            <p className="text-sm sm:text-base text-gray-600 mb-2">
-              Drag & drop images here or click to browse
-            </p>
-            <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-              Recommended: 1200x1200px, max 10MB each
-            </p>
-            <button
-              type="button"
-              className="bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-200 text-sm sm:text-base"
-            >
-              Browse Files
-            </button>
-          </div>
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-4">
-              {images.map((img, idx) => (
-                <div key={idx} className="relative group">
-                  <div className="aspect-square bg-gray-100 rounded-lg"></div>
-                  <button
-                    type="button"
-                    className="absolute top-1 sm:top-2 right-1 sm:right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Inventory */}
-        <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-            Inventory
-          </h3>
-          {/* RESPONSIVE CHANGE: 1 column mobile, 3 columns desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Stock Quantity *
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-sm font-medium">
+                Selling Price *
+              </Label>
+              <Input
+                id="price"
                 type="number"
+                step="0.01"
+                value={formData.price}
+                onChange={(e) => handleInputChange("price", e.target.value)}
+                placeholder="0.00"
+                className="text-sm sm:text-base"
                 required
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="0"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Low Stock Threshold
-              </label>
-              <input
-                type="number"
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="10"
-              />
-            </div>
-            <div className="flex items-end">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  className="rounded text-blue-600 h-4 w-4"
-                />
-                <span className="text-sm text-gray-700">Track inventory</span>
-              </label>
-            </div>
           </div>
-        </div>
 
-        {/* Tags */}
-        <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-            Tags
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <label
-                key={tag}
-                className="flex items-center space-x-2 bg-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-lg"
-              >
-                <input
-                  type="checkbox"
-                  className="rounded text-blue-600 h-3 w-3 sm:h-4 sm:w-4"
-                />
-                <span className="text-xs sm:text-sm text-gray-700">{tag}</span>
-              </label>
-            ))}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium">
+              Description *
+            </Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Describe your product in detail..."
+              rows={4}
+              className="text-sm sm:text-base resize-none"
+              required
+            />
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Actions - RESPONSIVE CHANGE: Stack buttons on mobile */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:space-x-4 pt-4 sm:pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
-          >
-            Save as Draft
-          </button>
-          <button
-            type="submit"
-            className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
-          >
-            Publish Product
-          </button>
-        </div>
-      </form>
-    </div>
+      {/* Images Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">Product Images</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ImageUploader
+            images={formData.images}
+            onImagesChange={(images) => handleInputChange("images", images)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Inventory Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">Inventory</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <InventoryInput
+            inStock={formData.inStock}
+            stockQuantity={formData.stockQuantity}
+            lowStockThreshold={formData.lowStockThreshold}
+            onInStockChange={(value) => handleInputChange("inStock", value)}
+            onStockQuantityChange={(value) =>
+              handleInputChange("stockQuantity", value)
+            }
+            onLowStockThresholdChange={(value) =>
+              handleInputChange("lowStockThreshold", value)
+            }
+          />
+        </CardContent>
+      </Card>
+
+      {/* Tags Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">
+            Tags & Organization
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TagInput
+            tags={formData.tags}
+            onTagsChange={(tags) => handleInputChange("tags", tags)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4 border-t">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setIsDraft(true)}
+          disabled={loading}
+          className="w-full sm:w-auto"
+        >
+          Save as Draft
+        </Button>
+        <Button
+          type="submit"
+          onClick={() => setIsDraft(false)}
+          disabled={loading}
+          className="w-full sm:w-auto"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isDraft ? "Saving..." : "Publishing..."}
+            </>
+          ) : (
+            "Publish Product"
+          )}
+        </Button>
+      </div>
+    </form>
   );
 }
