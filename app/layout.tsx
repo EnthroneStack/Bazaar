@@ -39,17 +39,29 @@ export default function RootLayout({
               {children}
               <Toaster
                 position="top-center"
-                richColors
                 closeButton
                 toastOptions={{
+                  style: {
+                    color: "white",
+                  },
                   classNames: {
-                    success:
-                      "bg-green-600 text-white border border-green-700 shadow-lg",
-                    error:
-                      "bg-red-600 text-white border border-red-700 shadow-lg",
-                    loading:
-                      "bg-blue-600 text-white border border-blue-700 shadow-lg",
-                    info: "bg-slate-800 text-white border border-slate-700 shadow-lg",
+                    success: "!bg-green-600 text-white border-0",
+                    error: "!bg-red-600 text-white border-0",
+                    info: "!bg-blue-600 text-white border-0",
+                    warning: "!bg-amber-600 text-white border-0",
+                    loading: "!bg-gray-700 text-white border-0",
+
+                    toast: "text-white group",
+                    title: "text-white font-semibold",
+                    description: "text-white/90",
+
+                    actionButton: "bg-white text-green-600 hover:bg-white/90",
+                    cancelButton: "bg-gray-300 text-gray-700 hover:bg-gray-400",
+
+                    closeButton:
+                      "!bg-gray-900 hover:!bg-black text-white border-0 left-auto",
+
+                    icon: "text-white",
                   },
                 }}
               />

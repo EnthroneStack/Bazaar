@@ -1,390 +1,3 @@
-// "use client";
-
-// import { useState, useRef, useEffect } from "react";
-// import {
-//   Upload,
-//   X,
-//   Star,
-//   ChevronLeft,
-//   ChevronRight,
-//   GripHorizontal,
-// } from "lucide-react";
-// import { motion, Reorder } from "framer-motion";
-// import { cn } from "@/lib/utils";
-// import { toast } from "sonner";
-
-// interface Props {
-//   images: string[];
-//   onImagesChange: (images: string[]) => void;
-//   maxImages?: number;
-// }
-
-// export default function CompactImageUploader({
-//   images,
-//   onImagesChange,
-//   maxImages = 8,
-// }: Props) {
-//   const inputRef = useRef<HTMLInputElement>(null);
-//   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
-//   const [previewIndex, setPreviewIndex] = useState<number>(0);
-//   const [dragging, setDragging] = useState(false);
-//   const [isTouchDragging, setIsTouchDragging] = useState(false);
-//   const [touchStartX, setTouchStartX] = useState(0);
-//   const [thumbnailScrollLeft, setThumbnailScrollLeft] = useState(0);
-
-//   // Handle thumbnail scrolling
-//   useEffect(() => {
-//     const container = thumbnailContainerRef.current;
-//     if (!container || images.length === 0) return;
-
-//     // Scroll active thumbnail into view
-//     const thumbnailWidth = 88; // w-20 + gap-2
-//     const scrollPos =
-//       previewIndex * thumbnailWidth -
-//       container.clientWidth / 2 +
-//       thumbnailWidth / 2;
-//     container.scrollTo({ left: scrollPos, behavior: "smooth" });
-//   }, [previewIndex, images.length]);
-
-//   const handleUpload = (files: FileList) => {
-//     const fileList = Array.from(files);
-
-//     if (images.length + fileList.length > maxImages) {
-//       toast.error(`Maximum ${maxImages} images allowed`);
-//       return;
-//     }
-
-//     const newUrls: string[] = [];
-//     fileList.forEach((file) => {
-//       if (!file.type.startsWith("image/")) {
-//         toast.error(`${file.name} is not an image`);
-//         return;
-//       }
-//       if (file.size > 10 * 1024 * 1024) {
-//         toast.error(`${file.name} exceeds 10MB`);
-//         return;
-//       }
-//       newUrls.push(URL.createObjectURL(file));
-//     });
-
-//     if (newUrls.length) {
-//       const updated = [...images, ...newUrls];
-//       onImagesChange(updated);
-//       setPreviewIndex(images.length);
-//       toast.success(
-//         `Added ${newUrls.length} image${newUrls.length > 1 ? "s" : ""}`
-//       );
-//     }
-//   };
-
-//   const removeImage = (index: number) => {
-//     if (images.length === 1) {
-//       onImagesChange([]);
-//       setPreviewIndex(0);
-//       toast.info("Image removed");
-//       return;
-//     }
-
-//     const newImages = images.filter((_, i) => i !== index);
-//     onImagesChange(newImages);
-
-//     if (previewIndex === index) {
-//       setPreviewIndex(Math.max(0, index - 1));
-//     } else if (previewIndex > index) {
-//       setPreviewIndex(previewIndex - 1);
-//     }
-//     toast.info("Image removed");
-//   };
-
-//   const setAsMain = (index: number) => {
-//     if (index === 0) return;
-//     const newImages = [...images];
-//     const [mainImage] = newImages.splice(index, 1);
-//     newImages.unshift(mainImage);
-//     onImagesChange(newImages);
-//     setPreviewIndex(0);
-//     toast.success("Set as main image");
-//   };
-
-//   const nextImage = () => setPreviewIndex((prev) => (prev + 1) % images.length);
-//   const prevImage = () =>
-//     setPreviewIndex((prev) => (prev - 1 + images.length) % images.length);
-
-//   // Touch handlers for horizontal scrolling
-//   const handleTouchStart = (e: React.TouchEvent) => {
-//     setTouchStartX(e.touches[0].clientX);
-//     setIsTouchDragging(true);
-//   };
-
-//   const handleTouchMove = (e: React.TouchEvent) => {
-//     if (!isTouchDragging) return;
-
-//     const touchX = e.touches[0].clientX;
-//     const diff = touchStartX - touchX;
-
-//     if (Math.abs(diff) > 10) {
-//       // Swipe threshold
-//       const container = thumbnailContainerRef.current;
-//       if (container) {
-//         const scrollLeft = container.scrollLeft;
-//         container.scrollLeft = scrollLeft + diff;
-//         setTouchStartX(touchX);
-//       }
-//     }
-//   };
-
-//   const handleTouchEnd = () => {
-//     setIsTouchDragging(false);
-//   };
-
-//   // Handle thumbnail scroll with mouse drag
-//   const handleMouseDown = (e: React.MouseEvent) => {
-//     const container = thumbnailContainerRef.current;
-//     if (!container) return;
-
-//     setIsTouchDragging(true);
-//     setThumbnailScrollLeft(container.scrollLeft);
-//     const startX = e.pageX - container.offsetLeft;
-
-//     const handleMouseMove = (e: MouseEvent) => {
-//       if (!isTouchDragging) return;
-//       const x = e.pageX - container.offsetLeft;
-//       const walk = (x - startX) * 2;
-//       container.scrollLeft = thumbnailScrollLeft - walk;
-//     };
-
-//     const handleMouseUp = () => {
-//       setIsTouchDragging(false);
-//       document.removeEventListener("mousemove", handleMouseMove);
-//       document.removeEventListener("mouseup", handleMouseUp);
-//     };
-
-//     document.addEventListener("mousemove", handleMouseMove);
-//     document.addEventListener("mouseup", handleMouseUp);
-//   };
-
-//   return (
-//     <div className="space-y-4">
-//       {/* Upload Bar */}
-//       <div
-//         onClick={() => inputRef.current?.click()}
-//         onDrop={(e) => {
-//           e.preventDefault();
-//           handleUpload(e.dataTransfer.files);
-//           setDragging(false);
-//         }}
-//         onDragOver={(e) => {
-//           e.preventDefault();
-//           setDragging(true);
-//         }}
-//         onDragLeave={() => setDragging(false)}
-//         className={cn(
-//           "flex items-center justify-between rounded-lg border-2 px-4 py-3 cursor-pointer transition-all duration-200",
-//           dragging
-//             ? "border-primary bg-primary/5 border-solid"
-//             : "border-dashed border-gray-300 hover:border-primary hover:bg-gray-50"
-//         )}
-//       >
-//         <div className="flex items-center gap-3">
-//           <div className="p-2 bg-primary/10 rounded-lg">
-//             <Upload className="h-5 w-5 text-primary" />
-//           </div>
-//           <div>
-//             <p className="font-medium">Upload product images</p>
-//             <p className="text-sm text-gray-500">
-//               Drag & drop or click to browse • {images.length}/{maxImages}
-//             </p>
-//           </div>
-//         </div>
-//         <span className="text-primary font-semibold">Browse</span>
-
-//         <input
-//           ref={inputRef}
-//           type="file"
-//           accept="image/*"
-//           multiple
-//           hidden
-//           onChange={(e) => {
-//             if (e.target.files) handleUpload(e.target.files);
-//             e.target.value = "";
-//           }}
-//         />
-//       </div>
-
-//       {/* Preview & Gallery Section */}
-//       {images.length > 0 && (
-//         <div className="space-y-4">
-//           {/* Main Preview - Natural Size */}
-//           <div className="relative bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center min-h-[300px] max-h-[500px]">
-//             <motion.img
-//               key={images[previewIndex]}
-//               src={images[previewIndex]}
-//               alt={`Preview ${previewIndex + 1}`}
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               transition={{ duration: 0.2 }}
-//               className="max-w-full max-h-full object-contain"
-//               style={{ maxHeight: "500px" }}
-//             />
-
-//             {/* Preview Navigation */}
-//             {images.length > 1 && (
-//               <>
-//                 <button
-//                   onClick={prevImage}
-//                   className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
-//                 >
-//                   <ChevronLeft className="h-5 w-5" />
-//                 </button>
-//                 <button
-//                   onClick={nextImage}
-//                   className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
-//                 >
-//                   <ChevronRight className="h-5 w-5" />
-//                 </button>
-//                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-//                   {images.map((_, i) => (
-//                     <button
-//                       key={i}
-//                       onClick={() => setPreviewIndex(i)}
-//                       className={cn(
-//                         "w-2 h-2 rounded-full transition-all",
-//                         i === previewIndex ? "bg-white" : "bg-white/50"
-//                       )}
-//                     />
-//                   ))}
-//                 </div>
-//               </>
-//             )}
-//           </div>
-
-//           {/* Thumbnail Strip with Drag & Drop */}
-//           <div className="space-y-2">
-//             <div className="flex items-center justify-between">
-//               <p className="text-sm font-medium">
-//                 Drag to reorder • Click to preview
-//               </p>
-//               {images[0] !== images[previewIndex] && (
-//                 <button
-//                   onClick={() => setAsMain(previewIndex)}
-//                   className="text-sm text-primary hover:text-primary/80 flex items-center gap-1"
-//                 >
-//                   <Star className="h-4 w-4" />
-//                   Set as main
-//                 </button>
-//               )}
-//             </div>
-
-//             <div className="relative">
-//               {/* Scroll hint for mobile */}
-//               {images.length > 4 && (
-//                 <div className="absolute -top-6 right-0 text-xs text-gray-500 flex items-center gap-1">
-//                   <GripHorizontal className="h-3 w-3" />
-//                   <span className="hidden sm:inline">
-//                     Hold & drag to scroll
-//                   </span>
-//                 </div>
-//               )}
-
-//               {/* Thumbnail container with scroll support */}
-//               <div
-//                 ref={thumbnailContainerRef}
-//                 className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide"
-//                 onTouchStart={handleTouchStart}
-//                 onTouchMove={handleTouchMove}
-//                 onTouchEnd={handleTouchEnd}
-//                 onMouseDown={handleMouseDown}
-//                 style={{ cursor: isTouchDragging ? "grabbing" : "grab" }}
-//               >
-//                 <Reorder.Group
-//                   axis="x"
-//                   values={images}
-//                   onReorder={onImagesChange}
-//                   className="flex gap-2"
-//                 >
-//                   {images.map((img, index) => (
-//                     <Reorder.Item
-//                       key={img}
-//                       value={img}
-//                       className={cn(
-//                         "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 cursor-move",
-//                         index === 0
-//                           ? "border-primary border-2"
-//                           : index === previewIndex
-//                           ? "border-gray-400"
-//                           : "border-gray-200",
-//                         isTouchDragging && "cursor-grabbing"
-//                       )}
-//                       whileDrag={{ scale: 1.05, zIndex: 10 }}
-//                       onClick={(e) => {
-//                         // Only set preview if not dragging/scrolling
-//                         if (!isTouchDragging) {
-//                           setPreviewIndex(index);
-//                         }
-//                       }}
-//                     >
-//                       <img
-//                         src={img}
-//                         className="w-full h-full object-cover"
-//                         draggable="false"
-//                       />
-
-//                       {/* Main Badge */}
-//                       {index === 0 && (
-//                         <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded">
-//                           Main
-//                         </div>
-//                       )}
-
-//                       {/* Delete Button */}
-//                       <button
-//                         onClick={(e) => {
-//                           e.stopPropagation();
-//                           removeImage(index);
-//                         }}
-//                         className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-//                       >
-//                         <X className="h-3 w-3" />
-//                       </button>
-//                     </Reorder.Item>
-//                   ))}
-//                 </Reorder.Group>
-
-//                 {/* Add More Button at the end */}
-//                 {images.length < maxImages && (
-//                   <button
-//                     onClick={() => inputRef.current?.click()}
-//                     className="flex-shrink-0 w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary flex flex-col items-center justify-center transition-colors"
-//                   >
-//                     <Upload className="h-5 w-5 text-gray-400" />
-//                     <span className="text-xs mt-1 text-gray-500">Add</span>
-//                   </button>
-//                 )}
-//               </div>
-
-//               {/* Scroll gradient indicators */}
-//               <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-//               <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Quick Tips */}
-//       {images.length === 0 && (
-//         <div className="text-center py-8 text-gray-500 text-sm space-y-1">
-//           <p>
-//             💡 <strong>Pro tip:</strong> First image is the main product display
-//           </p>
-//           <p>
-//             • Show multiple angles • Use high-quality images • Max 10MB each
-//           </p>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -406,7 +19,7 @@ interface Props {
   maxImages?: number;
 }
 
-export default function CompactImageUploader({
+export default function ImageUploader({
   images,
   onImagesChange,
   maxImages = 8,
@@ -420,13 +33,11 @@ export default function CompactImageUploader({
   const [thumbnailScrollLeft, setThumbnailScrollLeft] = useState(0);
   const [isReordering, setIsReordering] = useState(false);
 
-  // Handle thumbnail scrolling
   useEffect(() => {
     const container = thumbnailContainerRef.current;
     if (!container || images.length === 0 || isReordering) return;
 
-    // Scroll active thumbnail into view
-    const thumbnailWidth = 88; // w-20 + gap-2
+    const thumbnailWidth = 88;
     const scrollPos =
       previewIndex * thumbnailWidth -
       container.clientWidth / 2 +
@@ -498,9 +109,8 @@ export default function CompactImageUploader({
   const prevImage = () =>
     setPreviewIndex((prev) => (prev - 1 + images.length) % images.length);
 
-  // Touch handlers for horizontal scrolling
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (isReordering) return; // Don't scroll if reordering
+    if (isReordering) return;
     setTouchStartX(e.touches[0].clientX);
     setIsTouchDragging(true);
   };
@@ -526,7 +136,6 @@ export default function CompactImageUploader({
     setIsTouchDragging(false);
   };
 
-  // Handle thumbnail scroll with mouse drag
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isReordering) return;
     const container = thumbnailContainerRef.current;
@@ -601,10 +210,8 @@ export default function CompactImageUploader({
         />
       </div>
 
-      {/* Preview & Gallery Section */}
       {images.length > 0 && (
         <div className="space-y-4">
-          {/* Main Preview - Natural Size */}
           <div className="relative bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center min-h-[300px] max-h-[500px]">
             <motion.img
               key={images[previewIndex]}
@@ -617,7 +224,6 @@ export default function CompactImageUploader({
               style={{ maxHeight: "500px" }}
             />
 
-            {/* Preview Navigation */}
             {images.length > 1 && (
               <>
                 <button
@@ -648,7 +254,6 @@ export default function CompactImageUploader({
             )}
           </div>
 
-          {/* Thumbnail Strip with Drag & Drop */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">
@@ -666,7 +271,6 @@ export default function CompactImageUploader({
             </div>
 
             <div className="relative">
-              {/* Scroll hint for mobile */}
               {images.length > 4 && (
                 <div className="absolute -top-6 right-0 text-xs text-gray-500 flex items-center gap-1">
                   <GripHorizontal className="h-3 w-3" />
@@ -676,7 +280,6 @@ export default function CompactImageUploader({
                 </div>
               )}
 
-              {/* Thumbnail container with scroll support */}
               <div
                 ref={thumbnailContainerRef}
                 className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide touch-pan-x"
@@ -686,7 +289,6 @@ export default function CompactImageUploader({
                 onMouseDown={handleMouseDown}
                 style={{
                   cursor: isTouchDragging ? "grabbing" : "grab",
-                  // Prevent vertical scroll on mobile
                   overscrollBehaviorX: "contain",
                   overscrollBehaviorY: "none",
                   touchAction: "pan-x pinch-zoom",
@@ -697,7 +299,6 @@ export default function CompactImageUploader({
                   values={images}
                   onReorder={onImagesChange}
                   className="flex gap-2"
-                  // Add these to manage reorder state
                   onDragStart={() => setIsReordering(true)}
                   onDragEnd={() => setIsReordering(false)}
                 >
@@ -714,7 +315,6 @@ export default function CompactImageUploader({
                           : "border-gray-200",
                         isTouchDragging && "cursor-grabbing"
                       )}
-                      // Constrain drag to horizontal axis
                       dragSnapToOrigin={false}
                       dragTransition={{
                         bounceStiffness: 600,
@@ -733,12 +333,10 @@ export default function CompactImageUploader({
                         boxShadow:
                           "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                       }}
-                      // Add style to keep it constrained during drag
                       style={{
                         position: "relative",
                       }}
                       onClick={(e) => {
-                        // Only set preview if not dragging/scrolling
                         if (!isTouchDragging && !isReordering) {
                           setPreviewIndex(index);
                         }
@@ -751,14 +349,12 @@ export default function CompactImageUploader({
                         alt={`Thumbnail ${index + 1}`}
                       />
 
-                      {/* Main Badge */}
                       {index === 0 && (
                         <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded pointer-events-none">
                           Main
                         </div>
                       )}
 
-                      {/* Delete Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -775,7 +371,6 @@ export default function CompactImageUploader({
                   ))}
                 </Reorder.Group>
 
-                {/* Add More Button at the end */}
                 {images.length < maxImages && (
                   <button
                     onClick={() => inputRef.current?.click()}
@@ -787,16 +382,11 @@ export default function CompactImageUploader({
                   </button>
                 )}
               </div>
-
-              {/* Scroll gradient indicators */}
-              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
           </div>
         </div>
       )}
 
-      {/* Quick Tips */}
       {images.length === 0 && (
         <div className="text-center py-8 text-gray-500 text-sm space-y-1">
           <p>
