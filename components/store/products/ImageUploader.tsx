@@ -1,7 +1,14 @@
 // "use client";
 
-// import { useRef, useState } from "react";
-// import { Upload, X, Star } from "lucide-react";
+// import { useState, useRef, useEffect } from "react";
+// import {
+//   Upload,
+//   X,
+//   Star,
+//   ChevronLeft,
+//   ChevronRight,
+//   GripHorizontal,
+// } from "lucide-react";
 // import { motion, Reorder } from "framer-motion";
 // import { cn } from "@/lib/utils";
 // import { toast } from "sonner";
@@ -18,178 +25,26 @@
 //   maxImages = 8,
 // }: Props) {
 //   const inputRef = useRef<HTMLInputElement>(null);
-//   const [preview, setPreview] = useState<string | null>(null);
-
-//   const upload = (files: FileList) => {
-//     const list = Array.from(files);
-
-//     if (images.length + list.length > maxImages) {
-//       toast.error(`Max ${maxImages} images allowed`);
-//       return;
-//     }
-
-//     const urls = list
-//       .filter((f) => f.type.startsWith("image/") && f.size <= 10 * 1024 * 1024)
-//       .map((f) => URL.createObjectURL(f));
-
-//     if (!urls.length) return;
-
-//     onImagesChange([...images, ...urls]);
-//     toast.success("Image added");
-//   };
-
-//   const setMain = (index: number) => {
-//     if (index === 0) return;
-//     const next = [...images];
-//     const [picked] = next.splice(index, 1);
-//     next.unshift(picked);
-//     onImagesChange(next);
-//   };
-
-//   const remove = (index: number) => {
-//     onImagesChange(images.filter((_, i) => i !== index));
-//   };
-
-//   return (
-//     <div className="space-y-3">
-//       {/* Upload Bar */}
-//       <div
-//         onClick={() => inputRef.current?.click()}
-//         onDrop={(e) => {
-//           e.preventDefault();
-//           upload(e.dataTransfer.files);
-//         }}
-//         onDragOver={(e) => e.preventDefault()}
-//         className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2 text-sm cursor-pointer hover:border-primary"
-//       >
-//         <span className="flex items-center gap-2 text-muted-foreground">
-//           <Upload className="h-4 w-4" />
-//           {images.length}/{maxImages} images
-//         </span>
-//         <span className="text-primary font-medium">Browse</span>
-
-//         <input
-//           ref={inputRef}
-//           type="file"
-//           accept="image/*"
-//           multiple
-//           hidden
-//           onChange={(e) => {
-//             if (e.target.files) upload(e.target.files);
-//             e.target.value = "";
-//           }}
-//         />
-//       </div>
-
-//       {/* Thumbnails (Instagram-style reorder) */}
-//       {images.length > 0 && (
-//         <Reorder.Group
-//           axis="x"
-//           values={images}
-//           onReorder={onImagesChange}
-//           className="grid grid-cols-4 gap-2 sm:grid-cols-6"
-//         >
-//           {images.map((img, index) => (
-//             <Reorder.Item
-//               key={img}
-//               value={img}
-//               className={cn(
-//                 "relative aspect-square rounded-md overflow-hidden border bg-muted",
-//                 index === 0 && "border-primary"
-//               )}
-//               whileDrag={{ scale: 1.05 }}
-//             >
-//               <img
-//                 src={img}
-//                 className="h-full w-full object-cover"
-//                 onClick={() => setPreview(img)}
-//               />
-
-//               {/* Main Badge */}
-//               {index === 0 && (
-//                 <span className="absolute top-1 left-1 text-[10px] bg-primary text-white px-1 rounded">
-//                   Main
-//                 </span>
-//               )}
-
-//               {/* Actions */}
-//               <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex items-center justify-center gap-2">
-//                 <button
-//                   onClick={() => setMain(index)}
-//                   className="bg-white rounded-full p-1"
-//                 >
-//                   <Star className="h-4 w-4" />
-//                 </button>
-//                 <button
-//                   onClick={() => remove(index)}
-//                   className="bg-white rounded-full p-1"
-//                 >
-//                   <X className="h-4 w-4" />
-//                 </button>
-//               </div>
-//             </Reorder.Item>
-//           ))}
-
-//           {/* Add More */}
-//           {images.length < maxImages && (
-//             <button
-//               onClick={() => inputRef.current?.click()}
-//               className="aspect-square rounded-md border border-dashed flex items-center justify-center"
-//             >
-//               <Upload className="h-4 w-4 text-muted-foreground" />
-//             </button>
-//           )}
-//         </Reorder.Group>
-//       )}
-
-//       {/* Inline Preview (Mobile-first) */}
-//       {preview && (
-//         <motion.div
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: 1 }}
-//           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
-//           onClick={() => setPreview(null)}
-//         >
-//           <motion.img
-//             src={preview}
-//             initial={{ scale: 0.9 }}
-//             animate={{ scale: 1 }}
-//             className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain"
-//           />
-//           <button
-//             className="absolute top-4 right-4 bg-white rounded-full p-2"
-//             onClick={() => setPreview(null)}
-//           >
-//             <X className="h-4 w-4" />
-//           </button>
-//         </motion.div>
-//       )}
-//     </div>
-//   );
-// }
-
-// "use client";
-
-// import { useState, useRef, useCallback } from "react";
-// import { Upload, X, Star, ChevronLeft, ChevronRight } from "lucide-react";
-// import { motion, Reorder } from "framer-motion";
-// import { cn } from "@/lib/utils";
-// import { toast } from "sonner";
-
-// interface Props {
-//   images: string[];
-//   onImagesChange: (images: string[]) => void;
-//   maxImages?: number;
-// }
-
-// export default function CompactImageUploader({
-//   images,
-//   onImagesChange,
-//   maxImages = 8,
-// }: Props) {
-//   const inputRef = useRef<HTMLInputElement>(null);
+//   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
 //   const [previewIndex, setPreviewIndex] = useState<number>(0);
 //   const [dragging, setDragging] = useState(false);
+//   const [isTouchDragging, setIsTouchDragging] = useState(false);
+//   const [touchStartX, setTouchStartX] = useState(0);
+//   const [thumbnailScrollLeft, setThumbnailScrollLeft] = useState(0);
+
+//   // Handle thumbnail scrolling
+//   useEffect(() => {
+//     const container = thumbnailContainerRef.current;
+//     if (!container || images.length === 0) return;
+
+//     // Scroll active thumbnail into view
+//     const thumbnailWidth = 88; // w-20 + gap-2
+//     const scrollPos =
+//       previewIndex * thumbnailWidth -
+//       container.clientWidth / 2 +
+//       thumbnailWidth / 2;
+//     container.scrollTo({ left: scrollPos, behavior: "smooth" });
+//   }, [previewIndex, images.length]);
 
 //   const handleUpload = (files: FileList) => {
 //     const fileList = Array.from(files);
@@ -215,7 +70,7 @@
 //     if (newUrls.length) {
 //       const updated = [...images, ...newUrls];
 //       onImagesChange(updated);
-//       setPreviewIndex(images.length); // Preview first new image
+//       setPreviewIndex(images.length);
 //       toast.success(
 //         `Added ${newUrls.length} image${newUrls.length > 1 ? "s" : ""}`
 //       );
@@ -254,6 +109,59 @@
 //   const nextImage = () => setPreviewIndex((prev) => (prev + 1) % images.length);
 //   const prevImage = () =>
 //     setPreviewIndex((prev) => (prev - 1 + images.length) % images.length);
+
+//   // Touch handlers for horizontal scrolling
+//   const handleTouchStart = (e: React.TouchEvent) => {
+//     setTouchStartX(e.touches[0].clientX);
+//     setIsTouchDragging(true);
+//   };
+
+//   const handleTouchMove = (e: React.TouchEvent) => {
+//     if (!isTouchDragging) return;
+
+//     const touchX = e.touches[0].clientX;
+//     const diff = touchStartX - touchX;
+
+//     if (Math.abs(diff) > 10) {
+//       // Swipe threshold
+//       const container = thumbnailContainerRef.current;
+//       if (container) {
+//         const scrollLeft = container.scrollLeft;
+//         container.scrollLeft = scrollLeft + diff;
+//         setTouchStartX(touchX);
+//       }
+//     }
+//   };
+
+//   const handleTouchEnd = () => {
+//     setIsTouchDragging(false);
+//   };
+
+//   // Handle thumbnail scroll with mouse drag
+//   const handleMouseDown = (e: React.MouseEvent) => {
+//     const container = thumbnailContainerRef.current;
+//     if (!container) return;
+
+//     setIsTouchDragging(true);
+//     setThumbnailScrollLeft(container.scrollLeft);
+//     const startX = e.pageX - container.offsetLeft;
+
+//     const handleMouseMove = (e: MouseEvent) => {
+//       if (!isTouchDragging) return;
+//       const x = e.pageX - container.offsetLeft;
+//       const walk = (x - startX) * 2;
+//       container.scrollLeft = thumbnailScrollLeft - walk;
+//     };
+
+//     const handleMouseUp = () => {
+//       setIsTouchDragging(false);
+//       document.removeEventListener("mousemove", handleMouseMove);
+//       document.removeEventListener("mouseup", handleMouseUp);
+//     };
+
+//     document.addEventListener("mousemove", handleMouseMove);
+//     document.addEventListener("mouseup", handleMouseUp);
+//   };
 
 //   return (
 //     <div className="space-y-4">
@@ -306,12 +214,17 @@
 //       {/* Preview & Gallery Section */}
 //       {images.length > 0 && (
 //         <div className="space-y-4">
-//           {/* Main Preview */}
-//           <div className="relative aspect-video bg-gray-100 rounded-xl overflow-hidden">
-//             <img
+//           {/* Main Preview - Natural Size */}
+//           <div className="relative bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center min-h-[300px] max-h-[500px]">
+//             <motion.img
+//               key={images[previewIndex]}
 //               src={images[previewIndex]}
 //               alt={`Preview ${previewIndex + 1}`}
-//               className="w-full h-full object-contain"
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               transition={{ duration: 0.2 }}
+//               className="max-w-full max-h-full object-contain"
+//               style={{ maxHeight: "500px" }}
 //             />
 
 //             {/* Preview Navigation */}
@@ -362,49 +275,97 @@
 //               )}
 //             </div>
 
-//             <Reorder.Group
-//               axis="x"
-//               values={images}
-//               onReorder={onImagesChange}
-//               className="flex gap-2 overflow-x-auto pb-2"
-//             >
-//               {images.map((img, index) => (
-//                 <Reorder.Item
-//                   key={img}
-//                   value={img}
-//                   className={cn(
-//                     "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 cursor-move",
-//                     index === 0
-//                       ? "border-primary border-2"
-//                       : index === previewIndex
-//                       ? "border-gray-400"
-//                       : "border-gray-200"
-//                   )}
-//                   whileDrag={{ scale: 1.05, zIndex: 10 }}
-//                   onClick={() => setPreviewIndex(index)}
+//             <div className="relative">
+//               {/* Scroll hint for mobile */}
+//               {images.length > 4 && (
+//                 <div className="absolute -top-6 right-0 text-xs text-gray-500 flex items-center gap-1">
+//                   <GripHorizontal className="h-3 w-3" />
+//                   <span className="hidden sm:inline">
+//                     Hold & drag to scroll
+//                   </span>
+//                 </div>
+//               )}
+
+//               {/* Thumbnail container with scroll support */}
+//               <div
+//                 ref={thumbnailContainerRef}
+//                 className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide"
+//                 onTouchStart={handleTouchStart}
+//                 onTouchMove={handleTouchMove}
+//                 onTouchEnd={handleTouchEnd}
+//                 onMouseDown={handleMouseDown}
+//                 style={{ cursor: isTouchDragging ? "grabbing" : "grab" }}
+//               >
+//                 <Reorder.Group
+//                   axis="x"
+//                   values={images}
+//                   onReorder={onImagesChange}
+//                   className="flex gap-2"
 //                 >
-//                   <img src={img} className="w-full h-full object-cover" />
+//                   {images.map((img, index) => (
+//                     <Reorder.Item
+//                       key={img}
+//                       value={img}
+//                       className={cn(
+//                         "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 cursor-move",
+//                         index === 0
+//                           ? "border-primary border-2"
+//                           : index === previewIndex
+//                           ? "border-gray-400"
+//                           : "border-gray-200",
+//                         isTouchDragging && "cursor-grabbing"
+//                       )}
+//                       whileDrag={{ scale: 1.05, zIndex: 10 }}
+//                       onClick={(e) => {
+//                         // Only set preview if not dragging/scrolling
+//                         if (!isTouchDragging) {
+//                           setPreviewIndex(index);
+//                         }
+//                       }}
+//                     >
+//                       <img
+//                         src={img}
+//                         className="w-full h-full object-cover"
+//                         draggable="false"
+//                       />
 
-//                   {/* Main Badge */}
-//                   {index === 0 && (
-//                     <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded">
-//                       Main
-//                     </div>
-//                   )}
+//                       {/* Main Badge */}
+//                       {index === 0 && (
+//                         <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded">
+//                           Main
+//                         </div>
+//                       )}
 
-//                   {/* Delete Button */}
+//                       {/* Delete Button */}
+//                       <button
+//                         onClick={(e) => {
+//                           e.stopPropagation();
+//                           removeImage(index);
+//                         }}
+//                         className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+//                       >
+//                         <X className="h-3 w-3" />
+//                       </button>
+//                     </Reorder.Item>
+//                   ))}
+//                 </Reorder.Group>
+
+//                 {/* Add More Button at the end */}
+//                 {images.length < maxImages && (
 //                   <button
-//                     onClick={(e) => {
-//                       e.stopPropagation();
-//                       removeImage(index);
-//                     }}
-//                     className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+//                     onClick={() => inputRef.current?.click()}
+//                     className="flex-shrink-0 w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary flex flex-col items-center justify-center transition-colors"
 //                   >
-//                     <X className="h-3 w-3" />
+//                     <Upload className="h-5 w-5 text-gray-400" />
+//                     <span className="text-xs mt-1 text-gray-500">Add</span>
 //                   </button>
-//                 </Reorder.Item>
-//               ))}
-//             </Reorder.Group>
+//                 )}
+//               </div>
+
+//               {/* Scroll gradient indicators */}
+//               <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+//               <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+//             </div>
 //           </div>
 //         </div>
 //       )}
@@ -426,7 +387,7 @@
 
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Upload,
   X,
@@ -457,11 +418,12 @@ export default function CompactImageUploader({
   const [isTouchDragging, setIsTouchDragging] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
   const [thumbnailScrollLeft, setThumbnailScrollLeft] = useState(0);
+  const [isReordering, setIsReordering] = useState(false);
 
   // Handle thumbnail scrolling
   useEffect(() => {
     const container = thumbnailContainerRef.current;
-    if (!container || images.length === 0) return;
+    if (!container || images.length === 0 || isReordering) return;
 
     // Scroll active thumbnail into view
     const thumbnailWidth = 88; // w-20 + gap-2
@@ -470,7 +432,7 @@ export default function CompactImageUploader({
       container.clientWidth / 2 +
       thumbnailWidth / 2;
     container.scrollTo({ left: scrollPos, behavior: "smooth" });
-  }, [previewIndex, images.length]);
+  }, [previewIndex, images.length, isReordering]);
 
   const handleUpload = (files: FileList) => {
     const fileList = Array.from(files);
@@ -538,12 +500,13 @@ export default function CompactImageUploader({
 
   // Touch handlers for horizontal scrolling
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (isReordering) return; // Don't scroll if reordering
     setTouchStartX(e.touches[0].clientX);
     setIsTouchDragging(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isTouchDragging) return;
+    if (!isTouchDragging || isReordering) return;
 
     const touchX = e.touches[0].clientX;
     const diff = touchStartX - touchX;
@@ -565,6 +528,7 @@ export default function CompactImageUploader({
 
   // Handle thumbnail scroll with mouse drag
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isReordering) return;
     const container = thumbnailContainerRef.current;
     if (!container) return;
 
@@ -573,7 +537,7 @@ export default function CompactImageUploader({
     const startX = e.pageX - container.offsetLeft;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isTouchDragging) return;
+      if (!isTouchDragging || isReordering) return;
       const x = e.pageX - container.offsetLeft;
       const walk = (x - startX) * 2;
       container.scrollLeft = thumbnailScrollLeft - walk;
@@ -715,25 +679,34 @@ export default function CompactImageUploader({
               {/* Thumbnail container with scroll support */}
               <div
                 ref={thumbnailContainerRef}
-                className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide"
+                className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide touch-pan-x"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 onMouseDown={handleMouseDown}
-                style={{ cursor: isTouchDragging ? "grabbing" : "grab" }}
+                style={{
+                  cursor: isTouchDragging ? "grabbing" : "grab",
+                  // Prevent vertical scroll on mobile
+                  overscrollBehaviorX: "contain",
+                  overscrollBehaviorY: "none",
+                  touchAction: "pan-x pinch-zoom",
+                }}
               >
                 <Reorder.Group
                   axis="x"
                   values={images}
                   onReorder={onImagesChange}
                   className="flex gap-2"
+                  // Add these to manage reorder state
+                  onDragStart={() => setIsReordering(true)}
+                  onDragEnd={() => setIsReordering(false)}
                 >
                   {images.map((img, index) => (
                     <Reorder.Item
                       key={img}
                       value={img}
                       className={cn(
-                        "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 cursor-move",
+                        "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 select-none touch-none",
                         index === 0
                           ? "border-primary border-2"
                           : index === previewIndex
@@ -741,23 +714,46 @@ export default function CompactImageUploader({
                           : "border-gray-200",
                         isTouchDragging && "cursor-grabbing"
                       )}
-                      whileDrag={{ scale: 1.05, zIndex: 10 }}
+                      // Constrain drag to horizontal axis
+                      dragSnapToOrigin={false}
+                      dragTransition={{
+                        bounceStiffness: 600,
+                        bounceDamping: 20,
+                      }}
+                      dragElastic={0.1}
+                      dragConstraints={{
+                        top: 0,
+                        bottom: 0,
+                        left: -50,
+                        right: 50,
+                      }}
+                      whileDrag={{
+                        scale: 1.05,
+                        zIndex: 50,
+                        boxShadow:
+                          "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                      }}
+                      // Add style to keep it constrained during drag
+                      style={{
+                        position: "relative",
+                      }}
                       onClick={(e) => {
                         // Only set preview if not dragging/scrolling
-                        if (!isTouchDragging) {
+                        if (!isTouchDragging && !isReordering) {
                           setPreviewIndex(index);
                         }
                       }}
                     >
                       <img
                         src={img}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover pointer-events-none"
                         draggable="false"
+                        alt={`Thumbnail ${index + 1}`}
                       />
 
                       {/* Main Badge */}
                       {index === 0 && (
-                        <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded">
+                        <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded pointer-events-none">
                           Main
                         </div>
                       )}
@@ -768,7 +764,10 @@ export default function CompactImageUploader({
                           e.stopPropagation();
                           removeImage(index);
                         }}
-                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 z-10"
+                        style={{
+                          pointerEvents: isReordering ? "none" : "auto",
+                        }}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -781,6 +780,7 @@ export default function CompactImageUploader({
                   <button
                     onClick={() => inputRef.current?.click()}
                     className="flex-shrink-0 w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary flex flex-col items-center justify-center transition-colors"
+                    style={{ pointerEvents: isReordering ? "none" : "auto" }}
                   >
                     <Upload className="h-5 w-5 text-gray-400" />
                     <span className="text-xs mt-1 text-gray-500">Add</span>

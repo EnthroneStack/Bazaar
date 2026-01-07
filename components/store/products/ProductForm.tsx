@@ -235,7 +235,7 @@ export default function ProductForm() {
           type="submit"
           onClick={() => setIsDraft(false)}
           disabled={loading}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto text-white"
         >
           {loading ? (
             <>
