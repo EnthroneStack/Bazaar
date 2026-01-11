@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user have already registered a store. If store is already registered then send status of store
     const existingStore = await prisma.store.findUnique({
       where: { userId: userId },
     });
@@ -59,14 +58,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Allow retry only if rejected
     if (existingStore?.status === "REJECTED") {
       await prisma.store.delete({
         where: { id: existingStore.id },
       });
     }
 
-    // ---------------- Form Parsing ----------------
     const formData = await request.formData();
 
     const name = formData.get("storeName") as string;
@@ -124,7 +121,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if usernmame is already taken
     const isUsernameTaken = await prisma.store.findFirst({
       where: { username: username.toLowerCase() },
     });
@@ -143,7 +139,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if terms is accepted
     if (acceptTerms !== "true") {
       return NextResponse.json(
         {
@@ -156,14 +151,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Image upload to imagekit
     const logoUpload = await imagekit.files.upload({
       file: logo,
       fileName: logo.name,
       folder: "logos",
     });
 
-    // URL with basic transformations
     const logoUrl = imagekit.helper.buildSrc({
       urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT as string,
       src: logoUpload.filePath as string,
@@ -250,7 +243,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Check if user have already registered a store if yes then send status of store
 export async function GET() {
   try {
     const { userId } = await auth();
@@ -269,7 +261,6 @@ export async function GET() {
       );
     }
 
-    // Check if user have already registerd a store
     const store = await prisma.store.findUnique({
       where: { userId },
       select: {
@@ -280,7 +271,6 @@ export async function GET() {
       },
     });
 
-    // If store is already registered then send status of store
     if (store) {
       return NextResponse.json<
         ApiResponse<{

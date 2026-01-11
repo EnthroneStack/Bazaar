@@ -14,10 +14,61 @@ async function main() {
     ],
     skipDuplicates: true,
   });
+
+  console.log("Tags seeded");
+
+  await prisma.category.createMany({
+    data: [
+      { name: "Electronics", slug: "electronics" },
+      { name: "Fashion", slug: "fashion" },
+      { name: "Home & Kitchen", slug: "home-kitchen" },
+      { name: "Beauty & Personal Care", slug: "beauty-personal-care" },
+      { name: "Sports & Outdoors", slug: "sports-outdoors" },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log("Root categories seeded");
+
+  const electronics = await prisma.category.findUnique({
+    where: { slug: "electronics" },
+    select: { id: true },
+  });
+
+  if (electronics) {
+    await prisma.category.createMany({
+      data: [
+        {
+          name: "Mobile Phones",
+          slug: "mobile-phones",
+          parentId: electronics.id,
+        },
+        {
+          name: "Laptops",
+          slug: "laptops",
+          parentId: electronics.id,
+        },
+        {
+          name: "Accessories",
+          slug: "accessories",
+          parentId: electronics.id,
+        },
+      ],
+      skipDuplicates: true,
+    });
+
+    console.log("Electronics subcategories seeded");
+  }
 }
 
 main()
   .then(() => {
-    console.log("Tags seeded");
+    console.log("🌱 Database seeding completed");
   })
-  .catch(console.error);
+  .catch((error) => {
+    console.error("Seeding failed:", error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

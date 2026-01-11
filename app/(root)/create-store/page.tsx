@@ -31,6 +31,7 @@ import {
 } from "@/components/create-store/type";
 import PendingStoreUI from "@/components/create-store/PendingStoreUI";
 import RejectedStoreUI from "@/components/create-store/RejectedStoreUI";
+import ApprovedStoreUI from "@/components/create-store/ApprovedStoreUI";
 
 export default function CreateStorePage() {
   const { user } = useUser();
@@ -55,6 +56,7 @@ export default function CreateStorePage() {
   } | null>(null);
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
+  const [hasEnteredStore, setHasEnteredStore] = useState();
 
   const [storeInfo, setStoreInfo] = useState<StorestoreInfo>({
     storeName: "",
@@ -79,7 +81,7 @@ export default function CreateStorePage() {
     marketingOptIn: false,
   });
 
-  /* ----------------------------- SLUG (DEBOUNCED) ----------------------------- */
+  /* ----------------------------- SLUG ----------------------------- */
 
   const debouncedUsername = useDebounce(storeInfo.username, 800);
 
@@ -290,7 +292,10 @@ export default function CreateStorePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setStatus(data.data.status);
+      const storeStatus = data.data.status;
+
+      setStatus(storeStatus);
+      setHasEnteredStore(data.data.hasEnteredStore ?? false);
 
       if (status === "REJECTED") {
         setReason({
@@ -311,7 +316,7 @@ export default function CreateStorePage() {
         setSubmittedAt(data.data.createdAt);
       }
 
-      if (data.data.status === "APPROVED") {
+      if (data.data.status === "APPROVED" && data.data.hasEnteredStore) {
         router.replace("/store");
       }
     } finally {
@@ -473,24 +478,12 @@ export default function CreateStorePage() {
     );
   }
 
-  if (status === "APPROVED") {
+  if (status === "APPROVED" && !hasEnteredStore) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 mb-6">
-            <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">
-            Store Approved!
-          </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Redirecting you to your store dashboard...
-          </p>
-          <div className="animate-pulse">
-            <Loader2 className="w-8 h-8 text-green-600 mx-auto animate-spin" />
-          </div>
-        </div>
-      </div>
+      <ApprovedStoreUI
+        onNavigateDashboard={() => router.replace("/store")}
+        redirectDelay={2000}
+      />
     );
   }
 

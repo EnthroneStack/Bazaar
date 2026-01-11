@@ -34,10 +34,13 @@ export default function CategorySelect({
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/categories");
+      const response = await fetch("/api/store/category", {
+        cache: "no-store",
+      });
+
       if (response.ok) {
         const data = await response.json();
-        setCategories(data.categories || []);
+        setCategories(data.data?.categories ?? []);
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);

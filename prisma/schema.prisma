@@ -247,6 +247,7 @@ model Store {
     registrationNo  String?
     taxId           String?
     status          StoreStatus     @default(PENDING)
+    hasEnteredStore Boolean         @default(false)
     reason          Json?
     isActive        Boolean         @default(false)
     slug            String          @unique
