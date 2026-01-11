@@ -268,6 +268,7 @@ export async function GET() {
         status: true,
         reason: true,
         createdAt: true,
+        hasEnteredStore: true,
       },
     });
 
@@ -281,6 +282,7 @@ export async function GET() {
           } | null;
           storeId: string;
           createdAt: Date;
+          hasEnteredStore: boolean;
         }>
       >({
         success: true,
@@ -292,6 +294,7 @@ export async function GET() {
             issues?: string[];
           } | null,
           createdAt: store.createdAt,
+          hasEnteredStore: store.hasEnteredStore,
         },
         error: null,
       });

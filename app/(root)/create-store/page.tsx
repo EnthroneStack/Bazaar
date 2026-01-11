@@ -187,6 +187,18 @@ export default function CreateStorePage() {
 
   /* ----------------------------- HANDLERS ----------------------------- */
 
+  const handleEnterDashboard = async () => {
+    try {
+      await fetch("/api/store/entered", {
+        method: "PATCH",
+      });
+
+      router.replace("/store");
+    } catch (error) {
+      console.error("Failed to enter store", error);
+    }
+  };
+
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -293,17 +305,16 @@ export default function CreateStorePage() {
       });
 
       const storeStatus = data.data.status;
+      const entered = data.data.hasEnteredStore ?? false;
 
       setStatus(storeStatus);
-      setHasEnteredStore(data.data.hasEnteredStore ?? false);
+      setHasEnteredStore(entered);
 
-      if (status === "REJECTED") {
+      if (storeStatus === "REJECTED") {
         setReason({
           primary: data.data.rejectionReason,
           issues: data.data.rejectionIssues ?? [],
         });
-      } else {
-        setReason(null);
       }
 
       if (data?.data?.storeId) {
@@ -316,7 +327,7 @@ export default function CreateStorePage() {
         setSubmittedAt(data.data.createdAt);
       }
 
-      if (data.data.status === "APPROVED" && data.data.hasEnteredStore) {
+      if (storeStatus === "APPROVED" && entered) {
         router.replace("/store");
       }
     } finally {
@@ -388,16 +399,6 @@ export default function CreateStorePage() {
       fetchSellerStatus();
     }
   }, [user, fetchSellerStatus]);
-
-  // useEffect(() => {
-  //   if (status === "APPROVED") {
-  //     const timeout = setTimeout(() => {
-  //       router.replace("/store");
-  //     }, 800);
-
-  //     return () => clearTimeout(timeout);
-  //   }
-  // }, [status, router]);
 
   /* ----------------------------- RENDER ----------------------------- */
 
@@ -481,7 +482,7 @@ export default function CreateStorePage() {
   if (status === "APPROVED" && !hasEnteredStore) {
     return (
       <ApprovedStoreUI
-        onNavigateDashboard={() => router.replace("/store")}
+        onNavigateDashboard={handleEnterDashboard}
         applicationId={applicationId!}
         submittedAt={submittedAt!}
       />
