@@ -1,3 +1,5 @@
+"use client";
+
 import ProductForm from "@/components/store/products/ProductForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
