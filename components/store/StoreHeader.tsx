@@ -32,12 +32,20 @@ export default function StoreHeader() {
   const fetchStore = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/store");
+
+      const res = await fetch("/api/store", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch store");
+      }
 
       const data = await res.json();
-      setStore(data.store);
+      setStore(data.store ?? null);
     } catch (error) {
-      console.error("Failed to load store: ", error);
+      console.error("Failed to load store:", error);
       setStore(null);
     } finally {
       setLoading(false);

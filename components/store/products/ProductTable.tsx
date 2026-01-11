@@ -122,7 +122,7 @@ export default function ProductTable() {
               <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Product
               </th>
-              {/* RESPONSIVE CHANGE: Hide some columns on mobile */}
+
               <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Category
               </th>
@@ -170,7 +170,7 @@ export default function ProductTable() {
                           {product.rating}
                         </span>
                       </div>
-                      {/* RESPONSIVE CHANGE: Show price on mobile (hidden in table) */}
+
                       <div className="md:hidden text-xs text-gray-500 mt-1">
                         ${product.price.toFixed(2)}
                       </div>
@@ -225,7 +225,6 @@ export default function ProductTable() {
         </table>
       </div>
 
-      {/* RESPONSIVE CHANGE: Stack pagination on mobile */}
       <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-gray-700">Showing 6 of 156 products</div>

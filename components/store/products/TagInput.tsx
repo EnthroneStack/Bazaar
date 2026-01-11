@@ -1,36 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
+interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface TagInputProps {
   tags: string[];
   onTagsChange: (tags: string[]) => void;
 }
 
-const SUGGESTED_TAGS = [
-  "Featured",
-  "New Arrival",
-  "Best Seller",
-  "Clearance",
-  "Limited Edition",
-  "Seasonal",
-  "Premium",
-  "Eco-Friendly",
-];
-
 export default function TagInput({ tags, onTagsChange }: TagInputProps) {
   const [tagInput, setTagInput] = useState("");
+  const [suggestedTags, setSuggestedTags] = useState<Tag[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchTags = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (tagInput.trim()) params.set("q", tagInput.trim());
+        params.set("limit", "10");
+
+        const res = await fetch(`/api/store/tags?${params.toString()}`, {
+          signal: controller.signal,
+        });
+
+        const json = await res.json();
+
+        if (json.success) {
+          setSuggestedTags(json.data.tags);
+        }
+      } catch (error) {
+        if ((error as any).name !== "AbortError") {
+          console.error("Failed to fetch tags", error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTags();
+
+    return () => controller.abort();
+  }, [tagInput]);
 
   const addTag = (tag: string) => {
-    const trimmedTag = tag.trim();
-    if (trimmedTag && !tags.includes(trimmedTag)) {
-      onTagsChange([...tags, trimmedTag]);
-    }
+    const trimmed = tag.trim();
+    if (!trimmed || tags.includes(trimmed)) return;
+
+    onTagsChange([...tags, trimmed]);
     setTagInput("");
   };
 
@@ -96,21 +126,20 @@ export default function TagInput({ tags, onTagsChange }: TagInputProps) {
 
       <div className="space-y-2">
         <Label className="text-sm font-medium">Suggested Tags</Label>
+
+        {loading && <p className="text-xs text-gray-400">Loading tags…</p>}
+
         <div className="flex flex-wrap gap-2">
-          {SUGGESTED_TAGS.map((tag) => (
+          {suggestedTags.map((tag) => (
             <Badge
-              key={tag}
-              variant={tags.includes(tag) ? "default" : "outline"}
+              key={tag.id}
+              variant={tags.includes(tag.name) ? "default" : "outline"}
               className="cursor-pointer"
-              onClick={() => {
-                if (tags.includes(tag)) {
-                  removeTag(tag);
-                } else {
-                  addTag(tag);
-                }
-              }}
+              onClick={() =>
+                tags.includes(tag.name) ? removeTag(tag.name) : addTag(tag.name)
+              }
             >
-              {tag}
+              {tag.name}
             </Badge>
           ))}
         </div>
