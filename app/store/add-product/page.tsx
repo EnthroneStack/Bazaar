@@ -1,18 +1,23 @@
 import ProductForm from "@/components/store/products/ProductForm";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AddProductPage() {
+  const router = useRouter();
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link
-            href="/store"
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            aria-label="Go back"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
-          </Link>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               Add New Product

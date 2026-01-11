@@ -184,7 +184,7 @@ export default function StoreHeader() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => router.back()}
+              onClick={() => router.push("/")}
               className="hover:bg-gray-100"
               aria-label="Go back"
             >
