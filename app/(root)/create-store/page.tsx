@@ -389,15 +389,15 @@ export default function CreateStorePage() {
     }
   }, [user, fetchSellerStatus]);
 
-  useEffect(() => {
-    if (status === "APPROVED") {
-      const timeout = setTimeout(() => {
-        router.replace("/store");
-      }, 800);
+  // useEffect(() => {
+  //   if (status === "APPROVED") {
+  //     const timeout = setTimeout(() => {
+  //       router.replace("/store");
+  //     }, 800);
 
-      return () => clearTimeout(timeout);
-    }
-  }, [status, router]);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [status, router]);
 
   /* ----------------------------- RENDER ----------------------------- */
 
