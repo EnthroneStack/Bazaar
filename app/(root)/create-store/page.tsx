@@ -482,7 +482,8 @@ export default function CreateStorePage() {
     return (
       <ApprovedStoreUI
         onNavigateDashboard={() => router.replace("/store")}
-        redirectDelay={2000}
+        applicationId={applicationId!}
+        submittedAt={submittedAt!}
       />
     );
   }
