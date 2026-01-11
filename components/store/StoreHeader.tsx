@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Store = {
   id: string;
@@ -25,9 +25,6 @@ export default function StoreHeader() {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
-
-  const isMainStorePage = pathname === "/store";
 
   const fetchStore = async () => {
     try {
@@ -180,17 +177,16 @@ export default function StoreHeader() {
     <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {!isMainStorePage && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/")}
-              className="hover:bg-gray-100"
-              aria-label="Go back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/")}
+            className="hover:bg-gray-100"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+
           <DrawerTrigger asChild>
             <Button variant="ghost" size="icon-lg" className="sm:hidden">
               <Menu className="h-5 w-5" />
