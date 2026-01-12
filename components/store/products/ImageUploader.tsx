@@ -58,7 +58,7 @@ export default function ImageUploader({
       return;
     }
 
-    const newUrls: string[] = [];
+    const newImages: ImageItem[] = [];
     fileList.forEach((file) => {
       if (!file.type.startsWith("image/")) {
         toast.error(`${file.name} is not an image`);
@@ -68,15 +68,18 @@ export default function ImageUploader({
         toast.error(`${file.name} exceeds 10MB`);
         return;
       }
-      newUrls.push(URL.createObjectURL(file));
+      newImages.push({
+        url: URL.createObjectURL(file),
+        fileId: crypto.randomUUID(),
+      });
     });
 
-    if (newUrls.length) {
-      const updated = [...images, ...newUrls];
+    if (newImages.length) {
+      const updated = [...images, ...newImages];
       onImagesChange(updated);
       setPreviewIndex(images.length);
       toast.success(
-        `Added ${newUrls.length} image${newUrls.length > 1 ? "s" : ""}`
+        `Added ${newImages.length} image${newImages.length > 1 ? "s" : ""}`
       );
     }
   };
@@ -219,8 +222,8 @@ export default function ImageUploader({
         <div className="space-y-4">
           <div className="relative bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center min-h-[300px] max-h-[500px]">
             <motion.img
-              key={images[previewIndex]}
-              src={images[previewIndex]}
+              key={images[previewIndex]?.fileId}
+              src={images[previewIndex]?.url}
               alt={`Preview ${previewIndex + 1}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -244,9 +247,9 @@ export default function ImageUploader({
                   <ChevronRight className="h-5 w-5" />
                 </button>
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                  {images.map((_, i) => (
+                  {images.map((img, i) => (
                     <button
-                      key={i}
+                      key={img.fileId}
                       onClick={() => setPreviewIndex(i)}
                       className={cn(
                         "w-2 h-2 rounded-full transition-all",
@@ -264,7 +267,7 @@ export default function ImageUploader({
               <p className="text-sm font-medium">
                 Drag to reorder • Click to preview
               </p>
-              {images[0] !== images[previewIndex] && (
+              {images[0]?.fileId !== images[previewIndex]?.fileId && (
                 <button
                   onClick={() => setAsMain(previewIndex)}
                   className="text-sm text-primary hover:text-primary/80 flex items-center gap-1"
@@ -299,7 +302,7 @@ export default function ImageUploader({
                   touchAction: "pan-x pinch-zoom",
                 }}
               >
-                <Reorder.Group
+                <Reorder.Group<ImageItem>
                   axis="x"
                   values={images}
                   onReorder={onImagesChange}
@@ -309,7 +312,7 @@ export default function ImageUploader({
                 >
                   {images.map((img, index) => (
                     <Reorder.Item
-                      key={img}
+                      key={img.fileId}
                       value={img}
                       className={cn(
                         "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 select-none touch-none",
@@ -348,7 +351,7 @@ export default function ImageUploader({
                       }}
                     >
                       <img
-                        src={img}
+                        src={img.url}
                         className="w-full h-full object-cover pointer-events-none"
                         draggable="false"
                         alt={`Thumbnail ${index + 1}`}
