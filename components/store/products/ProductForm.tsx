@@ -19,6 +19,11 @@ interface ImageItem {
   fileId: string;
 }
 
+interface ImageUploaderProps {
+  images: ImageItem[];
+  onImagesChange: (images: ImageItem[]) => void;
+}
+
 export default function ProductForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

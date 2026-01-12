@@ -13,9 +13,14 @@ import { motion, Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+interface ImageItem {
+  url: string;
+  fileId: string;
+}
+
 interface Props {
-  images: string[];
-  onImagesChange: (images: string[]) => void;
+  images: ImageItem[];
+  onImagesChange: (images: ImageItem[]) => void;
   maxImages?: number;
 }
 
