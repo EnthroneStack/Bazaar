@@ -1,8 +1,11 @@
 import slugify from "slugify";
-import prisma from "./prisma";
+import prisma from "../prisma";
 
 export async function generateUniqueProductSlug(name: string, storeId: string) {
   const base = slugify(name, { lower: true, strict: true });
+  if (!base) {
+    throw new Error("Invalid product name for slug generation");
+  }
   let slug = base;
   let counter = 1;
 

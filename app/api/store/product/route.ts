@@ -1,274 +1,240 @@
-// import imagekit from "@/configs/imageKit";
-// import prisma from "@/lib/prisma";
-// import authSeller from "@/middlewares/authSeller";
-// import { auth } from "@clerk/nextjs/server";
-// import { NextRequest, NextResponse } from "next/server";
-// import slugify from "slugify";
-
-// // Add a new product
-// export async function POST(request: NextRequest) {
-//   try {
-//     const { userId } = await auth();
-
-//     if (!userId) {
-//       return NextResponse.json(
-//         {
-//           success: false,
-//           error: {
-//             code: "UNAUTHORIZED",
-//             message: "Authentication required",
-//           },
-//         },
-//         { status: 401 }
-//       );
-//     }
-
-//     const store = await authSeller(userId);
-
-//     if (!store) {
-//       return NextResponse.json({ error: "Store not found" }, { status: 404 });
-//     }
-
-//     // Get the data from the form
-//     const formData = await request.formData();
-//     const name = formData.get("name") as string;
-//     const description = formData.get("description") as string;
-//     const mrp = Number(formData.get("mrp"));
-//     const price = Number(formData.get("price"));
-//     const categoryId = formData.get("category") as string;
-//     const images = formData.getAll("images");
-
-//     if (
-//       !name ||
-//       !description ||
-//       !mrp ||
-//       !price ||
-//       !categoryId ||
-//       images.length < 1
-//     ) {
-//       return NextResponse.json(
-//         { error: "Missing product details " },
-//         { status: 400 }
-//       );
-//     }
-
-//     if (price > mrp) {
-//       return NextResponse.json(
-//         { error: "Price cannot be greater than MRP" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const slug = slugify(name, { lower: true, strict: true });
-
-//     // Uploading Images to Imagekit
-//     const imageUrl = await Promise.all(
-//       images.map(async (image) => {
-//         const response = await imagekit.files.upload({
-//           file: image,
-//           fileName: (image as any).name,
-//           folder: "products",
-//         });
-//         const url = imagekit.helper.buildSrc({
-//           urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT as string,
-//           src: response.filePath as string,
-//           transformation: [
-//             {
-//               width: 1024,
-//               quality: 100,
-//               format: "webp",
-//             },
-//           ],
-//         });
-//         return url;
-//       })
-//     );
-
-//     const product = await prisma.product.create({
-//       data: {
-//         name,
-//         slug,
-//         description,
-//         mrp,
-//         price,
-//         categoryId,
-//         images: imageUrl,
-//         storeId: store.id,
-//       },
-//     });
-
-//     return NextResponse.json({ success: true, data: product }, { status: 201 });
-//   } catch (error) {
-//     console.error(error);
-//     return NextResponse.json(
-//       {
-//         error: (error as any).code || (error as any).message,
-//         message: "Failed to create product",
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// // Get all products for a seller
-// export async function GET() {
-//   try {
-//     const { userId } = await auth();
-
-//     if (!userId) {
-//       return NextResponse.json(
-//         {
-//           success: false,
-//           error: {
-//             code: "UNAUTHORIZED",
-//             message: "Authentication required",
-//           },
-//         },
-//         { status: 401 }
-//       );
-//     }
-
-//     const store = await authSeller(userId);
-
-//     if (!store) {
-//       return NextResponse.json(
-//         { success: false, error: "Store not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     const products = await prisma.product.findMany({
-//       where: { storeId: store.id },
-//       orderBy: { createdAt: "desc" },
-//     });
-
-//     return NextResponse.json({ success: true, data: products });
-//   } catch (error) {
-//     console.error("List Products Error:", error);
-//     return NextResponse.json(
-//       { error: "Failed to fetch products" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { generateUniqueProductSlug } from "@/lib/slugs/productSlug";
+import { ProductSchema } from "@/lib/validators/products";
+import authSeller from "@/middlewares/authSeller";
 import { auth } from "@clerk/nextjs/server";
-import { createProductSchema } from "@/lib/validators/products";
-import { generateUniqueProductSlug } from "@/lib/productSlug";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+// Add a new product
+export async function POST(request: NextRequest) {
   try {
-    /* ---------------- AUTH ---------------- */
     const { userId } = await auth();
+
     if (!userId) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized" },
+        {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Authentication required",
+          },
+        },
         { status: 401 }
       );
     }
 
-    /* ---------------- BODY ---------------- */
-    const body = await req.json();
-    const data = createProductSchema.parse(body);
-
-    /* ---------------- STORE ---------------- */
-    const store = await prisma.store.findUnique({
-      where: { userId },
-      select: { id: true, isActive: true },
-    });
+    const store = await authSeller(userId);
 
     if (!store) {
+      return NextResponse.json({ error: "Store not found" }, { status: 404 });
+    }
+
+    const body = await request.json();
+
+    const parsed = ProductSchema.safeParse(body);
+
+    if (!parsed.success) {
       return NextResponse.json(
-        { success: false, message: "Store not found" },
-        { status: 404 }
+        { success: false, errors: parsed.error.issues },
+        { status: 422 }
       );
     }
 
-    if (!store.isActive) {
-      return NextResponse.json(
-        { success: false, message: "Store not active" },
-        { status: 403 }
-      );
-    }
+    const {
+      name,
+      description,
+      mrp,
+      price,
+      categoryId,
+      images,
+      tags = [],
+      status,
+    } = parsed.data;
 
-    /* ---------------- CATEGORY ---------------- */
-    const categoryExists = await prisma.category.findUnique({
-      where: { id: data.categoryId },
-    });
-
-    if (!categoryExists) {
+    if (price > mrp) {
       return NextResponse.json(
-        { success: false, message: "Invalid category" },
+        {
+          success: false,
+          error: {
+            code: "INVALID_PRICE",
+            message: "Price cannot exceed MRP",
+          },
+        },
         { status: 400 }
       );
     }
 
-    /* ---------------- SLUG ---------------- */
-    const slug = await generateUniqueProductSlug(data.name, store.id);
+    const slug = await generateUniqueProductSlug(name, store.id);
 
-    /* ---------------- TRANSACTION ---------------- */
     const product = await prisma.$transaction(async (tx) => {
       const createdProduct = await tx.product.create({
         data: {
-          name: data.name,
+          name,
           slug,
-          description: data.description,
-          mrp: data.mrp,
-          price: data.price,
-          images: data.images,
-          inStock: data.inStock,
-          categoryId: data.categoryId,
+          description,
+          mrp,
+          price,
+          images,
+          categoryId,
           storeId: store.id,
         },
       });
 
-      if (data.tags.length > 0) {
-        const tags = await Promise.all(
-          data.tags.map((tag) =>
-            tx.tag.upsert({
-              where: { slug: tag.toLowerCase() },
-              update: {},
-              create: {
-                name: tag,
-                slug: tag.toLowerCase(),
-              },
-            })
-          )
-        );
+      if (tags.length === 0) return createdProduct;
 
-        await tx.productTag.createMany({
-          data: tags.map((tag) => ({
-            productId: createdProduct.id,
-            tagId: tag.id,
-            assignedBy: userId,
+      const normalizeTags = (tags: string[]) => [
+        ...new Set(tags.map((t) => t.trim().toLowerCase())),
+      ];
+
+      const normalizedTags = normalizeTags(tags);
+
+      const existingTags = await tx.tag.findMany({
+        where: { slug: { in: normalizedTags } },
+      });
+
+      const existingSlugs = new Set(existingTags.map((t) => t.slug));
+
+      const missingTags = normalizedTags.filter(
+        (slug) => !existingSlugs.has(slug)
+      );
+
+      if (missingTags.length > 0) {
+        await tx.tag.createMany({
+          data: missingTags.map((slug) => ({
+            name: slug,
+            slug,
           })),
           skipDuplicates: true,
         });
       }
 
+      const allTags = await tx.tag.findMany({
+        where: { slug: { in: normalizedTags } },
+      });
+
+      await tx.productTag.createMany({
+        data: allTags.map((tag) => ({
+          productId: createdProduct.id,
+          tagId: tag.id,
+          assignedBy: userId,
+        })),
+        skipDuplicates: true,
+      });
+
       return createdProduct;
     });
 
-    /* ---------------- RESPONSE ---------------- */
-    return NextResponse.json({
-      success: true,
-      message: "Product created successfully",
-      data: { product },
-    });
-  } catch (error: any) {
-    console.error("[CREATE_PRODUCT_ERROR]", error);
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          status === "draft"
+            ? "Product saved as draft"
+            : "Product published successfully",
+        data: { product },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error(error);
+    console.error("CREATE_PRODUCT_ERROR", error);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
-    if (error.name === "ZodError") {
+export async function GET(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
       return NextResponse.json(
-        { success: false, message: error.errors[0].message },
-        { status: 400 }
+        {
+          success: false,
+          error: { code: "UNAUTHORIZED", message: "Authentication required" },
+        },
+        { status: 401 }
       );
     }
 
+    const store = await authSeller(userId);
+    if (!store) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { code: "STORE_NOT_FOUND", message: "Store not found" },
+        },
+        { status: 404 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+
+    const cursor = searchParams.get("cursor");
+    const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
+
+    const status = searchParams.get("status"); // draft | published
+    const categoryId = searchParams.get("categoryId");
+    const search = searchParams.get("search");
+
+    const products = await prisma.product.findMany({
+      where: {
+        storeId: store.id,
+        ...(status && { status }),
+        ...(categoryId && { categoryId }),
+        ...(search && {
+          name: { contains: search, mode: "insensitive" },
+        }),
+      },
+      take: limit + 1,
+      ...(cursor && {
+        skip: 1,
+        cursor: { id: cursor },
+      }),
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        mrp: true,
+        images: true,
+        createdAt: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    let nextCursor: string | null = null;
+
+    if (products.length > limit) {
+      const nextItem = products.pop();
+      nextCursor = nextItem!.id;
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        items: products,
+        nextCursor,
+      },
+    });
+  } catch (error) {
+    console.error("LIST_PRODUCTS_ERROR", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch products",
+        },
+      },
       { status: 500 }
     );
   }

@@ -1,4 +1,4 @@
-import { generateUniqueSlug } from "@/lib/generateUniqueSlug";
+import { generateUniqueStoreSlug } from "@/lib/slugs/storeSlug";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ slug: "" });
     }
 
-    const slug = await generateUniqueSlug(username);
+    const slug = await generateUniqueStoreSlug(username);
 
     return NextResponse.json({ slug });
   } catch (error) {

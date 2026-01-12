@@ -35,10 +35,6 @@ export default function StoreHeader() {
         cache: "no-store",
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch store");
-      }
-
       const data = await res.json();
       setStore(data.store ?? null);
     } catch (error) {

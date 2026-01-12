@@ -1,10 +1,10 @@
 import { BusinessType } from "@/app/generated/prisma/client";
 import imagekit from "@/configs/imageKit";
-import { generateUniqueSlug } from "@/lib/generateUniqueSlug";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/lib/types/api";
+import { generateUniqueStoreSlug } from "@/lib/slugs/storeSlug";
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     const coverImage = formData.get("coverImage") as File | null;
     const acceptTerms = formData.get("acceptTerms");
 
-    const slug = await generateUniqueSlug(username);
+    const slug = await generateUniqueStoreSlug(username);
     const businessType = businessTypeRaw as BusinessType;
 
     if (

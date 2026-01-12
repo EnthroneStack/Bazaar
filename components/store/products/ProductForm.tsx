@@ -14,6 +14,11 @@ import ImageUploader from "./ImageUploader";
 import InventoryInput from "./InventoryInput";
 import TagInput from "./TagInput";
 
+interface ImageItem {
+  url: string;
+  fileId: string;
+}
+
 export default function ProductForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -25,7 +30,7 @@ export default function ProductForm() {
     mrp: "",
     price: "",
     categoryId: "",
-    images: [] as string[],
+    images: [] as ImageItem[],
     inStock: true,
     stockQuantity: 0,
     lowStockThreshold: 10,
@@ -47,13 +52,13 @@ export default function ProductForm() {
         mrp: parseFloat(formData.mrp) || parseFloat(formData.price),
         price: parseFloat(formData.price),
         categoryId: formData.categoryId,
-        images: formData.images,
+        images: formData.images.map((img) => img.url),
         inStock: formData.inStock,
         tags: formData.tags,
         status: isDraft ? "draft" : "published",
       };
 
-      const response = await fetch("/api/store/products", {
+      const response = await fetch("/api/store/product", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
