@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       price: Number(formData.get("price")),
       categoryId: formData.get("categoryId"),
       inStock: formData.get("inStock") === "true",
-      status: formData.get("status"),
+      status: formData.get("status") as ProductStatus,
       tags: tagsRaw ? JSON.parse(tagsRaw as string) : [],
     };
 
@@ -56,6 +56,16 @@ export async function POST(request: NextRequest) {
 
     const images = formData.getAll("images") as File[];
 
+    if (parsed.data.status === "PUBLISHED" && images.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "At least one image is required to publish a product",
+        },
+        { status: 400 }
+      );
+    }
+
     const uploadedImages: string[] = [];
 
     for (const image of images) {
@@ -67,16 +77,6 @@ export async function POST(request: NextRequest) {
         fileName: image.name,
         folder: `products/${store.id}`,
       });
-
-      if (parsed.data.status === "PUBLISHED" && uploadedImages.length === 0) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "At least one image is required to publish a product",
-          },
-          { status: 400 }
-        );
-      }
 
       if (!upload.url) {
         throw new Error("Image upload failed");
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
           mrp: data.mrp,
           price: data.price,
           images: data.images,
-          status: data.status,
+          status: data.status as ProductStatus,
           inStock: data.inStock,
           categoryId: data.categoryId,
           storeId: store.id,

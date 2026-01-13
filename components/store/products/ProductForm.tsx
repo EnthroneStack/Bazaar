@@ -57,7 +57,7 @@ export default function ProductForm() {
       fd.append("price", formData.price);
       fd.append("categoryId", formData.categoryId);
       fd.append("inStock", String(formData.inStock));
-      fd.append("status", isDraft ? "draft" : "published");
+      fd.append("status", isDraft ? "DRAFT" : "PUBLISHED");
       fd.append("tags", JSON.stringify(formData.tags));
 
       formData.images.forEach((img) => {
