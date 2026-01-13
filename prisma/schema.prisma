@@ -54,6 +54,7 @@ model Product {
     price           Float
     images          String[]
     inStock         Boolean     @default(true)
+    status          ProductStatus   @default(DRAFT)
     categoryId      String
     storeId         String
     createdAt       DateTime    @default(now())
@@ -140,6 +141,11 @@ enum StoreStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
 }
 
 model OrderItem {
