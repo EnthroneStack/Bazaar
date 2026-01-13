@@ -441,7 +441,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
                   <button
                     onClick={() => {
                       window.open(
-                        `tel:${product.store.phone || "+2341234567890"}`
+                        `tel:${product.store.contact || "+2341234567890"}`
                       );
                     }}
                     className="text-primary hover:text-primary-600 font-medium cursor-pointer flex items-center space-x-1"
