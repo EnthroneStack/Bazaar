@@ -795,9 +795,14 @@ const ProductDetail = ({ productId }: { productId: string }) => {
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              {customersAlsoViewed.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {customersAlsoViewed
+                .map((tracked) =>
+                  productDummyData.find((p) => p.id === tracked.id)
+                )
+                .filter(Boolean)
+                .map((product) => (
+                  <ProductCard key={product!.id} product={product!} />
+                ))}
             </div>
           </section>
         )}
@@ -817,9 +822,14 @@ const ProductDetail = ({ productId }: { productId: string }) => {
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {recentlyViewed.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {recentlyViewed
+                .map((tracked) =>
+                  productDummyData.find((p) => p.id === tracked.id)
+                )
+                .filter(Boolean)
+                .map((product) => (
+                  <ProductCard key={product!.id} product={product!} />
+                ))}
             </div>
           </section>
         )}
