@@ -49,15 +49,16 @@ export default function CartItemCard({
           {/* Product Image */}
           <div className="relative w-full sm:w-32 h-32 bg-gray-100 rounded-lg overflow-hidden">
             <Image
-              src={product.image || "/placeholder.jpg"}
+              src={product.images?.[0] || "/placeholder.jpg"}
               alt={product.name}
               fill
               className="object-cover"
               sizes="(max-width: 640px) 100vw, 128px"
             />
-            {product.stock <= 10 && (
+
+            {!product.inStock && (
               <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-                Low Stock
+                Out of Stock
               </Badge>
             )}
           </div>
@@ -76,18 +77,14 @@ export default function CartItemCard({
                   <span className="text-sm font-medium text-gray-900">
                     ${product.price.toFixed(2)}
                   </span>
-                  {product.originalPrice && (
+                  {product.mrp > product.price && (
                     <>
                       <span className="text-sm text-gray-500 line-through">
-                        ${product.originalPrice.toFixed(2)}
+                        ${product.mrp.toFixed(2)}
                       </span>
                       <Badge variant="secondary" className="text-xs">
                         Save{" "}
-                        {(
-                          (1 - product.price / product.originalPrice) *
-                          100
-                        ).toFixed(0)}
-                        %
+                        {((1 - product.price / product.mrp) * 100).toFixed(0)}%
                       </Badge>
                     </>
                   )}
@@ -114,7 +111,7 @@ export default function CartItemCard({
                     size="icon"
                     className="h-8 w-8"
                     onClick={handleIncrease}
-                    disabled={quantity >= product.stock}
+                    disabled={!product.inStock}
                   >
                     <Plus className="h-3 w-3" />
                   </Button>
@@ -135,7 +132,7 @@ export default function CartItemCard({
 
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
-                In stock: <span className="font-medium">{product.stock}</span>
+                In stock: <span className="font-medium">{product.inStock}</span>
               </div>
               <div className="text-right">
                 <div className="text-sm text-gray-600">Item total</div>
