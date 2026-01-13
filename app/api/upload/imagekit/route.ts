@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const upload = await imagekit.upload({
+    const upload = await (imagekit as any).upload({
       file: buffer,
       fileName: file.name,
       folder: "/products",
@@ -54,7 +54,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: "fileId required" }, { status: 400 });
     }
 
-    await imagekit.deleteFile(fileId);
+    await (imagekit as any).deleteFile(fileId);
 
     return NextResponse.json({ success: true });
   } catch (error) {
