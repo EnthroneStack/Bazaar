@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { SideDrawer } from "../shop/SideDrawer";
 import SearchOverlay from "../SearchOverlay";
 import { useAppSelector } from "@/hooks/redux-hook";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const { openSearch, isSearchOpen } = useSearch();
@@ -18,6 +19,27 @@ const Navbar = () => {
   const { user } = useUser();
   const { openSignIn } = useClerk();
   const { total } = useAppSelector((state) => state.cart);
+  const [hasStore, setHasStore] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const checkStore = async () => {
+      try {
+        const res = await fetch("/api/store/me");
+        if (!res.ok) {
+          setHasStore(false);
+          return;
+        }
+        const data = await res.json();
+        setHasStore(data.hasStore);
+      } catch {
+        setHasStore(false);
+      }
+    };
+
+    checkStore();
+  }, [user]);
 
   return (
     <>
@@ -86,11 +108,21 @@ const Navbar = () => {
               ) : (
                 <UserButton>
                   <UserButton.MenuItems>
-                    <UserButton.Action
-                      labelIcon={<PackageIcon size={16} />}
-                      label="My Orders"
-                      onClick={() => router.push("/shop")}
-                    />
+                    {hasStore === true && (
+                      <UserButton.Action
+                        labelIcon={<PackageIcon size={16} />}
+                        label="My Store"
+                        onClick={() => router.push("/store")}
+                      />
+                    )}
+
+                    {hasStore === false && (
+                      <UserButton.Action
+                        labelIcon={<PackageIcon size={16} />}
+                        label="Create Store"
+                        onClick={() => router.push("/create-store")}
+                      />
+                    )}
                   </UserButton.MenuItems>
                 </UserButton>
               )}
