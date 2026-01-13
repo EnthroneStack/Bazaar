@@ -16,6 +16,9 @@ import { toast } from "sonner";
 interface ImageItem {
   url: string;
   fileId: string;
+  file?: File;
+  status?: "idle" | "uploading" | "uploaded" | "failed";
+  progress?: number;
 }
 
 interface Props {
@@ -49,6 +52,39 @@ export default function ImageUploader({
       thumbnailWidth / 2;
     container.scrollTo({ left: scrollPos, behavior: "smooth" });
   }, [previewIndex, images.length, isReordering]);
+
+  const uploadImages = async () => {
+    const pending = images.filter((i) => i.status !== "uploaded");
+
+    for (const img of pending) {
+      try {
+        img.status = "uploading";
+        onImagesChange([...images]);
+
+        const form = new FormData();
+        form.append("file", img.file!);
+
+        const res = await fetch("/api/upload/imagekit", {
+          method: "POST",
+          body: form,
+        });
+
+        if (!res.ok) throw new Error("Upload failed");
+
+        const data = await res.json();
+
+        img.url = data.url;
+        img.fileId = data.fileId;
+        img.status = "uploaded";
+        img.progress = 100;
+
+        onImagesChange([...images]);
+      } catch {
+        img.status = "failed";
+        onImagesChange([...images]);
+      }
+    }
+  };
 
   const handleUpload = (files: FileList) => {
     const fileList = Array.from(files);
@@ -84,23 +120,19 @@ export default function ImageUploader({
     }
   };
 
-  const removeImage = (index: number) => {
-    if (images.length === 1) {
-      onImagesChange([]);
-      setPreviewIndex(0);
-      toast.info("Image removed");
-      return;
+  const removeImage = async (index: number) => {
+    const img = images[index];
+
+    if (img.fileId) {
+      await fetch("/api/upload/imagekit", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileId: img.fileId }),
+      });
     }
 
-    const newImages = images.filter((_, i) => i !== index);
-    onImagesChange(newImages);
-
-    if (previewIndex === index) {
-      setPreviewIndex(Math.max(0, index - 1));
-    } else if (previewIndex > index) {
-      setPreviewIndex(previewIndex - 1);
-    }
-    toast.info("Image removed");
+    const updated = images.filter((_, i) => i !== index);
+    onImagesChange(updated);
   };
 
   const setAsMain = (index: number) => {

@@ -14,9 +14,12 @@ import ImageUploader from "./ImageUploader";
 import InventoryInput from "./InventoryInput";
 import TagInput from "./TagInput";
 
-interface ImageItem {
+export interface ImageItem {
   url: string;
   fileId: string;
+  file?: File;
+  status?: "idle" | "uploading" | "uploaded" | "failed";
+  progress?: number;
 }
 
 export default function ProductForm() {
@@ -57,6 +60,16 @@ export default function ProductForm() {
         tags: formData.tags,
         status: isDraft ? "draft" : "published",
       };
+
+      const notUploaded = formData.images.some(
+        (img) => img.status !== "uploaded"
+      );
+
+      if (notUploaded) {
+        toast.error("Please upload all images before publishing");
+        setLoading(false);
+        return;
+      }
 
       const response = await fetch("/api/store/product", {
         method: "POST",

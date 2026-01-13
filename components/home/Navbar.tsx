@@ -10,12 +10,14 @@ import SearchBar from "../SearchBar";
 import { Button } from "../ui/button";
 import { SideDrawer } from "../shop/SideDrawer";
 import SearchOverlay from "../SearchOverlay";
+import { useAppSelector } from "@/hooks/redux-hook";
 
 const Navbar = () => {
   const { openSearch, isSearchOpen } = useSearch();
   const router = useRouter();
   const { user } = useUser();
   const { openSignIn } = useClerk();
+  const { total } = useAppSelector((state) => state.cart);
 
   return (
     <>
@@ -69,8 +71,8 @@ const Navbar = () => {
                   size={18}
                   className="text-slate-700 size-4 sm:size-5"
                 />
-                <span className="absolute -top-2 -right-2 text-[8px] sm:text-[10px] bg-slate-700 text-white px-1 rounded-full min-w-[16px] text-center">
-                  0
+                <span className="absolute -top-2 -right-2 text-[8px] sm:text-[10px] bg-primary text-white px-1 rounded-full min-w-[16px] text-center">
+                  {total}
                 </span>
               </Link>
 
