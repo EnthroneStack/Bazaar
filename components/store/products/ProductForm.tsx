@@ -318,44 +318,28 @@ export default function ProductForm() {
         throw new Error("Please fill in all required fields");
       }
 
-      const uploadedImageUrls: string[] = [];
+      const fd = new FormData();
 
-      for (const image of formData.images) {
-        const uploadForm = new FormData();
-        uploadForm.append("file", image.file);
-        uploadForm.append("fileName", image.file.name);
+      // Text fields
+      fd.append("name", formData.name);
+      fd.append("description", formData.description);
+      fd.append("mrp", formData.mrp || formData.price);
+      fd.append("price", formData.price);
+      fd.append("categoryId", formData.categoryId);
+      fd.append("status", isDraft ? "draft" : "published");
+      fd.append("inStock", String(formData.inStock));
 
-        const uploadRes = await fetch("/api/upload/imagekit", {
-          method: "POST",
-          body: uploadForm,
-        });
+      // Tags
+      formData.tags.forEach((tag) => fd.append("tags", tag));
 
-        if (!uploadRes.ok) {
-          throw new Error("Image upload failed");
-        }
-
-        const uploaded = await uploadRes.json();
-        uploadedImageUrls.push(uploaded.url);
-      }
-
-      const productData = {
-        name: formData.name,
-        description: formData.description,
-        mrp: parseFloat(formData.mrp) || parseFloat(formData.price),
-        price: parseFloat(formData.price),
-        categoryId: formData.categoryId,
-        images: uploadedImageUrls,
-        inStock: formData.inStock,
-        tags: formData.tags,
-        status: isDraft ? "draft" : "published",
-      };
+      // Images (ORDER PRESERVED)
+      formData.images.forEach((img) => {
+        fd.append("images", img.file);
+      });
 
       const response = await fetch("/api/store/product", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productData),
+        body: fd,
       });
 
       if (!response.ok) {
@@ -363,15 +347,11 @@ export default function ProductForm() {
         throw new Error(error.message || "Failed to create product");
       }
 
-      const result = await response.json();
-
       toast.success(
         isDraft ? "Product saved as draft" : "Product published successfully"
       );
 
-      setTimeout(() => {
-        router.push("/store/manage-product");
-      }, 1500);
+      router.push("/store/manage-product");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Something went wrong"
