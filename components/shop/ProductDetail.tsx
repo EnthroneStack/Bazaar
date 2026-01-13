@@ -22,10 +22,10 @@ import { productAverageRatings } from "@/lib/product-review-map";
 import ProductCard from "./ProductCard";
 import { Button } from "../ui/button";
 import QuantitySelector from "../QuantitySelector";
-import { useProductTracking } from "@/context/ProductTrackingContext";
 import { useAppDispatch } from "@/hooks/redux-hook";
 import { addToCart } from "@/lib/redux/features/cart/cartSlice";
 import { toast } from "sonner";
+import { useProductTracking } from "@/context/ProductTrackingContext";
 
 const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "$";
 

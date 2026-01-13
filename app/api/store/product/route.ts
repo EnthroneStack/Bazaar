@@ -5,7 +5,6 @@ import authSeller from "@/middlewares/authSeller";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-// Add a new product
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -175,7 +174,7 @@ export async function GET(request: NextRequest) {
     const cursor = searchParams.get("cursor");
     const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
 
-    const status = searchParams.get("status"); // draft | published
+    const status = searchParams.get("status");
     const categoryId = searchParams.get("categoryId");
     const search = searchParams.get("search");
 

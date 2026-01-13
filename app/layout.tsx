@@ -6,6 +6,7 @@ import ReduxProvider from "@/lib/redux/ReduxProvider";
 import { SearchProvider } from "@/context/SearchContext";
 // import { ProductTrackingProvider } from "@/context/ProductTrackingContext";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ProductTrackingProvider } from "@/context/ProductTrackingContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,38 +36,38 @@ export default function RootLayout({
         >
           <ReduxProvider>
             <SearchProvider>
-              {/* <ProductTrackingProvider> */}
-              {children}
-              <Toaster
-                position="top-center"
-                closeButton
-                toastOptions={{
-                  style: {
-                    color: "white",
-                  },
-                  classNames: {
-                    success: "!bg-green-600 text-white border-0",
-                    error: "!bg-red-600 text-white border-0",
-                    info: "!bg-blue-600 text-white border-0",
-                    warning: "!bg-amber-600 text-white border-0",
-                    loading: "!bg-gray-700 text-white border-0",
+              <ProductTrackingProvider>
+                {children}
+                <Toaster
+                  position="top-center"
+                  closeButton
+                  toastOptions={{
+                    style: {
+                      color: "white",
+                    },
+                    classNames: {
+                      success: "!bg-green-600 text-white border-0",
+                      error: "!bg-red-600 text-white border-0",
+                      info: "!bg-blue-600 text-white border-0",
+                      warning: "!bg-amber-600 text-white border-0",
+                      loading: "!bg-gray-700 text-white border-0",
 
-                    toast: "text-white group",
-                    title: "text-white font-semibold",
-                    description: "text-white/90",
+                      toast: "text-white group",
+                      title: "text-white font-semibold",
+                      description: "text-white/90",
 
-                    actionButton: "bg-white text-green-600 hover:bg-white/90",
-                    cancelButton: "bg-gray-300 text-gray-700 hover:bg-gray-400",
+                      actionButton: "bg-white text-green-600 hover:bg-white/90",
+                      cancelButton:
+                        "bg-gray-300 text-gray-700 hover:bg-gray-400",
 
-                    closeButton:
-                      "!bg-gray-900 hover:!bg-black text-white border-0 left-auto",
+                      closeButton:
+                        "!bg-gray-900 hover:!bg-black text-white border-0 left-auto",
 
-                    icon: "text-white",
-                  },
-                }}
-              />
-
-              {/* </ProductTrackingProvider> */}
+                      icon: "text-white",
+                    },
+                  }}
+                />
+              </ProductTrackingProvider>
             </SearchProvider>
           </ReduxProvider>
         </body>
