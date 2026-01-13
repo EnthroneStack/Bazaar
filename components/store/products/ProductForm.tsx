@@ -72,11 +72,9 @@ export default function ProductForm() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create product");
+        const text = await response.text();
+        throw new Error(text || "Failed to create product");
       }
-
-      const result = await response.json();
 
       toast.success(
         isDraft ? "Product saved as draft" : "Product published successfully"
@@ -233,7 +231,7 @@ export default function ProductForm() {
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4 border-t">
         <Button
-          type="button"
+          type="submit"
           variant="outline"
           onClick={() => setIsDraft(true)}
           disabled={loading}
