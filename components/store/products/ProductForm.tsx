@@ -179,7 +179,6 @@ export default function ProductForm() {
         </CardContent>
       </Card>
 
-      {/* Images Card */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">Product Images</CardTitle>
@@ -192,7 +191,6 @@ export default function ProductForm() {
         </CardContent>
       </Card>
 
-      {/* Inventory Card */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">Inventory</CardTitle>
@@ -213,7 +211,6 @@ export default function ProductForm() {
         </CardContent>
       </Card>
 
-      {/* Tags Card */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">
@@ -228,7 +225,6 @@ export default function ProductForm() {
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4 border-t">
         <Button
           type="submit"

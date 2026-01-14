@@ -86,8 +86,6 @@ const products = [
 ];
 
 export default function ProductTable() {
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-
   const getStatusBadge = (status: string) => {
     const styles = {
       published: "bg-green-100 text-green-800",

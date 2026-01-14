@@ -132,7 +132,6 @@ export default function ImageUploader({
     const diff = touchStartX - touchX;
 
     if (Math.abs(diff) > 10) {
-      // Swipe threshold
       const container = thumbnailContainerRef.current;
       if (container) {
         const scrollLeft = container.scrollLeft;
@@ -174,7 +173,6 @@ export default function ImageUploader({
 
   return (
     <div className="space-y-4">
-      {/* Upload Bar */}
       <div
         onClick={() => inputRef.current?.click()}
         onDrop={(e) => {
