@@ -265,6 +265,9 @@ export async function GET() {
       where: { userId },
       select: {
         id: true,
+        name: true,
+        logo: true,
+        username: true,
         status: true,
         reason: true,
         createdAt: true,

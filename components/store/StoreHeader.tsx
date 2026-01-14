@@ -30,7 +30,7 @@ export default function StoreHeader() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/store", {
+      const res = await fetch("/api/store/header", {
         credentials: "include",
         cache: "no-store",
       });
