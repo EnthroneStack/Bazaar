@@ -59,6 +59,9 @@ export default function ProductForm() {
       fd.append("inStock", String(formData.inStock));
       fd.append("status", isDraft ? "DRAFT" : "PUBLISHED");
       fd.append("tags", JSON.stringify(formData.tags));
+      fd.append("trackInventory", String(formData.inStock));
+      fd.append("stockQuantity", String(formData.stockQuantity));
+      fd.append("lowStockThreshold", String(formData.lowStockThreshold));
 
       formData.images.forEach((img) => {
         if (img.file) {

@@ -40,10 +40,17 @@ export async function POST(request: NextRequest) {
       mrp: Number(formData.get("mrp")),
       price: Number(formData.get("price")),
       categoryId: formData.get("categoryId"),
-      inStock: formData.get("inStock") === "true",
+      trackInventory: formData.get("trackInventory") === "true",
+      stockQuantity: Number(formData.get("stockQuantity") || 0),
+      lowStockThreshold: Number(formData.get("lowStockThreshold") || 10),
       status: formData.get("status") as ProductStatus,
       tags: tagsRaw ? JSON.parse(tagsRaw as string) : [],
     };
+
+    if (rawData.trackInventory === false) {
+      rawData.stockQuantity = 0;
+      rawData.lowStockThreshold = 0;
+    }
 
     const parsed = ProductSchema.safeParse(rawData);
 
@@ -51,6 +58,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, errors: parsed.error.issues },
         { status: 422 }
+      );
+    }
+
+    if (rawData.trackInventory && rawData.stockQuantity < 0) {
+      return NextResponse.json(
+        { success: false, message: "Stock quantity cannot be negative" },
+        { status: 400 }
       );
     }
 
@@ -108,7 +122,9 @@ export async function POST(request: NextRequest) {
           price: data.price,
           images: data.images,
           status: data.status as ProductStatus,
-          inStock: data.inStock,
+          trackInventory: data.trackInventory,
+          stockQuantity: data.stockQuantity,
+          lowStockThreshold: data.lowStockThreshold,
           categoryId: data.categoryId,
           storeId: store.id,
         },

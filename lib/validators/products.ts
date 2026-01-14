@@ -15,7 +15,11 @@ export const ProductSchema = z
 
     tags: z.array(z.string().min(2)).max(20).default([]),
 
-    inStock: z.boolean().default(true),
+    trackInventory: z.boolean(),
+
+    stockQuantity: z.number().int().nonnegative(),
+
+    lowStockThreshold: z.number().int().nonnegative(),
 
     status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   })
