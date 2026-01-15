@@ -62,9 +62,11 @@ import authSeller from "@/middlewares/authSeller";
 ============================ */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ success: false }, { status: 401 });
@@ -77,7 +79,7 @@ export async function GET(
 
     const product = await prisma.product.findFirst({
       where: {
-        id: params.id,
+        id,
         storeId: store.id,
       },
       include: {
@@ -92,6 +94,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
+    console.error("GET PRODUCT ERROR", error);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
@@ -101,9 +104,11 @@ export async function GET(
 ============================ */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -129,7 +134,7 @@ export async function PATCH(
 
     const result = await prisma.product.updateMany({
       where: {
-        id: params.id,
+        id,
         storeId: store.id,
       },
       data: {
@@ -147,7 +152,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Update Product Error:", error);
+    console.error("UPDATE PRODUCT ERROR", error);
     return NextResponse.json(
       { error: "Failed to update product" },
       { status: 500 }
@@ -160,9 +165,11 @@ export async function PATCH(
 ============================ */
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -175,7 +182,7 @@ export async function DELETE(
 
     const product = await prisma.product.findFirst({
       where: {
-        id: params.id,
+        id,
         storeId: store.id,
       },
       include: {
@@ -194,13 +201,11 @@ export async function DELETE(
       );
     }
 
-    await prisma.product.delete({
-      where: { id: params.id },
-    });
+    await prisma.product.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Delete Product Error:", error);
+    console.error("DELETE PRODUCT ERROR", error);
     return NextResponse.json(
       { error: "Failed to delete product" },
       { status: 500 }
