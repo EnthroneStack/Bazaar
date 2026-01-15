@@ -189,12 +189,18 @@ export default function ProductFilters({
 
   return (
     <Card className="mb-3 px-3 py-3">
-      <div className="flex items-center gap-2 overflow-x-auto">
-        <Filter className="h-4 w-4 text-muted-foreground" />
+      <div
+        className="
+          flex items-center gap-2
+          overflow-x-auto whitespace-nowrap
+          md:overflow-visible md:flex-wrap md:whitespace-normal
+        "
+      >
+        <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
 
         {/* SEARCH */}
-        <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2" />
+        <div className="relative shrink-0 md:flex-1 md:min-w-[240px]">
+          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={value.search}
             onChange={(e) => onChange({ ...value, search: e.target.value })}
@@ -207,14 +213,17 @@ export default function ProductFilters({
         <Select
           value={value.categoryId ?? "all"}
           onValueChange={(v) =>
-            onChange({ ...value, categoryId: v === "all" ? null : v })
+            onChange({
+              ...value,
+              categoryId: v === "all" ? null : v,
+            })
           }
         >
-          <SelectTrigger className="h-8 w-[180px] text-xs">
+          <SelectTrigger className="h-8 w-[180px] text-xs shrink-0">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
 
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">All Categories</SelectItem>
 
             {categories.flatMap((parent) =>
@@ -231,13 +240,16 @@ export default function ProductFilters({
         <Select
           value={value.status}
           onValueChange={(v) =>
-            onChange({ ...value, status: v as ProductFilterState["status"] })
+            onChange({
+              ...value,
+              status: v as ProductFilterState["status"],
+            })
           }
         >
-          <SelectTrigger className="h-8 w-[120px] text-xs">
+          <SelectTrigger className="h-8 w-[120px] text-xs shrink-0">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="published">Published</SelectItem>
             <SelectItem value="draft">Draft</SelectItem>
@@ -249,6 +261,7 @@ export default function ProductFilters({
         <Button
           variant="ghost"
           size="icon"
+          className="h-8 w-8 shrink-0"
           onClick={() =>
             onChange({ search: "", categoryId: null, status: "all" })
           }

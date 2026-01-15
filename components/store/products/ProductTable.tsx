@@ -247,7 +247,14 @@
 
 "use client";
 
-import { Edit, Eye, Package } from "lucide-react";
+import {
+  Edit,
+  Eye,
+  MoreVertical,
+  Star,
+  Package,
+  DollarSign,
+} from "lucide-react";
 
 export default function ProductTable({
   products,
@@ -256,7 +263,27 @@ export default function ProductTable({
   products: any[];
   loading: boolean;
 }) {
-  if (loading) return <div className="p-6">Loading...</div>;
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      published: "bg-green-100 text-green-800",
+      draft: "bg-yellow-100 text-yellow-800",
+      "out-of-stock": "bg-red-100 text-red-800",
+    };
+
+    return (
+      <span
+        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          styles[status as keyof typeof styles]
+        }`}
+      >
+        {status.replace("-", " ").toUpperCase()}
+      </span>
+    );
+  };
+
+  if (loading) {
+    return <div className="p-6 text-sm">Loading...</div>;
+  }
 
   if (!loading && products.length === 0) {
     return (
@@ -265,39 +292,83 @@ export default function ProductTable({
   }
 
   return (
-    <div className="bg-white border rounded-xl overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left">Product</th>
-            <th className="px-6 py-3 text-left">Category</th>
-            <th className="px-6 py-3 text-left">Stock</th>
-            <th className="px-6 py-3 text-left">Status</th>
-            <th className="px-6 py-3 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p) => (
-            <tr key={p.id} className="border-t">
-              <td className="px-6 py-4 flex gap-3">
-                <div className="h-10 w-10 bg-gray-100 rounded flex items-center justify-center">
-                  <Package className="h-5 w-5 text-gray-400" />
-                </div>
-                {p.name}
-              </td>
-              <td className="px-6 py-4">{p.category?.name ?? "—"}</td>
-              <td className="px-6 py-4">{p.stockQuantity}</td>
-              <td className="px-6 py-4">
-                {p.stockQuantity <= 0 ? "Out of stock" : p.status.toLowerCase()}
-              </td>
-              <td className="px-6 py-4 flex gap-2">
-                <Eye className="h-4 w-4" />
-                <Edit className="h-4 w-4" />
-              </td>
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 sm:px-6 py-3" />
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Product
+              </th>
+              <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Category
+              </th>
+              <th className="hidden lg:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Price
+              </th>
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Stock
+              </th>
+              <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Status
+              </th>
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody className="divide-y divide-gray-200">
+            {products.map((product) => (
+              <tr key={product.id} className="hover:bg-gray-50">
+                <td className="px-4 sm:px-6 py-4">
+                  <input type="checkbox" className="h-4 w-4 rounded" />
+                </td>
+
+                <td className="px-4 sm:px-6 py-4">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                      <Package className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <div>
+                      <div className="font-medium">{product.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {product.sku ?? "—"}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td className="hidden md:table-cell px-4 sm:px-6 py-4">
+                  {product.category?.name ?? "—"}
+                </td>
+
+                <td className="hidden lg:table-cell px-4 sm:px-6 py-4">
+                  <div className="flex items-center">
+                    <DollarSign className="h-4 w-4 mr-1 text-gray-400" />
+                    {product.price}
+                  </div>
+                </td>
+
+                <td className="px-4 sm:px-6 py-4">{product.stockQuantity}</td>
+
+                <td className="hidden sm:table-cell px-4 sm:px-6 py-4">
+                  {product.stockQuantity <= 0
+                    ? getStatusBadge("out-of-stock")
+                    : getStatusBadge(product.status)}
+                </td>
+
+                <td className="px-4 sm:px-6 py-4 flex gap-2">
+                  <Eye className="h-4 w-4" />
+                  <Edit className="h-4 w-4" />
+                  <MoreVertical className="h-4 w-4" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
