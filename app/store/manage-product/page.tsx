@@ -55,7 +55,7 @@ export default function ManageProductsPage() {
 
     setLoading(true);
 
-    fetch(`/api/store/products?${params.toString()}`, {
+    fetch(`/api/store/product?${params.toString()}`, {
       cache: "no-store",
     })
       .then((res) => res.json())
