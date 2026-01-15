@@ -150,6 +150,129 @@
 //   );
 // }
 
+// "use client";
+
+// import { Filter, Search, X } from "lucide-react";
+// import { useEffect, useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Card } from "@/components/ui/card";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { ProductFilterState } from "./types";
+
+// type CategoryDTO = {
+//   id: string;
+//   name: string;
+//   parentId: string | null;
+//   children?: CategoryDTO[];
+// };
+
+// export default function ProductFilters({
+//   value,
+//   onChange,
+// }: {
+//   value: ProductFilterState;
+//   onChange: (v: ProductFilterState) => void;
+// }) {
+//   const [categories, setCategories] = useState<CategoryDTO[]>([]);
+
+//   useEffect(() => {
+//     fetch("/api/store/category?tree=true", { cache: "no-store" })
+//       .then((res) => res.json())
+//       .then((json) => setCategories(json.data ?? []));
+//   }, []);
+
+//   return (
+//     <Card className="mb-3 px-3 py-3">
+//       <div
+//         className="
+//           flex items-center gap-2
+//           overflow-x-auto whitespace-nowrap
+//           md:overflow-visible md:flex-wrap md:whitespace-normal
+//         "
+//       >
+//         <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+
+//         {/* SEARCH */}
+//         <div className="relative shrink-0 md:flex-1 md:min-w-[240px]">
+//           <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+//           <input
+//             value={value.search}
+//             onChange={(e) => onChange({ ...value, search: e.target.value })}
+//             placeholder="Search products"
+//             className="pl-7 h-8 w-full rounded-md border text-xs"
+//           />
+//         </div>
+
+//         {/* CATEGORY */}
+//         <Select
+//           value={value.categoryId ?? "all"}
+//           onValueChange={(v) =>
+//             onChange({
+//               ...value,
+//               categoryId: v === "all" ? null : v,
+//             })
+//           }
+//         >
+//           <SelectTrigger className="h-8 w-[180px] text-xs shrink-0">
+//             <SelectValue placeholder="Category" />
+//           </SelectTrigger>
+
+//           <SelectContent className="bg-white">
+//             <SelectItem value="all">All Categories</SelectItem>
+
+//             {categories.flatMap((parent) =>
+//               parent.children?.map((child) => (
+//                 <SelectItem key={child.id} value={child.id}>
+//                   {parent.name} → {child.name}
+//                 </SelectItem>
+//               ))
+//             )}
+//           </SelectContent>
+//         </Select>
+
+//         {/* STATUS */}
+//         <Select
+//           value={value.status}
+//           onValueChange={(v) =>
+//             onChange({
+//               ...value,
+//               status: v as ProductFilterState["status"],
+//             })
+//           }
+//         >
+//           <SelectTrigger className="h-8 w-[120px] text-xs shrink-0">
+//             <SelectValue placeholder="Status" />
+//           </SelectTrigger>
+//           <SelectContent className="bg-white">
+//             <SelectItem value="all">All</SelectItem>
+//             <SelectItem value="published">Published</SelectItem>
+//             <SelectItem value="draft">Draft</SelectItem>
+//             <SelectItem value="out-of-stock">Out of stock</SelectItem>
+//           </SelectContent>
+//         </Select>
+
+//         {/* CLEAR */}
+//         <Button
+//           variant="ghost"
+//           size="icon"
+//           className="h-8 w-8 shrink-0"
+//           onClick={() =>
+//             onChange({ search: "", categoryId: null, status: "all" })
+//           }
+//         >
+//           <X className="h-4 w-4" />
+//         </Button>
+//       </div>
+//     </Card>
+//   );
+// }
+
 "use client";
 
 import { Filter, Search, X } from "lucide-react";
@@ -198,18 +321,16 @@ export default function ProductFilters({
       >
         <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
 
-        {/* SEARCH */}
         <div className="relative shrink-0 md:flex-1 md:min-w-[240px]">
           <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={value.search}
             onChange={(e) => onChange({ ...value, search: e.target.value })}
             placeholder="Search products"
-            className="pl-7 h-8 w-full rounded-md border text-xs"
+            className="flex-1 bg-transparent outline-none text-xs min-w-[80px] pl-7 h-8 border rounded-md"
           />
         </div>
 
-        {/* CATEGORY */}
         <Select
           value={value.categoryId ?? "all"}
           onValueChange={(v) =>
@@ -219,13 +340,11 @@ export default function ProductFilters({
             })
           }
         >
-          <SelectTrigger className="h-8 w-[180px] text-xs shrink-0">
+          <SelectTrigger className="h-8 text-xs shrink-0 w-[140px]">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
-
           <SelectContent className="bg-white">
-            <SelectItem value="all">All Categories</SelectItem>
-
+            <SelectItem value="all">All</SelectItem>
             {categories.flatMap((parent) =>
               parent.children?.map((child) => (
                 <SelectItem key={child.id} value={child.id}>
@@ -236,7 +355,6 @@ export default function ProductFilters({
           </SelectContent>
         </Select>
 
-        {/* STATUS */}
         <Select
           value={value.status}
           onValueChange={(v) =>
@@ -257,7 +375,6 @@ export default function ProductFilters({
           </SelectContent>
         </Select>
 
-        {/* CLEAR */}
         <Button
           variant="ghost"
           size="icon"
