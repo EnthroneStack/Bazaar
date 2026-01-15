@@ -258,6 +258,12 @@ export default function ProductTable({
 }) {
   if (loading) return <div className="p-6">Loading...</div>;
 
+  if (!loading && products.length === 0) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">No products found</div>
+    );
+  }
+
   return (
     <div className="bg-white border rounded-xl overflow-hidden">
       <table className="w-full">
@@ -279,7 +285,7 @@ export default function ProductTable({
                 </div>
                 {p.name}
               </td>
-              <td className="px-6 py-4">{p.category.name}</td>
+              <td className="px-6 py-4">{p.category?.name ?? "—"}</td>
               <td className="px-6 py-4">{p.stockQuantity}</td>
               <td className="px-6 py-4">
                 {p.stockQuantity <= 0 ? "Out of stock" : p.status.toLowerCase()}

@@ -204,24 +204,28 @@ export default function ProductFilters({
         </div>
 
         {/* CATEGORY */}
-        {categories.map((parent) => (
-          <Select
-            key={parent.id}
-            value={value.categoryId ?? ""}
-            onValueChange={(v) => onChange({ ...value, categoryId: v || null })}
-          >
-            <SelectTrigger className="h-8 w-[140px] text-xs">
-              <SelectValue placeholder={parent.name} />
-            </SelectTrigger>
-            <SelectContent>
-              {parent.children?.map((child) => (
+        <Select
+          value={value.categoryId ?? "all"}
+          onValueChange={(v) =>
+            onChange({ ...value, categoryId: v === "all" ? null : v })
+          }
+        >
+          <SelectTrigger className="h-8 w-[180px] text-xs">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+
+            {categories.flatMap((parent) =>
+              parent.children?.map((child) => (
                 <SelectItem key={child.id} value={child.id}>
-                  {child.name}
+                  {parent.name} → {child.name}
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ))}
+              ))
+            )}
+          </SelectContent>
+        </Select>
 
         {/* STATUS */}
         <Select

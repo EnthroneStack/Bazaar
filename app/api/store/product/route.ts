@@ -5,7 +5,7 @@ import authSeller from "@/middlewares/authSeller";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import imagekit from "@/configs/imageKit";
-import { ProductStatus } from "@/app/generated/prisma/client";
+import { Prisma, ProductStatus } from "@/app/generated/prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -222,24 +222,23 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
     const statusParam = searchParams.get("status")?.toLowerCase();
 
-    let statusFilter:
-      | { status: ProductStatus }
-      | { status: ProductStatus; stockQuantity: { lte: number } }
-      | undefined;
+    let statusFilter: Prisma.ProductWhereInput | undefined;
 
-    if (statusParam === "draft") {
-      statusFilter = { status: ProductStatus.DRAFT };
-    }
+    if (statusParam && statusParam !== "all") {
+      if (statusParam === "draft") {
+        statusFilter = { status: ProductStatus.DRAFT };
+      }
 
-    if (statusParam === "published") {
-      statusFilter = { status: ProductStatus.PUBLISHED };
-    }
+      if (statusParam === "published") {
+        statusFilter = { status: ProductStatus.PUBLISHED };
+      }
 
-    if (statusParam === "out-of-stock") {
-      statusFilter = {
-        status: ProductStatus.PUBLISHED,
-        stockQuantity: { lte: 0 },
-      };
+      if (statusParam === "out-of-stock") {
+        statusFilter = {
+          status: ProductStatus.PUBLISHED,
+          stockQuantity: { lte: 0 },
+        };
+      }
     }
 
     const products = await prisma.product.findMany({
