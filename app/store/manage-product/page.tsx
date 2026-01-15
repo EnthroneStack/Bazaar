@@ -1,30 +1,72 @@
-import Link from "next/link";
+// import Link from "next/link";
 
+// import ProductFilters from "@/components/store/products/ProductFilters";
+// import ProductTable from "@/components/store/products/ProductTable";
+// import { Button } from "@/components/ui/button";
+
+// export default function ManageProductsPage() {
+//   return (
+//     <div className="space-y-4 sm:space-y-6">
+//       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+//         <div className="space-y-1">
+//           <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+//             Manage Products
+//           </h1>
+//           <p className="text-sm sm:text-base text-muted-foreground">
+//             View and manage all your products
+//           </p>
+//         </div>
+
+//         <Button asChild className="w-full sm:w-auto text-white">
+//           <Link href="/add-product">Add Product</Link>
+//         </Button>
+//       </div>
+
+//       <ProductFilters />
+
+//       <ProductTable />
+//     </div>
+//   );
+// }
+
+"use client";
+
+import { useEffect, useState } from "react";
 import ProductFilters from "@/components/store/products/ProductFilters";
 import ProductTable from "@/components/store/products/ProductTable";
-import { Button } from "@/components/ui/button";
+import { ProductFilterState } from "@/components/store/products/types";
 
 export default function ManageProductsPage() {
+  const [filters, setFilters] = useState<ProductFilterState>({
+    search: "",
+    categoryId: null,
+    status: "all",
+  });
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (filters.search) params.set("search", filters.search);
+    if (filters.categoryId) params.set("categoryId", filters.categoryId);
+    if (filters.status !== "all") params.set("status", filters.status);
+
+    setLoading(true);
+
+    fetch(`/api/store/products?${params.toString()}`, {
+      cache: "no-store",
+    })
+      .then((res) => res.json())
+      .then((json) => setProducts(json.data.items))
+      .finally(() => setLoading(false));
+  }, [filters]);
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-            Manage Products
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            View and manage all your products
-          </p>
-        </div>
-
-        <Button asChild className="w-full sm:w-auto text-white">
-          <Link href="/add-product">Add Product</Link>
-        </Button>
-      </div>
-
-      <ProductFilters />
-
-      <ProductTable />
-    </div>
+    <>
+      <ProductFilters value={filters} onChange={setFilters} />
+      <ProductTable products={products} loading={loading} />
+    </>
   );
 }

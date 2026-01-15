@@ -214,24 +214,38 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
 
+    const categoryId = searchParams.get("categoryId") || undefined;
+    const search = searchParams.get("search") || undefined;
     const cursor = searchParams.get("cursor");
     const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
-    const statusParam = searchParams.get("status");
+    const statusParam = searchParams.get("status")?.toLowerCase();
 
-    const status =
-      statusParam === ProductStatus.DRAFT ||
-      statusParam === ProductStatus.PUBLISHED
-        ? statusParam
-        : undefined;
-    const categoryId = searchParams.get("categoryId");
-    const search = searchParams.get("search");
+    let statusFilter:
+      | { status: ProductStatus }
+      | { status: ProductStatus; stockQuantity: { lte: number } }
+      | undefined;
+
+    if (statusParam === "draft") {
+      statusFilter = { status: ProductStatus.DRAFT };
+    }
+
+    if (statusParam === "published") {
+      statusFilter = { status: ProductStatus.PUBLISHED };
+    }
+
+    if (statusParam === "out-of-stock") {
+      statusFilter = {
+        status: ProductStatus.PUBLISHED,
+        stockQuantity: { lte: 0 },
+      };
+    }
 
     const products = await prisma.product.findMany({
       where: {
         storeId: store.id,
-        ...(status && { status }),
+        ...(statusFilter ?? {}),
         ...(categoryId && { categoryId }),
         ...(search && {
           name: { contains: search, mode: "insensitive" },
@@ -242,6 +256,7 @@ export async function GET(request: NextRequest) {
         skip: 1,
         cursor: { id: cursor },
       }),
+
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -250,6 +265,8 @@ export async function GET(request: NextRequest) {
         price: true,
         mrp: true,
         images: true,
+        stockQuantity: true,
+        status: true,
         createdAt: true,
         category: {
           select: {
