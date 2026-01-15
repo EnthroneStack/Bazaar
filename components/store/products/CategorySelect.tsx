@@ -116,13 +116,13 @@ export default function CategorySelect({
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-3 items-start">
-        <div className={`${subcategories.length > 0 ? "flex-1" : "w-full"}`}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+        <div className="w-full lg:flex-1">
           <Select value={categoryId} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-12 text-base">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
-            <SelectContent className="bg-white text-black border shadow-lg">
+            <SelectContent className="bg-white text-black border shadow-lg max-h-[60vh] overflow-y-auto">
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
                   {cat.name}
@@ -133,7 +133,7 @@ export default function CategorySelect({
         </div>
 
         {categoryId && subcategories.length > 0 && (
-          <div className="flex-1">
+          <div className="w-full lg:flex-1">
             {loadingSubcategory ? (
               <div className="flex items-center justify-center h-10 border rounded-lg">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -143,10 +143,10 @@ export default function CategorySelect({
                 value={subcategoryId}
                 onValueChange={handleSubcategoryChange}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-12 text-base">
                   <SelectValue placeholder="Subcategory (optional)" />
                 </SelectTrigger>
-                <SelectContent className="bg-white text-black border shadow-lg">
+                <SelectContent className="bg-white text-black border shadow-lg max-h-[60vh] overflow-y-auto">
                   <SelectItem value={categoryId}>Use main category</SelectItem>
                   {subcategories.map((sub) => (
                     <SelectItem key={sub.id} value={sub.id}>
@@ -161,7 +161,7 @@ export default function CategorySelect({
       </div>
 
       {(categoryId || subcategoryId) && (
-        <div className="text-sm text-gray-600 p-2 bg-gray-50 rounded">
+        <div className="text-sm sm:text-base text-gray-600 p-3 bg-gray-50 rounded">
           Selected:{" "}
           <span className="font-medium">
             {categories.find((c) => c.id === categoryId)?.name}
