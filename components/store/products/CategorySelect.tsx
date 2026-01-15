@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -10,15 +10,16 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-interface CategorySelectProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
 interface Category {
   id: string;
   name: string;
   slug: string;
+  parentId?: string | null;
+}
+
+interface CategorySelectProps {
+  value: string;
+  onChange: (value: string) => void;
 }
 
 export default function CategorySelect({
@@ -26,55 +27,150 @@ export default function CategorySelect({
   onChange,
 }: CategorySelectProps) {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [subcategories, setSubcategories] = useState<Category[]>([]);
+
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [subcategoryId, setSubcategoryId] = useState<string>("");
+
+  const [loadingCategory, setLoadingCategory] = useState(true);
+  const [loadingSubcategory, setLoadingSubcategory] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    if (!value) return;
+
+    const parent = categories.find((c) => c.id === value);
+    if (parent) {
+      setCategoryId(parent.id);
+      setSubcategoryId("");
+      return;
+    }
+
+    const child = subcategories.find((s) => s.id === value);
+    if (child && child.parentId) {
+      setCategoryId(child.parentId);
+      setSubcategoryId(child.id);
+    }
+  }, [value, categories, subcategories]);
+
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/store/category", {
-        cache: "no-store",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data.data?.categories ?? []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
+      const res = await fetch("/api/store/category", { cache: "no-store" });
+      const json = await res.json();
+      setCategories(json.data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
     } finally {
-      setLoading(false);
+      setLoadingCategory(false);
     }
   };
 
-  if (loading) {
+  const fetchSubcategories = async (parentId: string) => {
+    setLoadingSubcategory(true);
+    setSubcategories([]);
+    setSubcategoryId("");
+
+    try {
+      const res = await fetch(`/api/store/category?parentId=${parentId}`, {
+        cache: "no-store",
+      });
+      const json = await res.json();
+      setSubcategories(json.data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch subcategories", err);
+    } finally {
+      setLoadingSubcategory(false);
+    }
+  };
+
+  const handleCategoryChange = async (id: string) => {
+    setCategoryId(id);
+    setSubcategoryId("");
+
+    if (!id) {
+      setSubcategories([]);
+      onChange("");
+      return;
+    }
+
+    await fetchSubcategories(id);
+
+    onChange(id);
+  };
+
+  const handleSubcategoryChange = (id: string) => {
+    setSubcategoryId(id);
+    onChange(id);
+  };
+
+  if (loadingCategory) {
     return (
-      <div className="flex items-center justify-center h-10 border border-gray-300 rounded-lg">
+      <div className="flex items-center justify-center h-10 border rounded-lg">
         <Loader2 className="h-4 w-4 animate-spin" />
       </div>
     );
   }
 
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-full text-sm sm:text-base">
-        <SelectValue placeholder="Select category" />
-      </SelectTrigger>
-      <SelectContent className="bg-white text-black border shadow-lg">
-        {categories.length > 0 ? (
-          categories.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
-              {category.name}
-            </SelectItem>
-          ))
-        ) : (
-          <div className="py-2 text-center text-sm text-gray-500">
-            No categories found
+    <div className="space-y-2">
+      <div className="flex gap-3 items-start">
+        <div className={`${subcategories.length > 0 ? "flex-1" : "w-full"}`}>
+          <Select value={categoryId} onValueChange={handleCategoryChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent className="bg-white text-black border shadow-lg">
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {categoryId && subcategories.length > 0 && (
+          <div className="flex-1">
+            {loadingSubcategory ? (
+              <div className="flex items-center justify-center h-10 border rounded-lg">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </div>
+            ) : (
+              <Select
+                value={subcategoryId}
+                onValueChange={handleSubcategoryChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Subcategory (optional)" />
+                </SelectTrigger>
+                <SelectContent className="bg-white text-black border shadow-lg">
+                  <SelectItem value={categoryId}>Use main category</SelectItem>
+                  {subcategories.map((sub) => (
+                    <SelectItem key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
         )}
-      </SelectContent>
-    </Select>
+      </div>
+
+      {(categoryId || subcategoryId) && (
+        <div className="text-sm text-gray-600 p-2 bg-gray-50 rounded">
+          Selected:{" "}
+          <span className="font-medium">
+            {categories.find((c) => c.id === categoryId)?.name}
+            {subcategoryId && " > "}
+            {subcategoryId &&
+              subcategories.find((s) => s.id === subcategoryId)?.name}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }

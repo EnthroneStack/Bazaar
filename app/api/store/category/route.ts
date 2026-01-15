@@ -1,29 +1,77 @@
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+
+    const parentId = searchParams.get("parentId");
+    const tree = searchParams.get("tree");
+
+    if (tree === "true") {
+      const categories = await prisma.category.findMany({
+        where: {
+          parentId: null,
+        },
+        include: {
+          children: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              parentId: true,
+            },
+          },
+        },
+        orderBy: {
+          name: "asc",
+        },
+      });
+
+      return NextResponse.json(
+        {
+          success: true,
+          data: categories,
+        },
+        { status: 200 }
+      );
+    }
+
+    if (parentId) {
+      const categories = await prisma.category.findMany({
+        where: { parentId },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentId: true,
+        },
+        orderBy: { name: "asc" },
+      });
+      return NextResponse.json(
+        {
+          success: true,
+          data: categories,
+        },
+        { status: 200 }
+      );
+    }
+
     const categories = await prisma.category.findMany({
-      where: {
-        parentId: null,
-      },
+      where: { parentId: null },
       select: {
         id: true,
         name: true,
         slug: true,
         parentId: true,
       },
-      orderBy: {
-        name: "asc",
-      },
+      orderBy: { name: "asc" },
     });
 
     return NextResponse.json(
       {
         success: true,
-        data: {
-          categories,
-        },
+        data: categories,
       },
       { status: 200 }
     );
