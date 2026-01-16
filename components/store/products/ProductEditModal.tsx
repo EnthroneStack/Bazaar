@@ -140,7 +140,7 @@ export default function ProductEditModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col p-0">
+      <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col p-0 bg-background shadow-xl border rounded-xl">
         <DialogHeader className="px-6 py-4 border-b">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
