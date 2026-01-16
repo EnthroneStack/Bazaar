@@ -110,6 +110,16 @@ export default function ProductTable({
     );
   };
 
+  if (loading) {
+    return <div className="p-6 text-sm">Loading...</div>;
+  }
+
+  if (!loading && products.length === 0) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">No products found</div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -165,50 +175,56 @@ export default function ProductTable({
                         {product.name}
                       </div>
                       <div className="text-xs sm:text-sm text-gray-500 truncate">
-                        {product.sku}
+                        {product.sku ?? "—"}
                       </div>
                       <div className="flex items-center mt-1">
                         <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 mr-1" />
                         <span className="text-xs text-gray-600">
-                          {product.rating}
+                          {product.rating ?? "—"}
                         </span>
                       </div>
 
                       <div className="md:hidden text-xs text-gray-500 mt-1">
-                        ${product.price.toFixed(2)}
+                        ${Number(product.price).toFixed(2)}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="hidden md:table-cell px-4 sm:px-6 py-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    {product.category}
+                    {product.category?.name ?? "—"}
                   </span>
                 </td>
                 <td className="hidden lg:table-cell px-4 sm:px-6 py-4">
                   <div className="flex items-center">
                     <DollarSign className="h-4 w-4 text-gray-400 mr-1" />
                     <span className="font-medium">
-                      {product.price.toFixed(2)}
+                      {Number(product.price).toFixed(2)}
                     </span>
                   </div>
                 </td>
                 <td className="px-4 sm:px-6 py-4">
                   <div
                     className={`font-medium text-sm sm:text-base ${
-                      product.stock < 10 ? "text-yellow-600" : "text-green-600"
+                      product.stockQuantity < 10
+                        ? "text-yellow-600"
+                        : "text-green-600"
                     }`}
                   >
-                    {product.stock} units
+                    {product.stockQuantity} units
                   </div>
                 </td>
                 <td className="hidden sm:table-cell px-4 sm:px-6 py-4">
-                  {getStatusBadge(product.status)}
+                  {product.stockQuantity <= 0
+                    ? getStatusBadge("out-of-stock")
+                    : getStatusBadge(product.status)}
                 </td>
+
                 <td className="hidden md:table-cell px-4 sm:px-6 py-4">
-                  <div className="font-medium">{product.sales}</div>
+                  <div className="font-medium">{product.sales ?? "—"}</div>
                   <div className="text-xs text-gray-500">total sales</div>
                 </td>
+
                 <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <button className="p-1 sm:p-1.5 text-blue-600 hover:bg-blue-50 rounded">
@@ -251,7 +267,7 @@ export default function ProductTable({
   );
 }
 
-// "use client";
+// ("use client");
 
 // import {
 //   Edit,
