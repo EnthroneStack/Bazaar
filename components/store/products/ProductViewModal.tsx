@@ -324,7 +324,7 @@ export default function ProductViewModal({
                     <Badge variant="secondary" className="gap-2">
                       {product.category?.name || "—"}
                       <ChevronRight className="h-3 w-3" />
-                      {product.subcategory || "—"}
+                      {product.subcategory || ""}
                     </Badge>
                   </div>
                 </div>
@@ -336,9 +336,9 @@ export default function ProductViewModal({
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {product.tags?.length > 0 ? (
-                      product.tags.map((tag: string, idx: number) => (
+                      product.tags.map((t: string, idx: number) => (
                         <Badge key={idx} variant="outline">
-                          {tag}
+                          {t}
                         </Badge>
                       ))
                     ) : (
