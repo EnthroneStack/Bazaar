@@ -114,7 +114,7 @@ export default function ProductViewModal({
                 <Edit className="h-4 w-4" />
                 Edit
               </Button>
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-2 text-white">
                 <ExternalLink className="h-4 w-4" />
                 View Live
               </Button>

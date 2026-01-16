@@ -261,6 +261,7 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         slug: true,
+        description: true,
         price: true,
         mrp: true,
         images: true,
