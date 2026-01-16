@@ -713,14 +713,14 @@ export default function ProductTable({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            className="cursor-pointer"
+                            className="cursor-pointer bg-white"
                             onClick={() => handleViewProduct(product)}
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             View
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="cursor-pointer"
+                            className="cursor-pointer bg-white"
                             onClick={() => handleEditProduct(product)}
                           >
                             <Edit className="mr-2 h-4 w-4" />

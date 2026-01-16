@@ -195,7 +195,7 @@ export default function ProductEditModal({
               </TabsList>
             </div>
 
-            <ScrollArea className="h-[calc(90vh-180px)]">
+            <ScrollArea className="h-[calc(90vh-180px)] bg-white">
               <div className="p-6">
                 {/* Basic Info Tab */}
                 <TabsContent value="basic" className="space-y-6 mt-0">

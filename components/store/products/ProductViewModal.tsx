@@ -102,7 +102,7 @@ export default function ProductViewModal({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-5xl h-[90vh] flex flex-col p-0 bg-background shadow-xl border rounded-xl">
+      <DialogContent className="sm:max-w-5xl h-[90vh] flex flex-col p-0 bg-white shadow-xl border rounded-xl">
         <DialogHeader className="px-6 py-4 border-b">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function ProductViewModal({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6 py-4">
+        <ScrollArea className="flex-1 px-6 py-4 bg-white">
           <div className="space-y-6">
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row gap-6">
