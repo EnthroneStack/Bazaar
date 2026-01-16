@@ -554,6 +554,8 @@ import {
 } from "@/components/ui/pagination";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
+type DbProductStatus = "DRAFT" | "PUBLISHED";
+
 export default function ProductTable({
   products,
   loading,
@@ -565,45 +567,106 @@ export default function ProductTable({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const getStatusBadge = (status: string, stockQuantity: number) => {
-    const statusToUse = stockQuantity <= 0 ? "out-of-stock" : status;
+  function normalizeStatus(status: DbProductStatus) {
+    return status.toLowerCase() as "draft" | "published";
+  }
+
+  // const getStatusBadge = (status: string, stockQuantity: number) => {
+  //   const statusToUse = stockQuantity <= 0 ? "out-of-stock" : status;
+
+  //   const variants = {
+  //     published: "bg-green-100 text-green-800 hover:bg-green-100",
+  //     draft: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
+  //     archived: "bg-gray-100 text-gray-800 hover:bg-gray-100",
+  //     "out-of-stock": "bg-red-100 text-red-800 hover:bg-red-100",
+  //   };
+
+  //   const displayText = {
+  //     published: "Published",
+  //     draft: "Draft",
+  //     archived: "Archived",
+  //     "out-of-stock": "Out of Stock",
+  //   };
+
+  //   return (
+  //     <Badge
+  //       variant="outline"
+  //       className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+  //         variants[statusToUse as keyof typeof variants]
+  //       }`}
+  //     >
+  //       {displayText[statusToUse as keyof typeof displayText]}
+  //     </Badge>
+  //   );
+  // };
+
+  const getStatusBadge = (
+    status: "DRAFT" | "PUBLISHED",
+    stockQuantity: number
+  ) => {
+    const normalized = normalizeStatus(status);
+
+    const finalStatus = stockQuantity <= 0 ? "out-of-stock" : normalized;
 
     const variants = {
-      published: "bg-green-100 text-green-800 hover:bg-green-100",
-      draft: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
-      archived: "bg-gray-100 text-gray-800 hover:bg-gray-100",
-      "out-of-stock": "bg-red-100 text-red-800 hover:bg-red-100",
+      published: "bg-green-100 text-green-800",
+      draft: "bg-yellow-100 text-yellow-800",
+      "out-of-stock": "bg-red-100 text-red-800",
     };
 
-    const displayText = {
+    const labels = {
       published: "Published",
       draft: "Draft",
-      archived: "Archived",
       "out-of-stock": "Out of Stock",
     };
 
     return (
       <Badge
         variant="outline"
-        className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-          variants[statusToUse as keyof typeof variants]
-        }`}
+        className={`text-xs font-medium px-2 py-0.5 rounded-full ${variants[finalStatus]}`}
       >
-        {displayText[statusToUse as keyof typeof displayText]}
+        {labels[finalStatus]}
       </Badge>
     );
   };
 
-  const getPublicationStatusBadge = (status: string) => {
-    const isPublished = status === "published";
+  // const getPublicationStatusBadge = (status: string) => {
+  //   const isPublished = status === "published";
+
+  //   return (
+  //     <Badge
+  //       variant="outline"
+  //       className={`text-xs font-medium px-2 py-0.5 rounded-full flex items-center gap-1 ${
+  //         isPublished
+  //           ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+  //           : "bg-amber-100 text-amber-800 hover:bg-amber-100"
+  //       }`}
+  //     >
+  //       {isPublished ? (
+  //         <>
+  //           <CheckCircle className="h-3 w-3" />
+  //           Published
+  //         </>
+  //       ) : (
+  //         <>
+  //           <Clock className="h-3 w-3" />
+  //           Draft
+  //         </>
+  //       )}
+  //     </Badge>
+  //   );
+  // };
+
+  const getPublicationStatusBadge = (status: "DRAFT" | "PUBLISHED") => {
+    const isPublished = status === "PUBLISHED";
 
     return (
       <Badge
         variant="outline"
         className={`text-xs font-medium px-2 py-0.5 rounded-full flex items-center gap-1 ${
           isPublished
-            ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
-            : "bg-amber-100 text-amber-800 hover:bg-amber-100"
+            ? "bg-blue-100 text-blue-800"
+            : "bg-amber-100 text-amber-800"
         }`}
       >
         {isPublished ? (
