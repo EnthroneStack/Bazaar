@@ -34,6 +34,7 @@ import {
   TrendingUp,
   Users,
   Image as ImageIcon,
+  AlignLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -301,9 +302,10 @@ export default function ProductViewModal({
               {/* Description */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Hash className="h-5 w-5" />
+                  <AlignLeft className="h-5 w-5" />
                   Description
                 </h3>
+
                 <div className="prose prose-sm max-w-none">
                   <p className="text-muted-foreground whitespace-pre-line">
                     {product.description || "No description provided."}
@@ -408,7 +410,9 @@ export default function ProductViewModal({
                       Last Updated
                     </p>
                     <p className="font-medium mt-1">
-                      {new Date(product.updatedAt).toLocaleDateString()}
+                      {product.updatedAt
+                        ? new Date(product.updatedAt).toLocaleDateString()
+                        : "—"}
                     </p>
                   </div>
                   <div className="p-4 bg-muted rounded-lg">
@@ -461,7 +465,10 @@ export default function ProductViewModal({
         <div className="border-t p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-muted-foreground">
-              Last updated: {new Date(product.updatedAt).toLocaleDateString()}
+              Last updated:{" "}
+              {product.updatedAt
+                ? new Date(product.updatedAt).toLocaleDateString()
+                : "—"}
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>

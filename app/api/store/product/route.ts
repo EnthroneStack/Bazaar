@@ -266,9 +266,19 @@ export async function GET(request: NextRequest) {
         mrp: true,
         images: true,
         stockQuantity: true,
+        lowStockThreshold: true,
+        trackInventory: true,
         status: true,
         createdAt: true,
+        updatedAt: true,
+        tags: true,
         category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        store: {
           select: {
             id: true,
             name: true,
