@@ -17,8 +17,6 @@ import {
   Tag,
   Layers,
   BarChart3,
-  Clock,
-  CheckCircle,
   AlertCircle,
   Star,
   ShoppingBag,
@@ -29,7 +27,6 @@ import {
   Share2,
   ChevronRight,
   Grid3x3,
-  Hash,
   Calendar,
   TrendingUp,
   Users,
@@ -42,6 +39,7 @@ interface ProductViewModalProps {
   product: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: (product: any) => void;
   children?: React.ReactNode;
 }
 
@@ -49,6 +47,7 @@ export default function ProductViewModal({
   product,
   open,
   onOpenChange,
+  onEdit,
   children,
 }: ProductViewModalProps) {
   const getStatusBadge = (status: string, stockQuantity: number) => {
@@ -111,13 +110,28 @@ export default function ProductViewModal({
               Product Details
             </DialogTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  onEdit(product);
+                  onOpenChange(false);
+                }}
+              >
                 <Edit className="h-4 w-4" />
                 Edit
               </Button>
-              <Button size="sm" className="gap-2 text-white">
-                <ExternalLink className="h-4 w-4" />
-                View Live
+
+              <Button asChild size="sm" className="gap-2 text-white">
+                <a
+                  href={`/store/${product.store?.slug}/${product.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  View Live
+                </a>
               </Button>
             </div>
           </div>
@@ -125,9 +139,7 @@ export default function ProductViewModal({
 
         <ScrollArea className="flex-1 min-h-0 px-6 py-4 bg-white">
           <div className="space-y-6">
-            {/* Header Section */}
             <div className="flex flex-col lg:flex-row gap-6">
-              {/* Images Gallery */}
               <div className="lg:w-2/5 space-y-4">
                 <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
                   {product.images?.[0] ? (
@@ -170,7 +182,6 @@ export default function ProductViewModal({
                 )}
               </div>
 
-              {/* Product Info */}
               <div className="lg:w-3/5 space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
@@ -182,7 +193,6 @@ export default function ProductViewModal({
                   {getStatusBadge(product.status, product.stockQuantity)}
                 </div>
 
-                {/* Rating */}
                 <div className="flex items-center gap-2">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
@@ -202,7 +212,6 @@ export default function ProductViewModal({
                   </span>
                 </div>
 
-                {/* Price & Stock */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -237,7 +246,6 @@ export default function ProductViewModal({
                   </div>
                 </div>
 
-                {/* Quick Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="p-3 bg-muted rounded-lg">
                     <div className="flex items-center gap-2">
@@ -277,7 +285,6 @@ export default function ProductViewModal({
                   </div>
                 </div>
 
-                {/* Quick Actions */}
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" className="gap-2">
                     <Copy className="h-4 w-4" />
@@ -297,9 +304,7 @@ export default function ProductViewModal({
 
             <Separator />
 
-            {/* Tabs Content */}
             <div className="space-y-6">
-              {/* Description */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <AlignLeft className="h-5 w-5" />
@@ -313,7 +318,6 @@ export default function ProductViewModal({
                 </div>
               </div>
 
-              {/* Category & Tags */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -350,7 +354,6 @@ export default function ProductViewModal({
                 </div>
               </div>
 
-              {/* Inventory Details */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Package className="h-5 w-5" />
@@ -392,7 +395,6 @@ export default function ProductViewModal({
                 </div>
               </div>
 
-              {/* Metadata */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
@@ -435,7 +437,6 @@ export default function ProductViewModal({
                 </div>
               </div>
 
-              {/* Alerts & Notifications */}
               {(product.stockQuantity === 0 ||
                 product.stockQuantity <= (product.lowStockThreshold || 10)) && (
                 <div className={cn("p-4 rounded-lg", stockStatus.bg)}>

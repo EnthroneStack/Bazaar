@@ -418,6 +418,7 @@ export default function ProductTable({
           product={viewingProduct}
           open={!!viewingProduct}
           onOpenChange={(open) => !open && setViewingProduct(null)}
+          onEdit={(product) => setEditingProduct(product)}
         />
       )}
 
