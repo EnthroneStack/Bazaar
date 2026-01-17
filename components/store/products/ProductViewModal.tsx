@@ -336,9 +336,9 @@ export default function ProductViewModal({
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {product.tags?.length > 0 ? (
-                      product.tags.map((t: string, idx: number) => (
+                      product.tags.map((t: any, idx: number) => (
                         <Badge key={idx} variant="outline">
-                          {t}
+                          {t.tag.name}
                         </Badge>
                       ))
                     ) : (
