@@ -615,16 +615,28 @@ export default function ProductEditModal({
           >
             <div className="border-b px-4 sm:px-6">
               <TabsList className="w-full justify-start h-auto p-0 bg-transparent overflow-x-auto">
-                <TabsTrigger value="basic" className="flex-shrink-0">
+                <TabsTrigger
+                  value="basic"
+                  className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-white"
+                >
                   Basic Info
                 </TabsTrigger>
-                <TabsTrigger value="images" className="flex-shrink-0">
+                <TabsTrigger
+                  value="images"
+                  className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-white"
+                >
                   Images
                 </TabsTrigger>
-                <TabsTrigger value="inventory" className="flex-shrink-0">
+                <TabsTrigger
+                  value="inventory"
+                  className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-white"
+                >
                   Inventory
                 </TabsTrigger>
-                <TabsTrigger value="tags" className="flex-shrink-0">
+                <TabsTrigger
+                  value="tags"
+                  className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-white"
+                >
                   Tags
                 </TabsTrigger>
               </TabsList>
