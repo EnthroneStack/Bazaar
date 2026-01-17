@@ -10,6 +10,7 @@ import {
   CheckCircle,
   Clock,
   Trash2,
+  Share2,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -464,6 +465,13 @@ export default function ProductTable({
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="cursor-pointer bg-white"
+                            onClick={() => {}}
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Share
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="cursor-pointer bg-white"
