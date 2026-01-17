@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
             message: "Authentication required",
           },
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -57,14 +57,14 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { success: false, errors: parsed.error.issues },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
     if (rawData.trackInventory && rawData.stockQuantity < 0) {
       return NextResponse.json(
         { success: false, message: "Stock quantity cannot be negative" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "At least one image is required to publish a product",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
       const existingSlugs = new Set(existingTags.map((t) => t.slug));
 
       const missingTags = normalizedTags.filter(
-        (slug) => !existingSlugs.has(slug)
+        (slug) => !existingSlugs.has(slug),
       );
 
       if (missingTags.length > 0) {
@@ -177,14 +177,14 @@ export async function POST(request: NextRequest) {
             : "Product published successfully",
         data: { product },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error(error);
     console.error("CREATE_PRODUCT_ERROR", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -199,7 +199,7 @@ export async function GET(request: NextRequest) {
           success: false,
           error: { code: "UNAUTHORIZED", message: "Authentication required" },
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
           success: false,
           error: { code: "STORE_NOT_FOUND", message: "Store not found" },
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -240,6 +240,17 @@ export async function GET(request: NextRequest) {
         };
       }
     }
+
+    const totalCount = await prisma.product.count({
+      where: {
+        storeId: store.id,
+        ...(statusFilter ?? {}),
+        ...(categoryId && { categoryId }),
+        ...(search && {
+          name: { contains: search, mode: "insensitive" },
+        }),
+      },
+    });
 
     const products = await prisma.product.findMany({
       where: {
@@ -308,6 +319,7 @@ export async function GET(request: NextRequest) {
       data: {
         items: products,
         nextCursor,
+        totalCount,
       },
     });
   } catch (error) {
@@ -320,7 +332,7 @@ export async function GET(request: NextRequest) {
           message: "Failed to fetch products",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

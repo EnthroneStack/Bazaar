@@ -48,6 +48,11 @@ export default function ManageProductsPage() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
+
+  const LIMIT = 6;
 
   const handleProductUpdate = async (
     productId: string,
@@ -77,15 +82,25 @@ export default function ManageProductsPage() {
     if (filters.categoryId) params.set("categoryId", filters.categoryId);
     if (filters.status !== "all") params.set("status", filters.status);
 
+    params.set("limit", String(LIMIT));
+
+    if (page > 1 && nextCursor) {
+      params.set("cursor", nextCursor);
+    }
+
     setLoading(true);
 
     fetch(`/api/store/product?${params.toString()}`, {
       cache: "no-store",
     })
       .then((res) => res.json())
-      .then((json) => setProducts(json.data?.items ?? []))
+      .then((json) => {
+        setProducts(json.data.items);
+        setNextCursor(json.data.nextCursor);
+        setTotalCount(json.data.totalCount);
+      })
       .finally(() => setLoading(false));
-  }, [filters]);
+  }, [filters, page]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -109,6 +124,12 @@ export default function ManageProductsPage() {
       <ProductTable
         products={products}
         loading={loading}
+        page={page}
+        limit={LIMIT}
+        totalCount={totalCount}
+        hasNextPage={!!nextCursor}
+        onNextPage={() => setPage((p) => p + 1)}
+        onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
         onProductUpdate={handleProductUpdate}
       />
     </div>

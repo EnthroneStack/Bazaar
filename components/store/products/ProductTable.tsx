@@ -62,18 +62,31 @@ type DbProductStatus = "DRAFT" | "PUBLISHED";
 export default function ProductTable({
   products,
   loading,
+  page,
+  limit,
+  totalCount,
+  hasNextPage,
+  onNextPage,
+  onPrevPage,
   onProductUpdate,
 }: {
   products: any[];
   loading: boolean;
+  page: number;
+  limit: number;
+  totalCount: number;
+  hasNextPage: boolean;
+  onNextPage: () => void;
+  onPrevPage: () => void;
   onProductUpdate?: (productId: string, updates: any) => Promise<void>;
 }) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [viewingProduct, setViewingProduct] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
-  const itemsPerPage = 6;
+
+  const start = totalCount === 0 ? 0 : (page - 1) * limit + 1;
+  const end = Math.min(page * limit, totalCount);
 
   const handleDeleteSelected = () => {
     console.log("Deleting products:", selectedProducts);
@@ -586,8 +599,9 @@ export default function ProductTable({
 
         <CardFooter className="flex flex-col sm:flex-row items-center justify-between border-t p-4 gap-4">
           <div className="text-sm text-muted-foreground">
-            Showing {products.length} of 156 products
+            Showing {start}–{end} of {totalCount} products
           </div>
+
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -595,51 +609,31 @@ export default function ProductTable({
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    setCurrentPage(Math.max(1, currentPage - 1));
+                    onPrevPage();
                   }}
-                  className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                  }
+                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
+
+              {/* Page 1 */}
               <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  isActive={currentPage === 1}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(1);
-                  }}
-                >
-                  1
+                <PaginationLink href="#" isActive>
+                  {page}
                 </PaginationLink>
               </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  isActive={currentPage === 2}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(2);
-                  }}
-                >
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(currentPage + 1);
-                  }}
-                  className={
-                    currentPage >= Math.ceil(156 / itemsPerPage)
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }
-                />
-              </PaginationItem>
+
+              {/* Only show next page if it exists */}
+              {hasNextPage && (
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNextPage();
+                    }}
+                  />
+                </PaginationItem>
+              )}
             </PaginationContent>
           </Pagination>
         </CardFooter>
