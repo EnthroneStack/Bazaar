@@ -40,21 +40,34 @@ export default function CategorySelect({
   }, []);
 
   useEffect(() => {
-    if (!value) return;
+    if (!value || categories.length === 0) return;
 
     const parent = categories.find((c) => c.id === value);
     if (parent) {
       setCategoryId(parent.id);
       setSubcategoryId("");
+      fetchSubcategories(parent.id);
       return;
     }
 
-    const child = subcategories.find((s) => s.id === value);
-    if (child && child.parentId) {
-      setCategoryId(child.parentId);
-      setSubcategoryId(child.id);
-    }
-  }, [value, categories, subcategories]);
+    (async () => {
+      for (const category of categories) {
+        const res = await fetch(`/api/store/category?parentId=${category.id}`, {
+          cache: "no-store",
+        });
+        const json = await res.json();
+        const subs: Category[] = json.data ?? [];
+
+        const match = subs.find((s) => s.id === value);
+        if (match) {
+          setCategoryId(category.id);
+          setSubcategoryId(value);
+          setSubcategories(subs);
+          return;
+        }
+      }
+    })();
+  }, [value, categories]);
 
   const fetchCategories = async () => {
     try {
@@ -102,6 +115,12 @@ export default function CategorySelect({
   };
 
   const handleSubcategoryChange = (id: string) => {
+    if (id === "__main__") {
+      setSubcategoryId("");
+      onChange(categoryId);
+      return;
+    }
+
     setSubcategoryId(id);
     onChange(id);
   };
@@ -118,7 +137,10 @@ export default function CategorySelect({
     <div className="space-y-2">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
         <div className="w-full lg:flex-1">
-          <Select value={categoryId} onValueChange={handleCategoryChange}>
+          <Select
+            value={categoryId || undefined}
+            onValueChange={handleCategoryChange}
+          >
             <SelectTrigger className="w-full h-12 text-base">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -140,14 +162,14 @@ export default function CategorySelect({
               </div>
             ) : (
               <Select
-                value={subcategoryId}
+                value={subcategoryId || undefined}
                 onValueChange={handleSubcategoryChange}
               >
                 <SelectTrigger className="w-full h-12 text-base">
                   <SelectValue placeholder="Subcategory (optional)" />
                 </SelectTrigger>
                 <SelectContent className="bg-white text-black border shadow-lg max-h-[60vh] overflow-y-auto">
-                  <SelectItem value={categoryId}>Use main category</SelectItem>
+                  <SelectItem value="__main__">Use main category</SelectItem>
                   {subcategories.map((sub) => (
                     <SelectItem key={sub.id} value={sub.id}>
                       {sub.name}
