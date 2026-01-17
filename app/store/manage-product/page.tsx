@@ -51,7 +51,7 @@ export default function ManageProductsPage() {
 
   const handleProductUpdate = async (
     productId: string,
-    payload: { formData: FormData }
+    payload: { formData: FormData },
   ) => {
     const response = await fetch(`/api/store/product/${productId}`, {
       method: "PATCH",
@@ -62,6 +62,12 @@ export default function ManageProductsPage() {
       const error = await response.json();
       throw new Error(error.error || "Failed to update product");
     }
+
+    const updated = await response.json();
+
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, ...updated.data } : p)),
+    );
   };
 
   useEffect(() => {

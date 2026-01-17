@@ -1,164 +1,3 @@
-// import { NextRequest, NextResponse } from "next/server";
-// import { auth } from "@clerk/nextjs/server";
-// import prisma from "@/lib/prisma";
-// import authSeller from "@/middlewares/authSeller";
-
-// /* ============================
-//    GET PRODUCT
-// ============================ */
-// export async function GET(
-//   _req: NextRequest,
-//   context: { params: Promise<{ id: string }> }
-// ) {
-//   try {
-//     const { id } = await context.params;
-
-//     const { userId } = await auth();
-//     if (!userId) {
-//       return NextResponse.json({ success: false }, { status: 401 });
-//     }
-
-//     const store = await authSeller(userId);
-//     if (!store) {
-//       return NextResponse.json({ success: false }, { status: 404 });
-//     }
-
-//     const product = await prisma.product.findFirst({
-//       where: {
-//         id,
-//         storeId: store.id,
-//       },
-//       include: {
-//         category: true,
-//         tags: { include: { tag: true } },
-//       },
-//     });
-
-//     if (!product) {
-//       return NextResponse.json({ success: false }, { status: 404 });
-//     }
-
-//     return NextResponse.json({ success: true, data: product });
-//   } catch (error) {
-//     console.error("GET PRODUCT ERROR", error);
-//     return NextResponse.json({ success: false }, { status: 500 });
-//   }
-// }
-
-// /* ============================
-//    UPDATE PRODUCT
-// ============================ */
-// export async function PATCH(
-//   request: NextRequest,
-//   context: { params: Promise<{ id: string }> }
-// ) {
-//   try {
-//     const { id } = await context.params;
-
-//     const { userId } = await auth();
-//     if (!userId) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//     }
-
-//     const store = await authSeller(userId);
-//     if (!store) {
-//       return NextResponse.json({ error: "Store not found" }, { status: 404 });
-//     }
-
-//     const body = await request.json();
-
-//     if (
-//       body.price !== undefined &&
-//       body.mrp !== undefined &&
-//       body.price > body.mrp
-//     ) {
-//       return NextResponse.json(
-//         { error: "Price cannot be greater than MRP" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const result = await prisma.product.updateMany({
-//       where: {
-//         id,
-//         storeId: store.id,
-//       },
-//       data: {
-//         name: body.name,
-//         description: body.description,
-//         price: body.price,
-//         mrp: body.mrp,
-//         categoryId: body.categoryId,
-//       },
-//     });
-
-//     if (result.count === 0) {
-//       return NextResponse.json({ error: "Product not found" }, { status: 404 });
-//     }
-
-//     return NextResponse.json({ success: true });
-//   } catch (error) {
-//     console.error("UPDATE PRODUCT ERROR", error);
-//     return NextResponse.json(
-//       { error: "Failed to update product" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// /* ============================
-//    DELETE PRODUCT
-// ============================ */
-// export async function DELETE(
-//   _req: NextRequest,
-//   context: { params: Promise<{ id: string }> }
-// ) {
-//   try {
-//     const { id } = await context.params;
-
-//     const { userId } = await auth();
-//     if (!userId) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//     }
-
-//     const store = await authSeller(userId);
-//     if (!store) {
-//       return NextResponse.json({ error: "Store not found" }, { status: 404 });
-//     }
-
-//     const product = await prisma.product.findFirst({
-//       where: {
-//         id,
-//         storeId: store.id,
-//       },
-//       include: {
-//         _count: { select: { orderItems: true } },
-//       },
-//     });
-
-//     if (!product) {
-//       return NextResponse.json({ error: "Product not found" }, { status: 404 });
-//     }
-
-//     if (product._count.orderItems > 0) {
-//       return NextResponse.json(
-//         { error: "Product has orders and cannot be deleted" },
-//         { status: 400 }
-//       );
-//     }
-
-//     await prisma.product.delete({ where: { id } });
-
-//     return NextResponse.json({ success: true });
-//   } catch (error) {
-//     console.error("DELETE PRODUCT ERROR", error);
-//     return NextResponse.json(
-//       { error: "Failed to delete product" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
@@ -167,9 +6,6 @@ import imagekit from "@/configs/imageKit";
 import { ProductSchema } from "@/lib/validators/products";
 import { ProductStatus } from "@/app/generated/prisma/client";
 
-/* ============================
-   UPDATE PRODUCT
-============================ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -198,9 +34,6 @@ export async function PATCH(
 
     const formData = await request.formData();
 
-    /* ----------------------------
-       Parse form data
-    -----------------------------*/
     const tagsRaw = formData.get("tags");
     const existingImagesRaw = formData.get("existingImages");
 
@@ -211,10 +44,17 @@ export async function PATCH(
       price: Number(formData.get("price")),
       categoryId: formData.get("categoryId"),
       trackInventory: formData.get("trackInventory") === "true",
-      stockQuantity: Number(formData.get("stockQuantity") || 0),
-      lowStockThreshold: Number(formData.get("lowStockThreshold") || 10),
       status: formData.get("status") as ProductStatus,
       tags: tagsRaw ? JSON.parse(tagsRaw as string) : [],
+      stockQuantity:
+        formData.get("stockQuantity") !== null
+          ? Number(formData.get("stockQuantity"))
+          : existingProduct.stockQuantity,
+
+      lowStockThreshold:
+        formData.get("lowStockThreshold") !== null
+          ? Number(formData.get("lowStockThreshold"))
+          : existingProduct.lowStockThreshold,
     };
 
     if (!rawData.trackInventory) {
@@ -230,9 +70,6 @@ export async function PATCH(
       );
     }
 
-    /* ----------------------------
-       Images handling
-    -----------------------------*/
     const existingImages: string[] = existingImagesRaw
       ? JSON.parse(existingImagesRaw as string)
       : [];
@@ -269,18 +106,12 @@ export async function PATCH(
       );
     }
 
-    /* ----------------------------
-       Normalize tags
-    -----------------------------*/
     const normalizeTags = (tags: string[]) => [
       ...new Set(tags.map((t) => t.trim().toLowerCase())),
     ];
 
     const normalizedTags = normalizeTags(parsed.data.tags);
 
-    /* ----------------------------
-       Transaction
-    -----------------------------*/
     await prisma.$transaction(async (tx) => {
       await tx.product.update({
         where: { id },
@@ -298,7 +129,6 @@ export async function PATCH(
         },
       });
 
-      // Remove old tags
       await tx.productTag.deleteMany({
         where: { productId: id },
       });
@@ -338,10 +168,15 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message:
-        parsed.data.status === "DRAFT"
-          ? "Product updated (draft)"
-          : "Product updated & published",
+      data: {
+        id,
+        name: parsed.data.name,
+        price: parsed.data.price,
+        stockQuantity: parsed.data.stockQuantity,
+        status: parsed.data.status,
+        images: finalImages,
+        categoryId: parsed.data.categoryId,
+      },
     });
   } catch (error) {
     console.error("UPDATE_PRODUCT_ERROR", error);

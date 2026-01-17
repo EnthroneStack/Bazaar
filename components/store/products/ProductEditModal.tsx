@@ -83,7 +83,7 @@ export default function ProductEditModal({
       fd.append("status", formData.status);
       fd.append("stockQuantity", String(formData.stockQuantity));
       fd.append("lowStockThreshold", String(formData.lowStockThreshold));
-      fd.append("inStock", String(formData.inStock));
+      fd.append("trackInventory", String(formData.inStock));
 
       const existingImages = formData.images
         .filter((img: any) => !img.file)
