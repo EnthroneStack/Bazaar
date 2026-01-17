@@ -205,22 +205,24 @@ export default function ProductEditModal({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-white max-w-sm sm:max-w-md mx-auto p-4 sm:p-6 rounded-xl border shadow-lg">
-                <AlertDialogHeader>
+              <AlertDialogContent className="bg-white w-[92vw] max-w-sm sm:max-w-md rounded-xl p-4 sm:p-6 mx-auto shadow-lg">
+                <AlertDialogHeader className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center gap-2 text-red-600">
                     <AlertTriangle className="h-5 w-5" />
-                    <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                    <AlertDialogTitle className="text-sm sm:text-base font-semibold">
+                      Delete Product
+                    </AlertDialogTitle>
                   </div>
-                  <AlertDialogDescription className="pt-4">
+                  <AlertDialogDescription className="pt-2 text-xs sm:text-sm leading-relaxed">
                     <div className="space-y-3">
                       <p className="font-medium text-foreground">
                         Are you sure you want to delete "{product.name}"?
                       </p>
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <p className="text-sm text-red-700 font-medium">
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-3">
+                        <p className="text-xs sm:text-sm text-red-700 font-medium">
                           ⚠️ This action cannot be undone
                         </p>
-                        <ul className="mt-2 space-y-1 text-sm text-red-600">
+                        <ul className="mt-1 space-y-0.5 text-xs sm:text-sm text-red-600">
                           <li>
                             • All product data will be permanently deleted
                           </li>
@@ -250,14 +252,17 @@ export default function ProductEditModal({
                     </div>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deleting}>
+                <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <AlertDialogCancel
+                    disabled={deleting}
+                    className="h-9 text-xs sm:text-sm"
+                  >
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
                   >
                     {deleting ? (
                       <>
@@ -567,22 +572,24 @@ export default function ProductEditModal({
                     Delete
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-white max-w-sm sm:max-w-md mx-auto p-4 sm:p-6 rounded-xl border shadow-lg">
-                  <AlertDialogHeader>
+                <AlertDialogContent className="bg-white w-[92vw] max-w-sm sm:max-w-md rounded-xl p-4 sm:p-6 mx-auto shadow-lg">
+                  <AlertDialogHeader className="space-y-2 text-center sm:text-left">
                     <div className="flex items-center gap-2 text-red-600">
                       <AlertTriangle className="h-5 w-5" />
-                      <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                      <AlertDialogTitle className="text-sm sm:text-base font-semibold">
+                        Delete Product
+                      </AlertDialogTitle>
                     </div>
-                    <AlertDialogDescription className="pt-4">
+                    <AlertDialogDescription className="pt-2 text-xs sm:text-sm leading-relaxed">
                       <div className="space-y-3">
                         <p className="font-medium text-foreground">
                           Are you sure you want to delete "{product.name}"?
                         </p>
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                          <p className="text-sm text-red-700 font-medium">
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-3">
+                          <p className="text-xs sm:text-sm text-red-700 font-medium">
                             ⚠️ This action cannot be undone
                           </p>
-                          <ul className="mt-2 space-y-1 text-sm text-red-600">
+                          <ul className="mt-1 space-y-0.5 text-xs sm:text-sm text-red-600">
                             <li>
                               • All product data will be permanently deleted
                             </li>
@@ -613,14 +620,17 @@ export default function ProductEditModal({
                       </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={deleting}>
+                  <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <AlertDialogCancel
+                      disabled={deleting}
+                      className="h-9 text-xs sm:text-sm"
+                    >
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDelete}
                       disabled={deleting}
-                      className="bg-red-600 hover:bg-red-700 text-white"
+                      className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
                     >
                       {deleting ? (
                         <>
