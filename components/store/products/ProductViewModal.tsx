@@ -104,7 +104,10 @@ export default function ProductViewModal({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-5xl h-[90vh] flex flex-col overflow-hidden p-0 bg-white shadow-xl border rounded-xl">
+      <DialogContent
+        showCloseButton={false}
+        className="sm:max-w-5xl h-[90vh] flex flex-col overflow-hidden p-0 bg-white shadow-xl border rounded-xl"
+      >
         <DialogHeader className="px-6 py-4 border-b">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="flex items-center gap-2">
