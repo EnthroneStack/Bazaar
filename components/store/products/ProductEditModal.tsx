@@ -513,28 +513,42 @@ export default function ProductEditModal({
     }
 
     setSaving(true);
+
     try {
-      const updatedProduct = {
-        ...product,
-        ...formData,
-        price: parseFloat(formData.price),
-        mrp: formData.mrp
-          ? parseFloat(formData.mrp)
-          : parseFloat(formData.price),
-        stockQuantity: parseInt(formData.stockQuantity.toString()),
-        lowStockThreshold: parseInt(formData.lowStockThreshold.toString()),
-      };
+      const fd = new FormData();
+
+      fd.append("name", formData.name);
+      fd.append("description", formData.description);
+      fd.append("price", formData.price);
+      fd.append("mrp", formData.mrp || formData.price);
+      fd.append("categoryId", formData.categoryId);
+      fd.append("status", formData.status);
+      fd.append("stockQuantity", String(formData.stockQuantity));
+      fd.append("lowStockThreshold", String(formData.lowStockThreshold));
+      fd.append("inStock", String(formData.inStock));
+
+      const existingImages = formData.images
+        .filter((img: any) => !img.file)
+        .map((img: any) => img.url);
+
+      fd.append("existingImages", JSON.stringify(existingImages));
+
+      formData.images
+        .filter((img: any) => img.file)
+        .forEach((img: any) => {
+          fd.append("images", img.file);
+        });
+
+      fd.append("tags", JSON.stringify(formData.tags));
 
       if (onSave) {
-        await onSave(updatedProduct);
+        await onSave({ id: product.id, formData: fd });
       }
 
       toast.success("Product updated successfully");
       onOpenChange(false);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update product"
-      );
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update product");
     } finally {
       setSaving(false);
     }
