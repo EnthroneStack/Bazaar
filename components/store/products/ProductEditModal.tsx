@@ -471,7 +471,6 @@ import {
   CheckCircle,
   Clock,
   ChevronLeft,
-  Menu,
 } from "lucide-react";
 import { useState } from "react";
 import CategorySelect from "./CategorySelect";
@@ -495,7 +494,6 @@ export default function ProductEditModal({
 }: ProductEditModalProps) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const [formData, setFormData] = useState({
     name: product.name || "",
@@ -576,64 +574,6 @@ export default function ProductEditModal({
     );
   };
 
-  // Mobile tab navigation
-  const MobileTabMenu = () => (
-    <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 bg-white border-t p-3">
-      <div className="flex justify-between items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowMobileMenu(false)}
-          className="flex-1"
-        >
-          Back
-        </Button>
-        <div className="flex-1 grid grid-cols-2 gap-2">
-          <Button
-            variant={activeTab === "basic" ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveTab("basic");
-              setShowMobileMenu(false);
-            }}
-          >
-            Basic
-          </Button>
-          <Button
-            variant={activeTab === "images" ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveTab("images");
-              setShowMobileMenu(false);
-            }}
-          >
-            Images
-          </Button>
-          <Button
-            variant={activeTab === "inventory" ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveTab("inventory");
-              setShowMobileMenu(false);
-            }}
-          >
-            Inventory
-          </Button>
-          <Button
-            variant={activeTab === "tags" ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveTab("tags");
-              setShowMobileMenu(false);
-            }}
-          >
-            Tags
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -656,19 +596,19 @@ export default function ProductEditModal({
             </DialogTitle>
             <div className="flex items-center gap-2">
               {getPublicationStatusBadge(formData.status)}
-              <span className="text-xs text-muted-foreground truncate">
-                {formData.name}
-              </span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowMobileMenu(true)}
-            className="h-8 w-8"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+          <DialogClose asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogClose>
         </div>
 
         {/* Desktop Header */}
@@ -694,6 +634,42 @@ export default function ProductEditModal({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
+          {/* Mobile Tabs - Sticky top tabs */}
+          <div className="lg:hidden sticky top-[60px] z-30 bg-white border-b">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="w-full justify-start h-auto p-0 bg-transparent overflow-x-auto">
+                <TabsTrigger
+                  value="basic"
+                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-3 flex-shrink-0"
+                >
+                  Basic
+                </TabsTrigger>
+                <TabsTrigger
+                  value="images"
+                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-3 flex-shrink-0"
+                >
+                  Images
+                </TabsTrigger>
+                <TabsTrigger
+                  value="inventory"
+                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-3 flex-shrink-0"
+                >
+                  Inventory
+                </TabsTrigger>
+                <TabsTrigger
+                  value="tags"
+                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-3 flex-shrink-0"
+                >
+                  Tags
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
           {/* Desktop Tabs */}
           <Tabs
             value={activeTab}
@@ -936,11 +912,11 @@ export default function ProductEditModal({
             </ScrollArea>
           </Tabs>
 
-          {/* Mobile Content - Single Tab View */}
-          <ScrollArea className="lg:hidden h-[calc(95dvh-140px)] bg-white">
+          {/* Mobile Content - Same Tabs but scrollable */}
+          <ScrollArea className="lg:hidden h-[calc(95dvh-150px)] bg-white">
             <div className="p-4">
               {activeTab === "basic" && (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base">
@@ -982,56 +958,54 @@ export default function ProductEditModal({
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4">
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="mobile-mrp"
-                            className="text-sm font-medium"
-                          >
-                            MRP (Maximum Retail Price)
-                          </Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              $
-                            </span>
-                            <Input
-                              id="mobile-mrp"
-                              type="number"
-                              step="0.01"
-                              value={formData.mrp}
-                              onChange={(e) =>
-                                handleInputChange("mrp", e.target.value)
-                              }
-                              placeholder="0.00"
-                              className="pl-8 text-sm"
-                            />
-                          </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="mobile-mrp"
+                          className="text-sm font-medium"
+                        >
+                          MRP (Maximum Retail Price)
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                            $
+                          </span>
+                          <Input
+                            id="mobile-mrp"
+                            type="number"
+                            step="0.01"
+                            value={formData.mrp}
+                            onChange={(e) =>
+                              handleInputChange("mrp", e.target.value)
+                            }
+                            placeholder="0.00"
+                            className="pl-8 text-sm"
+                          />
                         </div>
+                      </div>
 
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="mobile-price"
-                            className="text-sm font-medium"
-                          >
-                            Selling Price *
-                          </Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              $
-                            </span>
-                            <Input
-                              id="mobile-price"
-                              type="number"
-                              step="0.01"
-                              value={formData.price}
-                              onChange={(e) =>
-                                handleInputChange("price", e.target.value)
-                              }
-                              placeholder="0.00"
-                              className="pl-8 text-sm"
-                              required
-                            />
-                          </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="mobile-price"
+                          className="text-sm font-medium"
+                        >
+                          Selling Price *
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                            $
+                          </span>
+                          <Input
+                            id="mobile-price"
+                            type="number"
+                            step="0.01"
+                            value={formData.price}
+                            onChange={(e) =>
+                              handleInputChange("price", e.target.value)
+                            }
+                            placeholder="0.00"
+                            className="pl-8 text-sm"
+                            required
+                          />
                         </div>
                       </div>
 
@@ -1049,8 +1023,8 @@ export default function ProductEditModal({
                             handleInputChange("description", e.target.value)
                           }
                           placeholder="Describe your product in detail..."
-                          rows={4}
-                          className="text-sm resize-none"
+                          rows={3}
+                          className="text-sm resize-none min-h-[100px]"
                           required
                         />
                       </div>
@@ -1151,51 +1125,50 @@ export default function ProductEditModal({
           </ScrollArea>
         </div>
 
-        {/* Mobile Tab Menu Overlay */}
-        {showMobileMenu && <MobileTabMenu />}
-
         {/* Mobile Footer */}
         <div className="lg:hidden sticky bottom-0 bg-white border-t p-4">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={saving}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 gap-2 text-white"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  Save
-                </>
-              )}
-            </Button>
-          </div>
-          <div className="mt-2 text-center">
-            <div className="text-xs text-muted-foreground">
-              {formData.status === "PUBLISHED" ? (
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle className="h-3 w-3 text-green-600" />
-                  Visible to customers
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className="h-3 w-3 text-amber-600" />
-                  Draft mode
-                </div>
-              )}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={saving}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 gap-2 text-white"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    Save
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground">
+                {formData.status === "PUBLISHED" ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    Visible to customers
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <Clock className="h-3 w-3 text-amber-600" />
+                    Draft mode
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
