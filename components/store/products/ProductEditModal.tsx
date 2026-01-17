@@ -593,248 +593,242 @@ export default function ProductEditModal({
           </DialogClose>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
-            className="h-full"
+            className="h-full flex flex-col"
           >
             <div className="border-b px-4 sm:px-6">
               <TabsList className="w-full justify-start h-auto p-0 bg-transparent overflow-x-auto">
-                <TabsTrigger
-                  value="basic"
-                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 py-3 text-sm flex-shrink-0"
-                >
+                <TabsTrigger value="basic" className="flex-shrink-0">
                   Basic Info
                 </TabsTrigger>
-                <TabsTrigger
-                  value="images"
-                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 py-3 text-sm flex-shrink-0"
-                >
+                <TabsTrigger value="images" className="flex-shrink-0">
                   Images
                 </TabsTrigger>
-                <TabsTrigger
-                  value="inventory"
-                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 py-3 text-sm flex-shrink-0"
-                >
+                <TabsTrigger value="inventory" className="flex-shrink-0">
                   Inventory
                 </TabsTrigger>
-                <TabsTrigger
-                  value="tags"
-                  className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 py-3 text-sm flex-shrink-0"
-                >
+                <TabsTrigger value="tags" className="flex-shrink-0">
                   Tags
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <ScrollArea className="h-[calc(95dvh-180px)] sm:h-[calc(90vh-180px)]">
-              <div className="p-4 sm:p-6">
-                <TabsContent
-                  value="basic"
-                  className="space-y-4 sm:space-y-6 mt-0"
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm sm:text-base">
-                        Product Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="edit-name"
-                          className="text-xs sm:text-sm font-medium"
-                        >
-                          Product Name *
-                        </Label>
-                        <Input
-                          id="edit-name"
-                          value={formData.name}
-                          onChange={(e) =>
-                            handleInputChange("name", e.target.value)
-                          }
-                          placeholder="Enter product name"
-                          className="text-sm"
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="edit-category"
-                          className="text-xs sm:text-sm font-medium"
-                        >
-                          Category *
-                        </Label>
-                        <CategorySelect
-                          value={formData.categoryId}
-                          onChange={(value) =>
-                            handleInputChange("categoryId", value)
-                          }
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex-1 min-h-0">
+              <ScrollArea className="h-full">
+                <div className="p-4 sm:p-6">
+                  <TabsContent
+                    value="basic"
+                    className="space-y-4 sm:space-y-6 mt-0"
+                  >
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm sm:text-base">
+                          Product Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
                         <div className="space-y-2">
                           <Label
-                            htmlFor="edit-mrp"
+                            htmlFor="edit-name"
                             className="text-xs sm:text-sm font-medium"
                           >
-                            MRP (Maximum Retail Price)
+                            Product Name *
                           </Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              $
-                            </span>
-                            <Input
-                              id="edit-mrp"
-                              type="number"
-                              step="0.01"
-                              value={formData.mrp}
-                              onChange={(e) =>
-                                handleInputChange("mrp", e.target.value)
-                              }
-                              placeholder="0.00"
-                              className="pl-8 text-sm"
-                            />
+                          <Input
+                            id="edit-name"
+                            value={formData.name}
+                            onChange={(e) =>
+                              handleInputChange("name", e.target.value)
+                            }
+                            placeholder="Enter product name"
+                            className="text-sm"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-category"
+                            className="text-xs sm:text-sm font-medium"
+                          >
+                            Category *
+                          </Label>
+                          <CategorySelect
+                            value={formData.categoryId}
+                            onChange={(value) =>
+                              handleInputChange("categoryId", value)
+                            }
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label
+                              htmlFor="edit-mrp"
+                              className="text-xs sm:text-sm font-medium"
+                            >
+                              MRP (Maximum Retail Price)
+                            </Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                $
+                              </span>
+                              <Input
+                                id="edit-mrp"
+                                type="number"
+                                step="0.01"
+                                value={formData.mrp}
+                                onChange={(e) =>
+                                  handleInputChange("mrp", e.target.value)
+                                }
+                                placeholder="0.00"
+                                className="pl-8 text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label
+                              htmlFor="edit-price"
+                              className="text-xs sm:text-sm font-medium"
+                            >
+                              Selling Price *
+                            </Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                $
+                              </span>
+                              <Input
+                                id="edit-price"
+                                type="number"
+                                step="0.01"
+                                value={formData.price}
+                                onChange={(e) =>
+                                  handleInputChange("price", e.target.value)
+                                }
+                                placeholder="0.00"
+                                className="pl-8 text-sm"
+                                required
+                              />
+                            </div>
                           </div>
                         </div>
 
                         <div className="space-y-2">
                           <Label
-                            htmlFor="edit-price"
+                            htmlFor="edit-description"
                             className="text-xs sm:text-sm font-medium"
                           >
-                            Selling Price *
+                            Description *
                           </Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              $
-                            </span>
-                            <Input
-                              id="edit-price"
-                              type="number"
-                              step="0.01"
-                              value={formData.price}
-                              onChange={(e) =>
-                                handleInputChange("price", e.target.value)
-                              }
-                              placeholder="0.00"
-                              className="pl-8 text-sm"
-                              required
-                            />
-                          </div>
+                          <Textarea
+                            id="edit-description"
+                            value={formData.description}
+                            onChange={(e) =>
+                              handleInputChange("description", e.target.value)
+                            }
+                            placeholder="Describe your product in detail..."
+                            rows={3}
+                            className="text-sm resize-none"
+                            required
+                          />
                         </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="edit-description"
-                          className="text-xs sm:text-sm font-medium"
-                        >
-                          Description *
-                        </Label>
-                        <Textarea
-                          id="edit-description"
-                          value={formData.description}
-                          onChange={(e) =>
-                            handleInputChange("description", e.target.value)
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-status"
+                            className="text-xs sm:text-sm font-medium"
+                          >
+                            Publication Status
+                          </Label>
+                          <Select
+                            value={formData.status}
+                            onValueChange={(value) =>
+                              handleInputChange("status", value)
+                            }
+                          >
+                            <SelectTrigger id="edit-status" className="text-sm">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PUBLISHED">
+                                Published
+                              </SelectItem>
+                              <SelectItem value="DRAFT">Draft</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="images" className="mt-0">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm sm:text-base">
+                          Product Images
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ImageUploader
+                          images={formData.images}
+                          onImagesChange={(images) =>
+                            handleInputChange("images", images)
                           }
-                          placeholder="Describe your product in detail..."
-                          rows={3}
-                          className="text-sm resize-none"
-                          required
                         />
-                      </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="edit-status"
-                          className="text-xs sm:text-sm font-medium"
-                        >
-                          Publication Status
-                        </Label>
-                        <Select
-                          value={formData.status}
-                          onValueChange={(value) =>
-                            handleInputChange("status", value)
+                  <TabsContent value="inventory" className="mt-0">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm sm:text-base">
+                          Inventory Management
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <InventoryInput
+                          inStock={formData.inStock}
+                          stockQuantity={formData.stockQuantity}
+                          lowStockThreshold={formData.lowStockThreshold}
+                          onInStockChange={(value) =>
+                            handleInputChange("inStock", value)
                           }
-                        >
-                          <SelectTrigger id="edit-status" className="text-sm">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="PUBLISHED">Published</SelectItem>
-                            <SelectItem value="DRAFT">Draft</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                          onStockQuantityChange={(value) =>
+                            handleInputChange("stockQuantity", value)
+                          }
+                          onLowStockThresholdChange={(value) =>
+                            handleInputChange("lowStockThreshold", value)
+                          }
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                <TabsContent value="images" className="mt-0">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm sm:text-base">
-                        Product Images
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ImageUploader
-                        images={formData.images}
-                        onImagesChange={(images) =>
-                          handleInputChange("images", images)
-                        }
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="inventory" className="mt-0">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm sm:text-base">
-                        Inventory Management
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <InventoryInput
-                        inStock={formData.inStock}
-                        stockQuantity={formData.stockQuantity}
-                        lowStockThreshold={formData.lowStockThreshold}
-                        onInStockChange={(value) =>
-                          handleInputChange("inStock", value)
-                        }
-                        onStockQuantityChange={(value) =>
-                          handleInputChange("stockQuantity", value)
-                        }
-                        onLowStockThresholdChange={(value) =>
-                          handleInputChange("lowStockThreshold", value)
-                        }
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="tags" className="mt-0">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm sm:text-base">
-                        Tags & Organization
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <TagInput
-                        tags={formData.tags}
-                        onTagsChange={(tags) => handleInputChange("tags", tags)}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </div>
-            </ScrollArea>
+                  <TabsContent value="tags" className="mt-0">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm sm:text-base">
+                          Tags & Organization
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <TagInput
+                          tags={formData.tags}
+                          onTagsChange={(tags) =>
+                            handleInputChange("tags", tags)
+                          }
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </div>
+              </ScrollArea>
+            </div>
           </Tabs>
         </div>
 

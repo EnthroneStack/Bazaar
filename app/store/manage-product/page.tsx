@@ -49,6 +49,35 @@ export default function ManageProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const handleProductUpdate = async (productId: string, updates: any) => {
+    const response = await fetch(`/api/store/product/${productId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: updates.name,
+        description: updates.description,
+        price: updates.price,
+        mrp: updates.mrp,
+        categoryId: updates.categoryId,
+        status: updates.status,
+        stockQuantity: updates.stockQuantity,
+        lowStockThreshold: updates.lowStockThreshold,
+        inStock: updates.inStock,
+        tags: updates.tags,
+        images: updates.images.map((i: any) => i.url),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to update product");
+    }
+
+    // optional: refetch products or update local state
+  };
+
   useEffect(() => {
     const params = new URLSearchParams();
 
@@ -85,7 +114,11 @@ export default function ManageProductsPage() {
 
       <ProductFilters value={filters} onChange={setFilters} />
 
-      <ProductTable products={products} loading={loading} />
+      <ProductTable
+        products={products}
+        loading={loading}
+        onProductUpdate={handleProductUpdate}
+      />
     </div>
   );
 }
