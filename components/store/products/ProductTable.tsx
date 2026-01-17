@@ -445,9 +445,7 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
-  Trash2, // 👈 ADDED: Import Trash icon
-  AlertTriangle, // 👈 ADDED: Import Alert icon
-  X, // 👈 ADDED: Import X icon for clearing selection
+  Trash2, // Added for delete icon
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -478,19 +476,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
-// 👇 ADDED: Import Alert Dialog for delete confirmation
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
 import ProductViewModal from "./ProductViewModal";
 import ProductEditModal from "./ProductEditModal";
 
@@ -500,22 +485,31 @@ export default function ProductTable({
   products,
   loading,
   onProductUpdate,
-  onProductDelete, // 👈 ADDED: Delete callback prop
-  onProductsDelete, // 👈 ADDED: Multiple delete callback prop
 }: {
   products: any[];
   loading: boolean;
   onProductUpdate?: (productId: string, updates: any) => Promise<void>;
-  onProductDelete?: (productId: string) => Promise<void>; // 👈 ADDED
-  onProductsDelete?: (productIds: string[]) => Promise<void>; // 👈 ADDED
 }) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewingProduct, setViewingProduct] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
-  const [deleting, setDeleting] = useState(false); // 👈 ADDED: Delete loading state
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false); // 👈 ADDED: Delete dialog state
   const itemsPerPage = 6;
+
+  // ========== START: DELETE FUNCTIONALITY ADDITIONS ==========
+  const handleDeleteSelected = () => {
+    // Implement your delete logic here
+    console.log("Deleting products:", selectedProducts);
+
+    // After deletion, clear selection
+    setSelectedProducts([]);
+
+    // Optional: Show confirmation modal before deletion
+    // if (window.confirm(`Delete ${selectedProducts.length} product(s)?`)) {
+    //   // Delete logic here
+    // }
+  };
+  // ========== END: DELETE FUNCTIONALITY ADDITIONS ==========
 
   function normalizeStatus(status: DbProductStatus) {
     return status.toLowerCase() as "draft" | "published";
@@ -594,53 +588,6 @@ export default function ProductTable({
     }
   };
 
-  // 👇 ADDED: Clear all selected products
-  const handleClearSelection = () => {
-    setSelectedProducts([]);
-  };
-
-  // 👇 ADDED: Handle multiple product deletion
-  const handleDeleteMultiple = async () => {
-    if (!onProductsDelete) {
-      console.error("onProductsDelete callback not implemented");
-      return;
-    }
-
-    if (selectedProducts.length === 0) return;
-
-    setDeleting(true);
-    try {
-      await onProductsDelete(selectedProducts);
-      toast.success(`${selectedProducts.length} products deleted successfully`);
-      setSelectedProducts([]);
-      setShowDeleteDialog(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete products");
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  // 👇 ADDED: Handle single product deletion from dropdown
-  const handleDeleteSingle = async (productId: string) => {
-    if (!onProductDelete) {
-      console.error("onProductDelete callback not implemented");
-      return;
-    }
-
-    setDeleting(true);
-    try {
-      await onProductDelete(productId);
-      toast.success("Product deleted successfully");
-      // Remove from selected if it was selected
-      setSelectedProducts((prev) => prev.filter((id) => id !== productId));
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete product");
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   const handleViewProduct = (product: any) => {
     setViewingProduct(product);
   };
@@ -654,12 +601,6 @@ export default function ProductTable({
       await onProductUpdate(updatedProduct.id, updatedProduct);
     }
     setEditingProduct(null);
-  };
-
-  // 👇 ADDED: Toast import and initialization
-  const toast = {
-    success: (message: string) => console.log(`Success: ${message}`),
-    error: (message: string) => console.error(`Error: ${message}`),
   };
 
   const LoadingIndicator = () => (
@@ -717,85 +658,33 @@ export default function ProductTable({
     return <EmptyState />;
   }
 
-  // 👇 ADDED: Get selected products data
-  const selectedProductsData = products.filter((p) =>
-    selectedProducts.includes(p.id),
-  );
-  const publishedCount = selectedProductsData.filter(
-    (p) => p.status === "PUBLISHED",
-  ).length;
-  const draftCount = selectedProductsData.filter(
-    (p) => p.status === "DRAFT",
-  ).length;
-
   return (
     <>
-      {/* 👇 ADDED: Multiple Delete Selection Bar */}
-      {selectedProducts.length > 0 && (
-        <div className="sticky top-0 z-40 mb-4 animate-in slide-in-from-top duration-200">
-          <Card className="border-primary/20 bg-gradient-to-r from-white to-primary/5 shadow-md">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="flex-shrink-0">
-                    <Badge
-                      variant="outline"
-                      className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm px-2 py-1"
-                    >
-                      {selectedProducts.length} selected
-                    </Badge>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="truncate">
-                        {publishedCount > 0 && draftCount > 0
-                          ? `${publishedCount} published, ${draftCount} draft`
-                          : publishedCount > 0
-                            ? `${publishedCount} published products`
-                            : `${draftCount} draft products`}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {selectedProducts.length === 1
-                        ? "1 product selected for deletion"
-                        : `${selectedProducts.length} products selected for deletion`}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* 👇 ADDED: Clear Selection Button */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearSelection}
-                    className="flex-1 sm:flex-none text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-4 w-4 mr-1 sm:mr-2" />
-                    <span className="text-xs sm:text-sm">Clear</span>
-                  </Button>
-
-                  {/* 👇 ADDED: Delete Selected Products Button */}
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setShowDeleteDialog(true)}
-                    disabled={deleting}
-                    className="flex-1 sm:flex-none gap-1 sm:gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="text-xs sm:text-sm">
-                      Delete {selectedProducts.length}
-                    </span>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
       <Card>
+        {/* ========== START: DELETE BUTTON IMPLEMENTATION ========== */}
+        {selectedProducts.length > 0 && (
+          <div className="border-b p-3 sm:p-4 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground flex items-center gap-2">
+                <span className="font-medium text-gray-700">
+                  {selectedProducts.length} product(s) selected
+                </span>
+              </div>
+              <Button
+                onClick={handleDeleteSelected}
+                variant="destructive"
+                size="sm"
+                className="h-8 px-3 sm:px-4 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                Delete {selectedProducts.length}{" "}
+                {selectedProducts.length === 1 ? "record" : "records"}
+              </Button>
+            </div>
+          </div>
+        )}
+        {/* ========== END: DELETE BUTTON IMPLEMENTATION ========== */}
+
         <ScrollArea className="w-full">
           <div className="min-w-[900px] md:min-w-0">
             <Table>
@@ -803,10 +692,7 @@ export default function ProductTable({
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={
-                        selectedProducts.length === products.length &&
-                        products.length > 0
-                      }
+                      checked={selectedProducts.length === products.length}
                       onCheckedChange={handleSelectAll}
                       aria-label="Select all"
                     />
@@ -931,26 +817,21 @@ export default function ProductTable({
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-
-                          {/* 👇 ADDED: Delete option in dropdown */}
-                          {onProductDelete && (
-                            <DropdownMenuItem
-                              className="cursor-pointer bg-white text-red-600 focus:text-red-700 focus:bg-red-50"
-                              onClick={() => {
-                                if (
-                                  confirm(
-                                    `Are you sure you want to delete "${product.name}"?`,
-                                  )
-                                ) {
-                                  handleDeleteSingle(product.id);
-                                }
-                              }}
-                              disabled={deleting}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          )}
+                          {/* ========== START: DELETE IN DROPDOWN ========== */}
+                          <DropdownMenuItem
+                            className="cursor-pointer bg-white text-red-600 focus:text-red-600 focus:bg-red-50"
+                            onClick={() => {
+                              // For single product deletion from dropdown
+                              if (window.confirm(`Delete "${product.name}"?`)) {
+                                console.log("Deleting product:", product.id);
+                                // Implement single delete logic here
+                              }
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                          {/* ========== END: DELETE IN DROPDOWN ========== */}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -1022,134 +903,6 @@ export default function ProductTable({
           </Pagination>
         </CardFooter>
       </Card>
-
-      {/* 👇 ADDED: Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-5 w-5" />
-              <AlertDialogTitle>
-                Delete {selectedProducts.length} Product
-                {selectedProducts.length > 1 ? "s" : ""}
-              </AlertDialogTitle>
-            </div>
-            <AlertDialogDescription className="pt-4">
-              <div className="space-y-3">
-                <p className="font-medium text-foreground">
-                  Are you sure you want to delete {selectedProducts.length}{" "}
-                  selected product{selectedProducts.length > 1 ? "s" : ""}?
-                </p>
-
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-700 font-medium">
-                    ⚠️ This action cannot be undone
-                  </p>
-                  <ul className="mt-2 space-y-1 text-sm text-red-600">
-                    <li>• All product data will be permanently deleted</li>
-                    <li>• Product images will be removed</li>
-                    <li>
-                      • Associated tags and inventory data will be deleted
-                    </li>
-                    {publishedCount > 0 && (
-                      <li className="font-semibold">
-                        • {publishedCount} published product
-                        {publishedCount > 1 ? "s" : ""} will no longer be
-                        accessible to customers
-                      </li>
-                    )}
-                  </ul>
-                </div>
-
-                {selectedProducts.length > 1 && (
-                  <div className="bg-muted rounded-lg p-3 max-h-40 overflow-y-auto">
-                    <p className="text-sm font-medium mb-2">
-                      Selected products:
-                    </p>
-                    <ul className="space-y-1 text-sm">
-                      {selectedProductsData.slice(0, 5).map((p) => (
-                        <li
-                          key={p.id}
-                          className="flex items-center justify-between"
-                        >
-                          <span className="truncate">{p.name}</span>
-                          <Badge variant="outline" className="text-xs ml-2">
-                            {p.status === "PUBLISHED" ? "Published" : "Draft"}
-                          </Badge>
-                        </li>
-                      ))}
-                      {selectedProducts.length > 5 && (
-                        <li className="text-xs text-muted-foreground">
-                          ...and {selectedProducts.length - 5} more
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                )}
-
-                {selectedProductsData.some((p) => p.sales > 0) && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                    <p className="text-sm text-amber-700 font-medium">
-                      📊 Sales Data Warning
-                    </p>
-                    <p className="text-sm text-amber-600 mt-1">
-                      {selectedProductsData.filter((p) => p.sales > 0).length}{" "}
-                      selected product
-                      {selectedProductsData.filter((p) => p.sales > 0).length >
-                      1
-                        ? "s have"
-                        : " has"}{" "}
-                      sales. Deleting will remove all sales history.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteMultiple}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {deleting ? (
-                <>
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Deleting...
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete {selectedProducts.length} Product
-                  {selectedProducts.length > 1 ? "s" : ""}
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {viewingProduct && (
         <ProductViewModal

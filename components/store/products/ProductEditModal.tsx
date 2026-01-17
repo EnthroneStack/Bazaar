@@ -1042,7 +1042,7 @@ export default function ProductEditModal({
                     Delete
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="bg-white">
                   <AlertDialogHeader>
                     <div className="flex items-center gap-2 text-red-600">
                       <AlertTriangle className="h-5 w-5" />
