@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,6 +33,7 @@ import {
   Users,
   Image as ImageIcon,
   AlignLeft,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -104,7 +106,7 @@ export default function ProductViewModal({
       </DialogTrigger>
       <DialogContent className="sm:max-w-5xl h-[90vh] flex flex-col overflow-hidden p-0 bg-white shadow-xl border rounded-xl">
         <DialogHeader className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
               Product Details
@@ -133,6 +135,12 @@ export default function ProductViewModal({
                   View Live
                 </a>
               </Button>
+
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogClose>
             </div>
           </div>
         </DialogHeader>
@@ -326,9 +334,13 @@ export default function ProductViewModal({
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="gap-2">
-                      {product.category?.name || "—"}
-                      <ChevronRight className="h-3 w-3" />
-                      {product.subcategory || ""}
+                      {product.category?.name || "_"}
+                      {product.subcategory && (
+                        <>
+                          <ChevronRight className="h-3 w-3" />
+                          {product.subcategory}
+                        </>
+                      )}
                     </Badge>
                   </div>
                 </div>
@@ -476,7 +488,14 @@ export default function ProductViewModal({
                 Close
               </Button>
 
-              <Button variant="default">
+              <Button
+                variant="default"
+                className="text-white"
+                onClick={() => {
+                  onEdit(product);
+                  onOpenChange(false);
+                }}
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Product
               </Button>
