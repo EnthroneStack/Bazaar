@@ -680,7 +680,7 @@ export default function ProductEditModal({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="bg-white">
                 <AlertDialogHeader>
                   <div className="flex items-center gap-2 text-red-600">
                     <AlertTriangle className="h-5 w-5" />
