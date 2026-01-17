@@ -187,7 +187,10 @@ export async function PATCH(
   }
 }
 
-export async function DELETE({ params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { userId } = await auth();
     if (!userId) {
