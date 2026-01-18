@@ -218,7 +218,8 @@ export async function GET(request: NextRequest) {
 
     const categoryId = searchParams.get("categoryId") || undefined;
     const search = searchParams.get("search") || undefined;
-    const cursor = searchParams.get("cursor");
+    // const cursor = searchParams.get("cursor");
+    const page = Math.max(Number(searchParams.get("page")) || 1, 1);
     const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
     const statusParam = searchParams.get("status")?.toLowerCase();
 
@@ -261,12 +262,12 @@ export async function GET(request: NextRequest) {
           name: { contains: search, mode: "insensitive" },
         }),
       },
-      take: limit + 1,
-      ...(cursor && {
-        skip: 1,
-        cursor: { id: cursor },
-      }),
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * limit, // ✅ OFFSET
+      take: limit,
+      orderBy: [
+        { createdAt: "desc" },
+        { id: "desc" }, // ✅ deterministic
+      ],
       select: {
         id: true,
         name: true,
@@ -297,28 +298,17 @@ export async function GET(request: NextRequest) {
             name: true,
           },
         },
-        store: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
       },
     });
-
-    let nextCursor: string | null = null;
-
-    if (products.length > limit) {
-      const nextItem = products.pop();
-      nextCursor = nextItem!.id;
-    }
 
     return NextResponse.json({
       success: true,
       data: {
         items: products,
-        nextCursor,
         totalCount,
+        page,
+        limit,
+        totalPages: Math.ceil(totalCount / limit),
       },
     });
   } catch (error) {

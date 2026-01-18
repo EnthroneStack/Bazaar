@@ -188,8 +188,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  _req: NextRequest,
+  { params }: { params: { id: string } },
 ) {
   try {
     const { userId } = await auth();
@@ -202,49 +202,23 @@ export async function DELETE(
       return NextResponse.json({ error: "Store not found" }, { status: 404 });
     }
 
-    const { id } = await params;
-
     const product = await prisma.product.findFirst({
-      where: { id, storeId: store.id },
+      where: { id: params.id, storeId: store.id },
     });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    if (product.images.length > 0) {
-      await Promise.all(
-        product.images.map(async (url) => {
-          try {
-            const fileId = url.split("/").pop()?.split(".")[0];
-            if (fileId) {
-              await imagekit.files.delete(fileId);
-            }
-          } catch (err) {
-            console.warn("IMAGE_DELETE_FAILED", url);
-          }
-        }),
-      );
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.productTag.deleteMany({
-        where: { productId: id },
-      });
-
-      await tx.product.delete({
-        where: { id },
-      });
+    await prisma.product.delete({
+      where: { id: params.id },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: { id },
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE_PRODUCT_ERROR", error);
     return NextResponse.json(
-      { success: false, message: "Failed to delete product" },
+      { error: "Failed to delete product" },
       { status: 500 },
     );
   }

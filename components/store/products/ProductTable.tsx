@@ -65,7 +65,6 @@ export default function ProductTable({
   page,
   limit,
   totalCount,
-  hasNextPage,
   onNextPage,
   onPrevPage,
   onProductUpdate,
@@ -75,7 +74,6 @@ export default function ProductTable({
   page: number;
   limit: number;
   totalCount: number;
-  hasNextPage: boolean;
   onNextPage: () => void;
   onPrevPage: () => void;
   onProductUpdate?: (productId: string, updates: any) => Promise<void>;
@@ -87,29 +85,53 @@ export default function ProductTable({
 
   const start = totalCount === 0 ? 0 : (page - 1) * limit + 1;
   const end = Math.min(page * limit, totalCount);
+  const totalPages = Math.ceil(totalCount / limit);
+  const hasNextPage = page < totalPages;
 
-  const handleDeleteSelected = () => {
-    console.log("Deleting products:", selectedProducts);
-    setDeleting(true);
+  const handleDeleteSelected = async () => {
+    try {
+      setDeleting(true);
 
-    setTimeout(() => {
+      const res = await fetch("/api/store/product/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedProducts }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Bulk delete failed");
+      }
+
+      // Optimistic UI
       setSelectedProducts([]);
-      setDeleting(false);
-      // Optional: Show success toast
-      // toast.success(`${selectedProducts.length} product(s) deleted successfully`);
-    }, 1000);
+    } catch (error) {
+      console.error(error);
+      // toast.error("Failed to delete products")
+    } finally {
+      setDeleting(false); // ✅ EXACT PLACE
+    }
   };
 
-  const handleDeleteSingle = (productId: string, productName: string) => {
-    console.log("Deleting single product:", productId, productName);
-    setDeleting(true);
+  const handleDeleteSingle = async (productId: string) => {
+    try {
+      setDeleting(true);
 
-    // Simulate delete API call
-    setTimeout(() => {
-      setDeleting(false);
-      // Optional: Show success toast
-      // toast.success(`"${productName}" deleted successfully`);
-    }, 1000);
+      const res = await fetch(`/api/store/product/${productId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete product");
+      }
+
+      // Optimistic UI update
+      setSelectedProducts((prev) => prev.filter((id) => id !== productId));
+    } catch (error) {
+      console.error(error);
+      // TODO: toast.error("Failed to delete product")
+    } finally {
+      setDeleting(false); // ✅ EXACT PLACE
+    }
   };
 
   function normalizeStatus(status: DbProductStatus) {
@@ -606,7 +628,6 @@ export default function ProductTable({
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     onPrevPage();
@@ -626,11 +647,13 @@ export default function ProductTable({
               {hasNextPage && (
                 <PaginationItem>
                   <PaginationNext
-                    href="#"
                     onClick={(e) => {
                       e.preventDefault();
                       onNextPage();
                     }}
+                    className={
+                      page >= totalPages ? "pointer-events-none opacity-50" : ""
+                    }
                   />
                 </PaginationItem>
               )}

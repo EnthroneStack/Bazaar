@@ -39,6 +39,16 @@ import ProductTable from "@/components/store/products/ProductTable";
 import { Button } from "@/components/ui/button";
 import { ProductFilterState } from "@/components/store/products/types";
 
+type ProductRow = {
+  id: string;
+  name: string;
+  price: number;
+  stockQuantity: number;
+  status: "DRAFT" | "PUBLISHED";
+  images: string[];
+  category?: { id: string; name: string };
+};
+
 export default function ManageProductsPage() {
   const [filters, setFilters] = useState<ProductFilterState>({
     search: "",
@@ -46,9 +56,8 @@ export default function ManageProductsPage() {
     status: "all",
   });
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [cursorMap, setCursorMap] = useState<Record<number, string | null>>({});
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -82,12 +91,8 @@ export default function ManageProductsPage() {
     if (filters.categoryId) params.set("categoryId", filters.categoryId);
     if (filters.status !== "all") params.set("status", filters.status);
 
+    params.set("page", String(page));
     params.set("limit", String(LIMIT));
-
-    const cursor = cursorMap[page - 1];
-    if (cursor) {
-      params.set("cursor", cursor);
-    }
 
     setLoading(true);
 
@@ -98,14 +103,13 @@ export default function ManageProductsPage() {
       .then((json) => {
         setProducts(json.data.items);
         setTotalCount(json.data.totalCount);
-
-        setCursorMap((prev) => ({
-          ...prev,
-          [page]: json.data.nextCursor ?? null,
-        }));
       })
       .finally(() => setLoading(false));
   }, [filters, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters.search, filters.categoryId, filters.status]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -132,7 +136,6 @@ export default function ManageProductsPage() {
         page={page}
         limit={LIMIT}
         totalCount={totalCount}
-        hasNextPage={!!cursorMap[page]}
         onNextPage={() => setPage((p) => p + 1)}
         onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
         onProductUpdate={handleProductUpdate}
