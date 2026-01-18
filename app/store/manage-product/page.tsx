@@ -48,7 +48,7 @@ export default function ManageProductsPage() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [cursorMap, setCursorMap] = useState<Record<number, string | null>>({});
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -84,8 +84,9 @@ export default function ManageProductsPage() {
 
     params.set("limit", String(LIMIT));
 
-    if (page > 1 && nextCursor) {
-      params.set("cursor", nextCursor);
+    const cursor = cursorMap[page - 1];
+    if (cursor) {
+      params.set("cursor", cursor);
     }
 
     setLoading(true);
@@ -96,8 +97,12 @@ export default function ManageProductsPage() {
       .then((res) => res.json())
       .then((json) => {
         setProducts(json.data.items);
-        setNextCursor(json.data.nextCursor);
         setTotalCount(json.data.totalCount);
+
+        setCursorMap((prev) => ({
+          ...prev,
+          [page]: json.data.nextCursor ?? null,
+        }));
       })
       .finally(() => setLoading(false));
   }, [filters, page]);
@@ -127,7 +132,7 @@ export default function ManageProductsPage() {
         page={page}
         limit={LIMIT}
         totalCount={totalCount}
-        hasNextPage={!!nextCursor}
+        hasNextPage={!!cursorMap[page]}
         onNextPage={() => setPage((p) => p + 1)}
         onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
         onProductUpdate={handleProductUpdate}
