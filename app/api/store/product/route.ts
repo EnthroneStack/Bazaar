@@ -266,8 +266,7 @@ export async function GET(request: NextRequest) {
         skip: 1,
         cursor: { id: cursor },
       }),
-
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       select: {
         id: true,
         name: true,
