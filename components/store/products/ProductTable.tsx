@@ -88,50 +88,28 @@ export default function ProductTable({
   const totalPages = Math.ceil(totalCount / limit);
   const hasNextPage = page < totalPages;
 
-  const handleDeleteSelected = async () => {
-    try {
-      setDeleting(true);
+  const handleDeleteSelected = () => {
+    console.log("Deleting products:", selectedProducts);
+    setDeleting(true);
 
-      const res = await fetch("/api/store/product/bulk-delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedProducts }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Bulk delete failed");
-      }
-
-      // Optimistic UI
+    setTimeout(() => {
       setSelectedProducts([]);
-    } catch (error) {
-      console.error(error);
-      // toast.error("Failed to delete products")
-    } finally {
-      setDeleting(false); // ✅ EXACT PLACE
-    }
+      setDeleting(false);
+      // Optional: Show success toast
+      // toast.success(`${selectedProducts.length} product(s) deleted successfully`);
+    }, 1000);
   };
 
-  const handleDeleteSingle = async (productId: string) => {
-    try {
-      setDeleting(true);
+  const handleDeleteSingle = (productId: string, productName: string) => {
+    console.log("Deleting single product:", productId, productName);
+    setDeleting(true);
 
-      const res = await fetch(`/api/store/product/${productId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete product");
-      }
-
-      // Optimistic UI update
-      setSelectedProducts((prev) => prev.filter((id) => id !== productId));
-    } catch (error) {
-      console.error(error);
-      // TODO: toast.error("Failed to delete product")
-    } finally {
-      setDeleting(false); // ✅ EXACT PLACE
-    }
+    // Simulate delete API call
+    setTimeout(() => {
+      setDeleting(false);
+      // Optional: Show success toast
+      // toast.success(`"${productName}" deleted successfully`);
+    }, 1000);
   };
 
   function normalizeStatus(status: DbProductStatus) {
