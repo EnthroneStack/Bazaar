@@ -56,6 +56,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 type DbProductStatus = "DRAFT" | "PUBLISHED";
 
@@ -246,7 +247,9 @@ export default function ProductTable({
           Get started by adding your first product. It will appear here once
           created.
         </p>
-        <Button>Add Product</Button>
+        <Button asChild className="text-white">
+          <Link href="/store/add-product">Add Product</Link>
+        </Button>
       </CardContent>
     </Card>
   );
