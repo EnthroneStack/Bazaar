@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import imagekit from "@/configs/imageKit";
 import { Prisma, ProductStatus } from "@/app/generated/prisma/client";
+import { deleteImagesFromImageKit } from "@/lib/imagekit/deleteImages";
 
 export async function POST(request: NextRequest) {
   try {
@@ -218,7 +219,6 @@ export async function GET(request: NextRequest) {
 
     const categoryId = searchParams.get("categoryId") || undefined;
     const search = searchParams.get("search") || undefined;
-    // const cursor = searchParams.get("cursor");
     const page = Math.max(Number(searchParams.get("page")) || 1, 1);
     const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
     const statusParam = searchParams.get("status")?.toLowerCase();
@@ -262,12 +262,9 @@ export async function GET(request: NextRequest) {
           name: { contains: search, mode: "insensitive" },
         }),
       },
-      skip: (page - 1) * limit, // ✅ OFFSET
+      skip: (page - 1) * limit,
       take: limit,
-      orderBy: [
-        { createdAt: "desc" },
-        { id: "desc" }, // ✅ deterministic
-      ],
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       select: {
         id: true,
         name: true,
@@ -321,6 +318,76 @@ export async function GET(request: NextRequest) {
           message: "Failed to fetch products",
         },
       },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const store = await authSeller(userId);
+    if (!store) {
+      return NextResponse.json({ error: "Store not found" }, { status: 404 });
+    }
+
+    const body = await request.json();
+    const ids: string[] = body?.ids;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { error: "Product IDs are required" },
+        { status: 400 },
+      );
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        id: { in: ids },
+        storeId: store.id,
+      },
+      select: { id: true, images: true },
+    });
+
+    if (products.length === 0) {
+      return NextResponse.json(
+        { error: "No valid products found" },
+        { status: 404 },
+      );
+    }
+
+    const imagesToDelete = products.flatMap((p) => p.images);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.productTag.deleteMany({
+        where: { productId: { in: ids } },
+      });
+
+      await tx.product.deleteMany({
+        where: {
+          id: { in: ids },
+          storeId: store.id,
+        },
+      });
+    });
+
+    await deleteImagesFromImageKit(imagesToDelete);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        deletedCount: products.length,
+        ids: products.map((p) => p.id),
+      },
+    });
+  } catch (error) {
+    console.error("BULK_DELETE_PRODUCTS_ERROR", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to delete products" },
       { status: 500 },
     );
   }

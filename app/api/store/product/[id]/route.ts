@@ -5,6 +5,7 @@ import authSeller from "@/middlewares/authSeller";
 import imagekit from "@/configs/imageKit";
 import { ProductSchema } from "@/lib/validators/products";
 import { ProductStatus } from "@/app/generated/prisma/client";
+import { deleteImagesFromImageKit } from "@/lib/imagekit/deleteImages";
 
 export async function PATCH(
   request: NextRequest,
@@ -187,8 +188,71 @@ export async function PATCH(
   }
 }
 
+// export async function DELETE(
+//   request: NextRequest,
+//   { params }: { params: Promise<{ id: string }> },
+// ) {
+//   try {
+//     const { userId } = await auth();
+//     if (!userId) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+
+//     const store = await authSeller(userId);
+//     if (!store) {
+//       return NextResponse.json({ error: "Store not found" }, { status: 404 });
+//     }
+
+//     const { id } = await params;
+
+//     const product = await prisma.product.findFirst({
+//       where: { id, storeId: store.id },
+//     });
+
+//     if (!product) {
+//       return NextResponse.json({ error: "Product not found" }, { status: 404 });
+//     }
+
+//     if (product.images.length > 0) {
+//       await Promise.all(
+//         product.images.map(async (url) => {
+//           try {
+//             const fileId = url.split("/").pop()?.split(".")[0];
+//             if (fileId) {
+//               await imagekit.files.delete(fileId);
+//             }
+//           } catch (err) {
+//             console.warn("IMAGE_DELETE_FAILED", url);
+//           }
+//         }),
+//       );
+//     }
+
+//     await prisma.$transaction(async (tx) => {
+//       await tx.productTag.deleteMany({
+//         where: { productId: id },
+//       });
+
+//       await tx.product.delete({
+//         where: { id },
+//       });
+//     });
+
+//     return NextResponse.json({
+//       success: true,
+//       data: { id },
+//     });
+//   } catch (error) {
+//     console.error("DELETE_PRODUCT_ERROR", error);
+//     return NextResponse.json(
+//       { success: false, message: "Failed to delete product" },
+//       { status: 500 },
+//     );
+//   }
+// }
+
 export async function DELETE(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -206,25 +270,11 @@ export async function DELETE(
 
     const product = await prisma.product.findFirst({
       where: { id, storeId: store.id },
+      select: { id: true, images: true },
     });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
-    if (product.images.length > 0) {
-      await Promise.all(
-        product.images.map(async (url) => {
-          try {
-            const fileId = url.split("/").pop()?.split(".")[0];
-            if (fileId) {
-              await imagekit.files.delete(fileId);
-            }
-          } catch (err) {
-            console.warn("IMAGE_DELETE_FAILED", url);
-          }
-        }),
-      );
     }
 
     await prisma.$transaction(async (tx) => {
@@ -236,6 +286,8 @@ export async function DELETE(
         where: { id },
       });
     });
+
+    await deleteImagesFromImageKit(product.images);
 
     return NextResponse.json({
       success: true,

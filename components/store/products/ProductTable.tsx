@@ -68,6 +68,8 @@ export default function ProductTable({
   onNextPage,
   onPrevPage,
   onProductUpdate,
+  onDeleteMany,
+  onDeleteOne,
 }: {
   products: any[];
   loading: boolean;
@@ -77,6 +79,8 @@ export default function ProductTable({
   onNextPage: () => void;
   onPrevPage: () => void;
   onProductUpdate?: (productId: string, updates: any) => Promise<void>;
+  onDeleteMany?: (ids: string[]) => Promise<void>;
+  onDeleteOne?: (id: string) => Promise<void>;
 }) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [viewingProduct, setViewingProduct] = useState<any>(null);
@@ -87,30 +91,6 @@ export default function ProductTable({
   const end = Math.min(page * limit, totalCount);
   const totalPages = Math.ceil(totalCount / limit);
   const hasNextPage = page < totalPages;
-
-  const handleDeleteSelected = () => {
-    console.log("Deleting products:", selectedProducts);
-    setDeleting(true);
-
-    setTimeout(() => {
-      setSelectedProducts([]);
-      setDeleting(false);
-      // Optional: Show success toast
-      // toast.success(`${selectedProducts.length} product(s) deleted successfully`);
-    }, 1000);
-  };
-
-  const handleDeleteSingle = (productId: string, productName: string) => {
-    console.log("Deleting single product:", productId, productName);
-    setDeleting(true);
-
-    // Simulate delete API call
-    setTimeout(() => {
-      setDeleting(false);
-      // Optional: Show success toast
-      // toast.success(`"${productName}" deleted successfully`);
-    }, 1000);
-  };
 
   function normalizeStatus(status: DbProductStatus) {
     return status.toLowerCase() as "draft" | "published";
@@ -328,7 +308,12 @@ export default function ProductTable({
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={handleDeleteSelected}
+                      onClick={async () => {
+                        setDeleting(true);
+                        await onDeleteMany?.(selectedProducts);
+                        setSelectedProducts([]);
+                        setDeleting(false);
+                      }}
                       disabled={deleting}
                       className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
                     >
@@ -565,9 +550,11 @@ export default function ProductTable({
                                   Cancel
                                 </AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() =>
-                                    handleDeleteSingle(product.id, product.name)
-                                  }
+                                  onClick={async () => {
+                                    setDeleting(true);
+                                    await onDeleteOne?.(product.id);
+                                    setDeleting(false);
+                                  }}
                                   disabled={deleting}
                                   className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
                                 >
@@ -614,14 +601,12 @@ export default function ProductTable({
                 />
               </PaginationItem>
 
-              {/* Page 1 */}
               <PaginationItem>
                 <PaginationLink href="#" isActive>
                   {page}
                 </PaginationLink>
               </PaginationItem>
 
-              {/* Only show next page if it exists */}
               {hasNextPage && (
                 <PaginationItem>
                   <PaginationNext
@@ -655,6 +640,10 @@ export default function ProductTable({
           open={!!editingProduct}
           onOpenChange={(open) => !open && setEditingProduct(null)}
           onSave={handleSaveProduct}
+          onDelete={async (id) => {
+            await onDeleteOne?.(id);
+            setEditingProduct(null);
+          }}
         />
       )}
     </>

@@ -84,6 +84,39 @@ export default function ManageProductsPage() {
     );
   };
 
+  const handleDeleteProducts = async (ids: string[]) => {
+    setProducts((prev) => prev.filter((p) => !ids.includes(p.id)));
+
+    try {
+      await Promise.all(
+        ids.map((id) =>
+          fetch(`/api/store/product/${id}`, {
+            method: "DELETE",
+          }),
+        ),
+      );
+
+      setTotalCount((c) => Math.max(0, c - ids.length));
+    } catch (error) {
+      console.error("DELETE_FAILED", error);
+      // Optional: refetch products to rollback
+    }
+  };
+
+  const handleDeleteSingle = async (id: string) => {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+
+    try {
+      await fetch(`/api/store/product/${id}`, {
+        method: "DELETE",
+      });
+
+      setTotalCount((c) => Math.max(0, c - 1));
+    } catch (error) {
+      console.error("DELETE_FAILED", error);
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams();
 
@@ -139,6 +172,8 @@ export default function ManageProductsPage() {
         onNextPage={() => setPage((p) => p + 1)}
         onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
         onProductUpdate={handleProductUpdate}
+        onDeleteMany={handleDeleteProducts}
+        onDeleteOne={handleDeleteSingle}
       />
     </div>
   );

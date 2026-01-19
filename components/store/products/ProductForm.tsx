@@ -80,15 +80,15 @@ export default function ProductForm() {
       }
 
       toast.success(
-        isDraft ? "Product saved as draft" : "Product published successfully"
+        isDraft ? "Product saved as draft" : "Product published successfully",
       );
 
       setTimeout(() => {
         router.push("/store/manage-product");
-      }, 1500);
+      }, 1000);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Something went wrong"
+        error instanceof Error ? error.message : "Something went wrong",
       );
     } finally {
       setLoading(false);
