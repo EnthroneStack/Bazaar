@@ -84,36 +84,28 @@ export default function ManageProductsPage() {
     );
   };
 
-  const handleDeleteProducts = async (ids: string[]) => {
+  const deleteProducts = async (ids: string[]) => {
+    const snapshot = products;
+
     setProducts((prev) => prev.filter((p) => !ids.includes(p.id)));
+    setTotalCount((c) => Math.max(0, c - ids.length));
 
     try {
       await Promise.all(
         ids.map((id) =>
-          fetch(`/api/store/product/${id}`, {
-            method: "DELETE",
-          }),
+          fetch(`/api/store/product/${id}`, { method: "DELETE" }).then(
+            (res) => {
+              if (!res.ok) throw new Error("Delete failed");
+            },
+          ),
         ),
       );
-
-      setTotalCount((c) => Math.max(0, c - ids.length));
     } catch (error) {
-      console.error("DELETE_FAILED", error);
-      // Optional: refetch products to rollback
-    }
-  };
+      console.error(error);
 
-  const handleDeleteSingle = async (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-
-    try {
-      await fetch(`/api/store/product/${id}`, {
-        method: "DELETE",
-      });
-
-      setTotalCount((c) => Math.max(0, c - 1));
-    } catch (error) {
-      console.error("DELETE_FAILED", error);
+      setProducts(snapshot);
+      setTotalCount(snapshot.length);
+      throw error;
     }
   };
 
@@ -172,8 +164,8 @@ export default function ManageProductsPage() {
         onNextPage={() => setPage((p) => p + 1)}
         onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
         onProductUpdate={handleProductUpdate}
-        onDeleteMany={handleDeleteProducts}
-        onDeleteOne={handleDeleteSingle}
+        onDeleteOne={(id) => deleteProducts([id])}
+        onDeleteMany={(ids) => deleteProducts(ids)}
       />
     </div>
   );

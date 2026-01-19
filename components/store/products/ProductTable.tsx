@@ -85,7 +85,8 @@ export default function ProductTable({
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [viewingProduct, setViewingProduct] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const start = totalCount === 0 ? 0 : (page - 1) * limit + 1;
   const end = Math.min(page * limit, totalCount);
@@ -302,22 +303,26 @@ export default function ProductTable({
                   </AlertDialogHeader>
                   <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <AlertDialogCancel
-                      disabled={deleting}
+                      disabled={bulkDeleting}
                       className="h-9 text-xs sm:text-sm"
                     >
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={async () => {
-                        setDeleting(true);
-                        await onDeleteMany?.(selectedProducts);
-                        setSelectedProducts([]);
-                        setDeleting(false);
+                        setBulkDeleting(true);
+
+                        try {
+                          await onDeleteMany?.(selectedProducts);
+                          setSelectedProducts([]);
+                        } finally {
+                          setBulkDeleting(false);
+                        }
                       }}
-                      disabled={deleting}
+                      disabled={bulkDeleting}
                       className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
                     >
-                      {deleting ? (
+                      {bulkDeleting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Deleting...
@@ -346,7 +351,10 @@ export default function ProductTable({
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={selectedProducts.length === products.length}
+                      checked={
+                        products.length > 0 &&
+                        products.every((p) => selectedProducts.includes(p.id))
+                      }
                       onCheckedChange={handleSelectAll}
                       aria-label="Select all"
                     />
@@ -366,218 +374,234 @@ export default function ProductTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
-                  <TableRow
-                    key={product.id}
-                    className="group hover:bg-muted/50"
-                  >
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedProducts.includes(product.id)}
-                        onCheckedChange={(checked) =>
-                          handleSelectProduct(product.id, checked as boolean)
-                        }
-                        aria-label={`Select ${product.name}`}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                          {product.images?.[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt={product.name}
-                              className="h-10 w-10 rounded-lg object-cover"
-                            />
-                          ) : (
-                            <Package className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-medium text-sm">
-                            {product.name}
-                          </div>
-                          <div className="truncate text-xs text-muted-foreground">
-                            {product.sku ?? "No SKU"}
-                          </div>
-                          <div className="flex items-center mt-1">
-                            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 mr-1" />
-                            <span className="text-xs text-muted-foreground">
-                              {product.rating ?? "No rating"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {product.category?.name ?? "—"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <DollarSign className="mr-1 h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">
-                          {Number(product.price).toFixed(2)}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div
-                        className={`font-medium ${
-                          product.stockQuantity < 10
-                            ? "text-yellow-600"
-                            : "text-green-600"
-                        }`}
-                      >
-                        {product.stockQuantity} units
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(product.status, product.stockQuantity)}
-                    </TableCell>
-                    <TableCell>
-                      {getPublicationStatusBadge(product.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">{product.sales ?? "0"}</div>
-                      <div className="text-xs text-muted-foreground">
-                        total sales
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            className="cursor-pointer bg-white"
-                            onClick={() => handleViewProduct(product)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="cursor-pointer bg-white"
-                            onClick={() => {}}
-                          >
-                            <Share2 className="mr-2 h-4 w-4" />
-                            Share
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="cursor-pointer bg-white"
-                            onClick={() => handleEditProduct(product)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
+                {products.map((product) => {
+                  const isDeletingRow = deletingIds.has(product.id);
 
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem
-                                className="cursor-pointer bg-white text-red-600 focus:text-red-600 focus:bg-red-50"
-                                onSelect={(e) => e.preventDefault()}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-white w-[92vw] max-w-sm sm:max-w-md rounded-xl p-4 sm:p-6 mx-auto shadow-lg">
-                              <AlertDialogHeader className="space-y-2 text-center sm:text-left">
-                                <div className="flex items-center gap-2 text-red-600">
-                                  <AlertTriangle className="h-5 w-5" />
-                                  <AlertDialogTitle className="text-sm sm:text-base font-semibold">
-                                    Delete Product
-                                  </AlertDialogTitle>
-                                </div>
-                                <AlertDialogDescription className="pt-2 text-xs sm:text-sm leading-relaxed">
-                                  <div className="space-y-3">
-                                    <p className="font-medium text-foreground">
-                                      Are you sure you want to delete "
-                                      {product.name}"?
-                                    </p>
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-3">
-                                      <p className="text-xs sm:text-sm text-red-700 font-medium">
-                                        ⚠️ This action cannot be undone
-                                      </p>
-                                      <ul className="mt-1 space-y-0.5 text-xs sm:text-sm text-red-600">
-                                        <li>
-                                          • All product data will be permanently
-                                          deleted
-                                        </li>
-                                        <li>
-                                          • Product images will be removed
-                                        </li>
-                                        <li>
-                                          • Associated tags and inventory data
-                                          will be deleted
-                                        </li>
-                                        {product.status === "PUBLISHED" && (
-                                          <li className="font-semibold">
-                                            • Product will no longer be
-                                            accessible to customers
-                                          </li>
-                                        )}
-                                      </ul>
-                                    </div>
-                                    {product.sales > 0 && (
-                                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                                        <p className="text-sm text-amber-700 font-medium">
-                                          📊 Sales Data Warning
-                                        </p>
-                                        <p className="text-sm text-amber-600 mt-1">
-                                          This product has {product.sales}{" "}
-                                          sales. Deleting it will remove all
-                                          sales history.
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                                <AlertDialogCancel
-                                  disabled={deleting}
-                                  className="h-9 text-xs sm:text-sm"
+                  return (
+                    <TableRow
+                      key={product.id}
+                      className="group hover:bg-muted/50"
+                    >
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedProducts.includes(product.id)}
+                          onCheckedChange={(checked) =>
+                            handleSelectProduct(product.id, checked as boolean)
+                          }
+                          aria-label={`Select ${product.name}`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                            {product.images?.[0] ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="h-10 w-10 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <Package className="h-5 w-5 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate font-medium text-sm">
+                              {product.name}
+                            </div>
+                            <div className="truncate text-xs text-muted-foreground">
+                              {product.sku ?? "No SKU"}
+                            </div>
+                            <div className="flex items-center mt-1">
+                              <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 mr-1" />
+                              <span className="text-xs text-muted-foreground">
+                                {product.rating ?? "No rating"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          {product.category?.name ?? "—"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <DollarSign className="mr-1 h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {Number(product.price).toFixed(2)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          className={`font-medium ${
+                            product.stockQuantity < 10
+                              ? "text-yellow-600"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {product.stockQuantity} units
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(product.status, product.stockQuantity)}
+                      </TableCell>
+                      <TableCell>
+                        {getPublicationStatusBadge(product.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">
+                          {product.sales ?? "0"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          total sales
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              className="cursor-pointer bg-white"
+                              onClick={() => handleViewProduct(product)}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer bg-white"
+                              onClick={() => {}}
+                            >
+                              <Share2 className="mr-2 h-4 w-4" />
+                              Share
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer bg-white"
+                              onClick={() => handleEditProduct(product)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                  className="cursor-pointer bg-white text-red-600 focus:text-red-600 focus:bg-red-50"
+                                  onSelect={(e) => e.preventDefault()}
                                 >
-                                  Cancel
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={async () => {
-                                    setDeleting(true);
-                                    await onDeleteOne?.(product.id);
-                                    setDeleting(false);
-                                  }}
-                                  disabled={deleting}
-                                  className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
-                                >
-                                  {deleting ? (
-                                    <>
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      Deleting...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Trash2 className="mr-2 h-4 w-4" />
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-white w-[92vw] max-w-sm sm:max-w-md rounded-xl p-4 sm:p-6 mx-auto shadow-lg">
+                                <AlertDialogHeader className="space-y-2 text-center sm:text-left">
+                                  <div className="flex items-center gap-2 text-red-600">
+                                    <AlertTriangle className="h-5 w-5" />
+                                    <AlertDialogTitle className="text-sm sm:text-base font-semibold">
                                       Delete Product
-                                    </>
-                                  )}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                                    </AlertDialogTitle>
+                                  </div>
+                                  <AlertDialogDescription className="pt-2 text-xs sm:text-sm leading-relaxed">
+                                    <div className="space-y-3">
+                                      <p className="font-medium text-foreground">
+                                        Are you sure you want to delete "
+                                        {product.name}"?
+                                      </p>
+                                      <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-3">
+                                        <p className="text-xs sm:text-sm text-red-700 font-medium">
+                                          ⚠️ This action cannot be undone
+                                        </p>
+                                        <ul className="mt-1 space-y-0.5 text-xs sm:text-sm text-red-600">
+                                          <li>
+                                            • All product data will be
+                                            permanently deleted
+                                          </li>
+                                          <li>
+                                            • Product images will be removed
+                                          </li>
+                                          <li>
+                                            • Associated tags and inventory data
+                                            will be deleted
+                                          </li>
+                                          {product.status === "PUBLISHED" && (
+                                            <li className="font-semibold">
+                                              • Product will no longer be
+                                              accessible to customers
+                                            </li>
+                                          )}
+                                        </ul>
+                                      </div>
+                                      {product.sales > 0 && (
+                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                          <p className="text-sm text-amber-700 font-medium">
+                                            📊 Sales Data Warning
+                                          </p>
+                                          <p className="text-sm text-amber-600 mt-1">
+                                            This product has {product.sales}{" "}
+                                            sales. Deleting it will remove all
+                                            sales history.
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                                  <AlertDialogCancel
+                                    disabled={bulkDeleting}
+                                    className="h-9 text-xs sm:text-sm"
+                                  >
+                                    Cancel
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={async () => {
+                                      setDeletingIds((prev) =>
+                                        new Set(prev).add(product.id),
+                                      );
+
+                                      try {
+                                        await onDeleteOne?.(product.id);
+                                      } finally {
+                                        setDeletingIds((prev) => {
+                                          const next = new Set(prev);
+                                          next.delete(product.id);
+                                          return next;
+                                        });
+                                      }
+                                    }}
+                                    disabled={isDeletingRow}
+                                    className="h-9 text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white"
+                                  >
+                                    {isDeletingRow ? (
+                                      <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Deleting...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete Product
+                                      </>
+                                    )}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
