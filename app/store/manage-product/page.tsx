@@ -149,7 +149,7 @@ export default function ManageProductsPage() {
         </div>
 
         <Button asChild className="w-full sm:w-auto text-white">
-          <Link href="/add-product">Add Product</Link>
+          <Link href="/store/add-product">Add Product</Link>
         </Button>
       </div>
 
