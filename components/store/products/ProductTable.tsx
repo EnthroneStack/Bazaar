@@ -97,35 +97,54 @@ export default function ProductTable({
     return status.toLowerCase() as "draft" | "published";
   }
 
-  const getStatusBadge = (
-    status: "DRAFT" | "PUBLISHED",
+  type InventoryStatus =
+    | "IN_STOCK"
+    | "LOW_STOCK"
+    | "OUT_OF_STOCK"
+    | "NOT_TRACKED";
+
+  function getInventoryStatus(
+    trackInventory: boolean,
     stockQuantity: number,
-  ) => {
-    const normalized = normalizeStatus(status);
+    lowStockThreshold: number,
+  ): InventoryStatus {
+    if (!trackInventory) return "NOT_TRACKED";
+    if (stockQuantity <= 0) return "OUT_OF_STOCK";
+    if (stockQuantity <= lowStockThreshold) return "LOW_STOCK";
+    return "IN_STOCK";
+  }
 
-    const finalStatus = stockQuantity <= 0 ? "out-of-stock" : normalized;
-
-    const variants = {
-      published: "bg-green-100 text-green-800",
-      draft: "bg-yellow-100 text-yellow-800",
-      "out-of-stock": "bg-red-100 text-red-800",
+  function getInventoryBadge(status: InventoryStatus) {
+    const config = {
+      IN_STOCK: {
+        label: "In Stock",
+        className: "bg-green-100 text-green-800",
+      },
+      LOW_STOCK: {
+        label: "Low Stock",
+        className: "bg-amber-100 text-amber-800",
+      },
+      OUT_OF_STOCK: {
+        label: "Out of Stock",
+        className: "bg-red-100 text-red-800",
+      },
+      NOT_TRACKED: {
+        label: "Not Tracked",
+        className: "bg-gray-100 text-gray-700",
+      },
     };
 
-    const labels = {
-      published: "Published",
-      draft: "Draft",
-      "out-of-stock": "Out of Stock",
-    };
+    const item = config[status];
 
     return (
       <Badge
         variant="outline"
-        className={`text-xs font-medium px-2 py-0.5 rounded-full ${variants[finalStatus]}`}
+        className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.className}`}
       >
-        {labels[finalStatus]}
+        {item.label}
       </Badge>
     );
-  };
+  }
 
   const getPublicationStatusBadge = (status: "DRAFT" | "PUBLISHED") => {
     const isPublished = status === "PUBLISHED";
@@ -445,8 +464,15 @@ export default function ProductTable({
                         </div>
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(product.status, product.stockQuantity)}
+                        {getInventoryBadge(
+                          getInventoryStatus(
+                            product.trackInventory,
+                            product.stockQuantity,
+                            product.lowStockThreshold,
+                          ),
+                        )}
                       </TableCell>
+
                       <TableCell>
                         {getPublicationStatusBadge(product.status)}
                       </TableCell>
