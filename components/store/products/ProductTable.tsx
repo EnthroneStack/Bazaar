@@ -25,7 +25,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,9 +57,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import Link from "next/link";
-import ProductTableSkeleton from "./ProductTableSkeleton";
-
-type DbProductStatus = "DRAFT" | "PUBLISHED";
+import { ProductTableSkeleton } from "@/components/ui/table-skeleton";
 
 export default function ProductTable({
   products,
