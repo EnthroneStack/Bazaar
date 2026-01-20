@@ -94,10 +94,6 @@ export default function ProductTable({
   const totalPages = Math.ceil(totalCount / limit);
   const hasNextPage = page < totalPages;
 
-  function normalizeStatus(status: DbProductStatus) {
-    return status.toLowerCase() as "draft" | "published";
-  }
-
   type InventoryStatus =
     | "IN_STOCK"
     | "LOW_STOCK"
