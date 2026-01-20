@@ -114,7 +114,6 @@ export default function OrderTable() {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      {/* RESPONSIVE CHANGE: Stack header on mobile */}
       <div className="p-4 sm:p-6 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -126,7 +125,6 @@ export default function OrderTable() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-4">
-            {/* RESPONSIVE CHANGE: Full width select on mobile */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -138,7 +136,7 @@ export default function OrderTable() {
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            {/* RESPONSIVE CHANGE: Full width button on mobile */}
+
             <button className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm flex items-center justify-center">
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -154,7 +152,7 @@ export default function OrderTable() {
               <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Order ID
               </th>
-              {/* RESPONSIVE CHANGE: Hide some columns on mobile */}
+
               <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Customer
               </th>
@@ -185,7 +183,7 @@ export default function OrderTable() {
                   <div className="text-xs sm:text-sm text-gray-500">
                     {order.items} items
                   </div>
-                  {/* RESPONSIVE CHANGE: Show customer on mobile (hidden in table) */}
+
                   <div className="sm:hidden text-xs text-gray-500 mt-1">
                     {order.customer}
                   </div>
@@ -223,7 +221,6 @@ export default function OrderTable() {
         </table>
       </div>
 
-      {/* RESPONSIVE CHANGE: Stack pagination on mobile */}
       <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-gray-700">Showing 6 of 1,248 orders</div>
