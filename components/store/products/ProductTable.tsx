@@ -202,37 +202,6 @@ export default function ProductTable({
     setEditingProduct(null);
   };
 
-  const LoadingIndicator = () => (
-    <Card>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center space-x-4">
-              <Skeleton className="h-5 w-5" />
-              <div className="flex items-center space-x-3 flex-1">
-                <Skeleton className="h-10 w-10 rounded-lg" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-[200px]" />
-                  <Skeleton className="h-3 w-[150px]" />
-                </div>
-              </div>
-              <Skeleton className="h-4 w-[60px]" />
-            </div>
-          ))}
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-between border-t p-4">
-        <Skeleton className="h-4 w-[150px]" />
-        <div className="flex items-center space-x-2">
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-8" />
-        </div>
-      </CardFooter>
-    </Card>
-  );
-
   const EmptyState = () => (
     <Card>
       <CardContent className="flex flex-col items-center justify-center p-12 text-center">
@@ -250,10 +219,6 @@ export default function ProductTable({
       </CardContent>
     </Card>
   );
-
-  // if (loading) {
-  //   return <LoadingIndicator />;
-  // }
 
   if (loading) {
     return <ProductTableSkeleton rows={6} />;
