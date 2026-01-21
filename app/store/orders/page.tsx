@@ -50,47 +50,40 @@
 //   );
 // }
 
-"use client";
-
+// app/(store)/orders/page.tsx
+import { auth } from "@clerk/nextjs/server";
+import authSeller from "@/middlewares/authSeller";
 import OrderStats from "@/components/store/orders/OrderStats";
 import OrderTable from "./OrderTable";
-
-async function getOrderStats() {
-  const res = await fetch(`/api/store/orders/stats`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch order stats");
-  return res.json();
-}
-
-async function getOrders(searchParams: { page?: string; status?: string }) {
-  const params = new URLSearchParams({
-    page: searchParams.page ?? "1",
-    limit: "6",
-    status: searchParams.status ?? "all",
-  });
-
-  const res = await fetch(`/api/store/orders?${params.toString()}`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch orders");
-  return res.json();
-}
+import { getOrders, getOrderStats } from "@/lib/services/orders.service";
 
 export default async function OrdersPage({
   searchParams,
 }: {
   searchParams: { page?: string; status?: string };
 }) {
-  const [statsRes, ordersRes] = await Promise.all([
-    getOrderStats(),
-    getOrders(searchParams),
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const store = await authSeller(userId);
+  if (!store) throw new Error("Store not found");
+
+  const page = Number(searchParams.page) || 1;
+  const status = searchParams.status ?? "all";
+
+  const [stats, orders] = await Promise.all([
+    getOrderStats(store.id),
+    getOrders({
+      storeId: store.id,
+      page,
+      limit: 6,
+      status,
+    }),
   ]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Page header — server-rendered HTML */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
         <p className="text-sm sm:text-base text-gray-600">
@@ -98,12 +91,14 @@ export default async function OrdersPage({
         </p>
       </div>
 
-      <OrderStats stats={statsRes.data} />
+      {/* Non-interactive, immediate data */}
+      <OrderStats stats={stats} />
 
+      {/* Interactive table */}
       <OrderTable
-        orders={ordersRes.data}
-        meta={ordersRes.meta}
-        currentStatus={searchParams.status ?? "all"}
+        orders={orders.data}
+        meta={orders.meta}
+        currentStatus={status}
       />
     </div>
   );
