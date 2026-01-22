@@ -1,4 +1,50 @@
 import prisma from "@/lib/prisma";
+import { generateOrderNumberTx } from "@/lib/orders/orderNumber";
+import { mapDBStatusToUI, mapUIStatusToDB } from "../orders/orderStatus";
+import type { Prisma } from "@/app/generated/prisma/client";
+
+export async function createOrder({
+  store,
+  userId,
+  addressId,
+  paymentMethod,
+  items,
+  total,
+}: {
+  store: { id: string; slug: string };
+  userId: string;
+  addressId: string;
+  paymentMethod: "COD" | "STRIPE";
+  items: { productId: string; quantity: number; price: number }[];
+  total: number;
+}) {
+  return prisma.$transaction(async (tx) => {
+    const { orderNumber, orderSequence } = await generateOrderNumberTx(
+      tx,
+      store.id,
+      store.slug.toUpperCase(),
+    );
+
+    return tx.order.create({
+      data: {
+        orderNumber,
+        orderSequence,
+        total,
+        userId,
+        storeId: store.id,
+        addressId,
+        paymentMethod,
+        orderItems: {
+          create: items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      },
+    });
+  });
+}
 
 export async function getOrderStats(storeId: string) {
   const [
@@ -39,34 +85,33 @@ export async function getOrderStats(storeId: string) {
 
 export async function getOrders({
   storeId,
-  page,
-  limit,
+  page = 1,
+  limit = 6,
   status,
 }: {
   storeId: string;
-  page: number;
-  limit: number;
-  status?: string;
+  page?: number;
+  limit?: number;
+  status?: string | null;
 }) {
-  const skip = (page - 1) * limit;
+  const safePage = Math.max(page, 1);
+  const safeLimit = Math.min(limit, 50);
+  const skip = (safePage - 1) * safeLimit;
 
-  const where: any = { storeId };
+  const where: Prisma.OrderWhereInput = {
+    storeId,
+  };
 
-  if (status && status !== "all") {
-    if (status === "processing") {
-      where.status = { in: ["ORDER_PLACED", "PROCESSING"] };
-    } else if (status === "shipped") {
-      where.status = "SHIPPED";
-    } else if (status === "delivered") {
-      where.status = "DELIVERED";
-    }
+  const dbStatus = mapUIStatusToDB(status ?? undefined);
+  if (dbStatus) {
+    where.status = dbStatus;
   }
 
   const [orders, total] = await Promise.all([
     prisma.order.findMany({
       where,
       skip,
-      take: limit,
+      take: safeLimit,
       orderBy: { createdAt: "desc" },
       include: {
         user: { select: { name: true } },
@@ -78,16 +123,20 @@ export async function getOrders({
 
   return {
     data: orders.map((order) => ({
-      id: `ORD-${order.id.slice(-6).toUpperCase()}`,
+      id: order.orderNumber,
       rawId: order.id,
       customer: order.user.name,
+      date: order.createdAt,
       amount: order.total,
-      status: order.status,
+      items: order.orderItems.reduce((sum, item) => sum + item.quantity, 0),
+      status: mapDBStatusToUI(order.status),
+      payment: order.isPaid ? "paid" : "pending",
     })),
     meta: {
-      page,
+      page: safePage,
+      limit: safeLimit,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / safeLimit),
     },
   };
 }

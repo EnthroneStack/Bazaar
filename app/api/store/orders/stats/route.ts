@@ -1,4 +1,3 @@
-// app/api/store/orders/stats/route.ts
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import authSeller from "@/middlewares/authSeller";

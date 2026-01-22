@@ -167,6 +167,8 @@ model OrderItem {
 model Order {
     // Scalar
     id              String          @id @default(cuid())
+    orderNumber     String          @unique
+    orderSequence   Int
     total           Float
     status          OrderStatus     @default(ORDER_PLACED)
     isPaid          Boolean         @default(false)
@@ -186,10 +188,21 @@ model Order {
     store           Store           @relation(fields: [storeId], references: [id])
     address         Address         @relation(fields: [addressId], references: [id])
 
+    @@index([orderNumber])
+    @@unique([storeId, orderSequence])
     @@index([userId, createdAt])
     @@index([storeId, createdAt])
     @@index([status, createdAt])
 }
+
+model StoreOrderSequence {
+  storeId             String        @id
+  lastValue           Int           @default(0)
+  updatedAt           DateTime      @updatedAt
+
+  store               Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
 
 model Rating {
     // Scalar
@@ -275,6 +288,7 @@ model Store {
     products        Product[]
     orders          Order[]
     settings        StoreSettings?
+    orderSequence   StoreOrderSequence?
     user            User            @relation(fields: [userId], references: [id])
 
     @@index([slug])
