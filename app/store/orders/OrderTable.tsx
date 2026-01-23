@@ -182,25 +182,25 @@ export default function OrderTable({
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Order ID
                 </TableHead>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Customer
                 </TableHead>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Date
                 </TableHead>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Amount
                 </TableHead>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Status
                 </TableHead>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Payment
                 </TableHead>
-                <TableHead className="px-4 py-3 text-xs  text-gray-500">
+                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
                   Actions
                 </TableHead>
               </TableRow>
