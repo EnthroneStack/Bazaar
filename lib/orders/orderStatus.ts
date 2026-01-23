@@ -1,8 +1,12 @@
-import { Prisma, OrderStatus } from "@/app/generated/prisma/client";
+import {
+  Prisma,
+  OrderStatus,
+  PaymentStatus,
+} from "@/app/generated/prisma/client";
 
 export function mapUIStatusToDB(
   status?: string,
-): Prisma.OrderWhereInput["status"] | undefined {
+): Prisma.EnumOrderStatusFilter | OrderStatus | undefined {
   switch (status) {
     case "processing":
       return { in: ["ORDER_PLACED", "PROCESSING"] };
@@ -10,6 +14,9 @@ export function mapUIStatusToDB(
       return "SHIPPED";
     case "delivered":
       return "DELIVERED";
+    case "cancelled":
+      return "CANCELLED";
+
     default:
       return undefined;
   }
@@ -24,5 +31,18 @@ export function mapDBStatusToUI(status: OrderStatus) {
       return "shipped";
     case "DELIVERED":
       return "delivered";
+    case "CANCELLED":
+      return "cancelled";
+  }
+}
+
+export function mapPaymentStatusToUI(status: PaymentStatus) {
+  switch (status) {
+    case "PAID":
+      return "paid" as const;
+    case "REFUNDED":
+      return "refunded" as const;
+    default:
+      return "pending" as const;
   }
 }

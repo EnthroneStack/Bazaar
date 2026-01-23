@@ -1,6 +1,10 @@
 import prisma from "@/lib/prisma";
 import { generateOrderNumberTx } from "@/lib/orders/orderNumber";
-import { mapDBStatusToUI, mapUIStatusToDB } from "../orders/orderStatus";
+import {
+  mapDBStatusToUI,
+  mapPaymentStatusToUI,
+  mapUIStatusToDB,
+} from "../orders/orderStatus";
 import type { Prisma } from "@/app/generated/prisma/client";
 
 export async function createOrder({
@@ -30,6 +34,8 @@ export async function createOrder({
         orderNumber,
         orderSequence,
         total,
+        status: "ORDER_PLACED",
+        paymentStatus: "PENDING",
         userId,
         storeId: store.id,
         addressId,
@@ -56,17 +62,17 @@ export async function getOrderStats(storeId: string) {
   ] = await Promise.all([
     prisma.order.count({ where: { storeId } }),
     prisma.order.aggregate({
-      where: { storeId, isPaid: true },
+      where: { storeId, paymentStatus: "PAID" },
       _sum: { total: true },
     }),
     prisma.order.count({
       where: {
         storeId,
-        status: { in: ["ORDER_PLACED", "PROCESSING"] },
+        paymentStatus: "PENDING",
       },
     }),
     prisma.order.count({
-      where: { storeId, status: "DELIVERED" },
+      where: { storeId, status: "DELIVERED", paymentStatus: "PAID" },
     }),
     prisma.order.aggregate({
       where: { storeId },
@@ -130,7 +136,7 @@ export async function getOrders({
       amount: order.total,
       items: order.orderItems.reduce((sum, item) => sum + item.quantity, 0),
       status: mapDBStatusToUI(order.status),
-      payment: order.isPaid ? "paid" : "pending",
+      payment: mapPaymentStatusToUI(order.paymentStatus),
     })),
     meta: {
       page: safePage,

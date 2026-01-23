@@ -111,11 +111,13 @@ model ProductTag {
 
 
 enum OrderStatus {
-    ORDER_PLACED
-    PROCESSING
-    SHIPPED
-    DELIVERED
+  ORDER_PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
+
 
 enum PaymentMethod {
     COD
@@ -150,6 +152,13 @@ enum ProductStatus {
   PUBLISHED
 }
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+
 model OrderItem {
     //  Scalar
     quantity        Int
@@ -171,7 +180,7 @@ model Order {
     orderSequence   Int
     total           Float
     status          OrderStatus     @default(ORDER_PLACED)
-    isPaid          Boolean         @default(false)
+    paymentStatus   PaymentStatus   @default(PENDING)
     paymentMethod   PaymentMethod   
     isCouponUsed    Boolean         @default(false)
     coupon          Json            @default("{}")
@@ -193,6 +202,8 @@ model Order {
     @@index([userId, createdAt])
     @@index([storeId, createdAt])
     @@index([status, createdAt])
+    @@index([paymentStatus, createdAt])
+
 }
 
 model StoreOrderSequence {
