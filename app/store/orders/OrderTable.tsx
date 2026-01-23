@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import OrderDetailsModal from "./OrderDetailsModal";
+import { useState } from "react";
 
 type Order = {
   id: string;
@@ -62,6 +64,7 @@ export default function OrderTable({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const setStatus = (status: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -138,209 +141,216 @@ export default function OrderTable({
   };
 
   return (
-    <Card className="border-gray-200 overflow-hidden">
-      {/* Header */}
-      <CardHeader className="border-b border-gray-200 p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <CardTitle className="text-lg sm:text-xl text-gray-900">
-              Recent orders
-            </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              Manage and track customer orders
-            </p>
+    <>
+      <Card className="border-gray-200 overflow-hidden">
+        {/* Header */}
+        <CardHeader className="border-b border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-lg sm:text-xl text-gray-900">
+                Recent orders
+              </CardTitle>
+              <p className="text-sm text-gray-600 mt-1">
+                Manage and track customer orders
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <Select value={currentStatus} onValueChange={setStatus}>
+                <SelectTrigger className="w-full sm:w-[140px] border-gray-300 h-9 text-sm">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All status</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="shipped">Shipped</SelectItem>
+                  <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                className="bg-[#0d97d9] hover:bg-[#1e79bd] text-white text-sm h-9 px-3"
+                size="sm"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                <span>Export</span>
+              </Button>
+            </div>
           </div>
+        </CardHeader>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <Select value={currentStatus} onValueChange={setStatus}>
-              <SelectTrigger className="w-full sm:w-[140px] border-gray-300 h-9 text-sm">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All status</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="shipped">Shipped</SelectItem>
-                <SelectItem value="delivered">Delivered</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              className="bg-[#0d97d9] hover:bg-[#1e79bd] text-white text-sm h-9 px-3"
-              size="sm"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              <span>Export</span>
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-0">
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-gray-50">
-              <TableRow>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Order ID
-                </TableHead>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Customer
-                </TableHead>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Date
-                </TableHead>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Amount
-                </TableHead>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Status
-                </TableHead>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Payment
-                </TableHead>
-                <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow
-                  key={order.rawId}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => {
-                    // TODO: Implement order detail navigation
-                    console.log("Navigate to order detail:", order.id);
-                  }}
-                >
-                  <TableCell className="px-4 py-3">
-                    <div className="font-medium text-[#0d97d9]">{order.id}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {order.items} items
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="px-4 py-3 font-medium text-sm">
-                    {order.customer}
-                  </TableCell>
-
-                  <TableCell className="px-4 py-3 text-sm">
-                    {new Date(order.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </TableCell>
-
-                  <TableCell className="px-4 py-3 font-bold text-sm">
-                    ${order.amount.toFixed(2)}
-                  </TableCell>
-
-                  <TableCell className="px-4 py-3">
-                    {getStatusBadge(order.status)}
-                  </TableCell>
-
-                  <TableCell className="px-4 py-3">
-                    {getPaymentBadge(order.payment)}
-                  </TableCell>
-
-                  <TableCell className="px-4 py-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        asChild
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-gray-600 hover:bg-gray-100"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Implement view order
-                            console.log("View order:", order.id);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View order
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Implement edit order
-                            console.log("Edit order:", order.id);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          Edit order
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Implement cancel order
-                            console.log("Cancel order:", order.id);
-                          }}
-                          className="cursor-pointer text-red-600"
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          Cancel order
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {orders.length === 0 && (
+        <CardContent className="p-0">
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-gray-50">
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-10 text-sm text-gray-500"
-                  >
-                    No orders found
-                  </TableCell>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Order ID
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Customer
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Date
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Amount
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Status
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Payment
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    Actions
+                  </TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow
+                    key={order.rawId}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setSelectedOrder(order)}
+                  >
+                    <TableCell className="px-4 py-3">
+                      <div className="font-medium text-[#0d97d9]">
+                        {order.id}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {order.items} items
+                      </div>
+                    </TableCell>
 
-        {/* Pagination */}
-        <div className="px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-3 text-sm items-center">
-          <span className="text-gray-600 text-sm">
-            Page {meta.page} of {meta.totalPages} ({meta.total} orders)
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={meta.page === 1}
-              onClick={() => goToPage(meta.page - 1)}
-              className="disabled:opacity-50 h-8 text-xs"
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={meta.page === meta.totalPages}
-              onClick={() => goToPage(meta.page + 1)}
-              className="disabled:opacity-50 h-8 text-xs"
-            >
-              Next
-            </Button>
+                    <TableCell className="px-4 py-3 font-medium text-sm">
+                      {order.customer}
+                    </TableCell>
+
+                    <TableCell className="px-4 py-3 text-sm">
+                      {new Date(order.date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </TableCell>
+
+                    <TableCell className="px-4 py-3 font-bold text-sm">
+                      ${order.amount.toFixed(2)}
+                    </TableCell>
+
+                    <TableCell className="px-4 py-3">
+                      {getStatusBadge(order.status)}
+                    </TableCell>
+
+                    <TableCell className="px-4 py-3">
+                      {getPaymentBadge(order.payment)}
+                    </TableCell>
+
+                    <TableCell className="px-4 py-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          asChild
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-600 hover:bg-gray-100"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Implement view order
+                              console.log("View order:", order.id);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View order
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Implement edit order
+                              console.log("Edit order:", order.id);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Edit order
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Implement cancel order
+                              console.log("Cancel order:", order.id);
+                            }}
+                            className="cursor-pointer text-red-600"
+                          >
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Cancel order
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+
+                {orders.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-10 text-sm text-gray-500"
+                    >
+                      No orders found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+
+          {/* Pagination */}
+          <div className="px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-3 text-sm items-center">
+            <span className="text-gray-600 text-sm">
+              Page {meta.page} of {meta.totalPages} ({meta.total} orders)
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={meta.page === 1}
+                onClick={() => goToPage(meta.page - 1)}
+                className="disabled:opacity-50 h-8 text-xs"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={meta.page === meta.totalPages}
+                onClick={() => goToPage(meta.page + 1)}
+                className="disabled:opacity-50 h-8 text-xs"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <OrderDetailsModal
+        open={!!selectedOrder}
+        onOpenChange={(open) => !open && setSelectedOrder(null)}
+        order={selectedOrder}
+      />
+    </>
   );
 }
