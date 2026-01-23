@@ -104,7 +104,7 @@ export default function OrderDetailsModal({
     notes: "Please leave package at the front door if no one is home.",
   };
 
-  const orderData = order || dummyOrder;
+  const orderData = adaptOrderToDetails(order) ?? dummyOrder;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -155,6 +155,49 @@ export default function OrderDetailsModal({
     toast.success("Order ID copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   };
+
+  function adaptOrderToDetails(order: any) {
+    if (!order) return null;
+
+    return {
+      id: order.id,
+      createdAt: order.date ?? new Date(),
+      status: order.status,
+      paymentStatus: order.payment ?? "pending",
+      paymentMethod: "stripe",
+
+      customer: {
+        name: order.customer,
+        email: "unknown@email.com",
+        phone: "—",
+      },
+
+      shippingAddress: {
+        street: "—",
+        city: "—",
+        state: "—",
+        zipCode: "—",
+        country: "—",
+      },
+
+      items: [
+        {
+          id: 1,
+          name: "Order items summary",
+          quantity: order.items,
+          price: order.amount / Math.max(order.items, 1),
+          sku: "N/A",
+        },
+      ],
+
+      subtotal: order.amount,
+      shipping: 0,
+      tax: 0,
+      discount: 0,
+      total: order.amount,
+      notes: null,
+    };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -266,7 +309,7 @@ export default function OrderDetailsModal({
                       Order Items
                     </CardTitle>
                     <CardDescription>
-                      {orderData.items.length} items in this order
+                      {orderData.items?.length ?? 0} items in this order
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
@@ -549,7 +592,7 @@ export default function OrderDetailsModal({
                           </div>
                           <div>
                             <p className="font-semibold">
-                              {orderData.customer.name}
+                              {orderData.customer?.name ?? "—"}
                             </p>
                             <p className="text-sm text-gray-500">
                               {orderData.customer.email}
@@ -590,7 +633,7 @@ export default function OrderDetailsModal({
                           </div>
                           <div className="space-y-1">
                             <p className="font-semibold">
-                              {orderData.customer.name}
+                              {orderData.customer?.name ?? "—"}
                             </p>
                             <p className="text-sm text-gray-600 leading-relaxed">
                               {orderData.shippingAddress.street}
