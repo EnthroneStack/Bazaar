@@ -366,7 +366,8 @@ export default function ProductTable({
                   return (
                     <TableRow
                       key={product.id}
-                      className="group hover:bg-muted/50"
+                      className="group hover:bg-muted/50 cursor-pointer"
+                      onClick={() => handleViewProduct(product)}
                     >
                       <TableCell>
                         <Checkbox
