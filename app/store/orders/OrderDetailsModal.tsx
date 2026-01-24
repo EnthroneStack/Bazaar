@@ -710,7 +710,7 @@ export default function OrderDetailsModal({
                           </Button>
                           <Button variant="outline" className="h-10 text-sm">
                             <Copy className="h-4 w-4 mr-2" />
-                            Duplicate Order
+                            Recreate Order
                           </Button>
                         </div>
                       </CardContent>
