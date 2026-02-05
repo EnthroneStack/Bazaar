@@ -750,9 +750,13 @@ model Deal {
   reference String @unique
 
   // Parties
-  creatorId String
-  buyerId   String?
-  sellerId  String
+  creatorId  String
+  buyerId    String?
+  buyerEmail String
+  sellerId   String
+  acceptedBy String?
+
+  isLocked Boolean @default(false)
 
   // Deal definition
   title       String
@@ -768,6 +772,9 @@ model Deal {
   sellerAmount Int
   escrowAmount Int
 
+  acceptedIp        String?
+  acceptedUserAgent String?
+
   // Lifecycle
   status DealStatus @default(DRAFT)
 
@@ -780,12 +787,12 @@ model Deal {
   expiryReason DealExpiryReason?
 
   // Expiry rules
-  acceptBy   DateTime? // buyer must accept before this
-  autoExpire DateTime // hard stop (48h, 72h, etc)
+  acceptBy   DateTime?
+  autoExpire DateTime
 
   // Relations
   paymentIntentId String?
-  escrowId        String?
+  escrowAccountId String?
   disputeId       String?
 
   createdAt DateTime @default(now())
@@ -796,13 +803,45 @@ model Deal {
   buyer   User? @relation("DealBuyer", fields: [buyerId], references: [id])
   seller  User  @relation("DealSeller", fields: [sellerId], references: [id])
 
-  paymentIntent   PaymentIntent? @relation(fields: [paymentIntentId], references: [id])
-  escrow          EscrowAccount? @relation(fields: [escrowAccountId], references: [id])
-  dispute         Dispute?       @relation(fields: [disputeId], references: [id])
-  escrowAccountId String?
+  paymentIntent        PaymentIntent?        @relation(fields: [paymentIntentId], references: [id])
+  escrow               EscrowAccount?        @relation(fields: [escrowAccountId], references: [id])
+  dispute              Dispute?              @relation(fields: [disputeId], references: [id])
+  dealAcceptanceTokens DealAcceptanceToken[]
 
   @@index([creatorId])
   @@index([buyerId])
   @@index([sellerId])
   @@index([status, createdAt])
+}
+
+model DealAcceptanceToken {
+  id        String    @id @default(cuid())
+  dealId    String
+  email     String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  deal Deal @relation(fields: [dealId], references: [id])
+
+  @@index([dealId])
+  @@index([email])
+}
+
+model AdminActionLog {
+  id String @id @default(cuid())
+
+  adminId  String
+  entity   String
+  entityId String
+
+  action String
+  reason String
+
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([adminId])
 }
