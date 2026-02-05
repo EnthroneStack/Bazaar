@@ -147,6 +147,31 @@ enum DisputeResolution {
   CANCELLED
 }
 
+enum DealStatus {
+  DRAFT
+  PUBLISHED
+  ACCEPTED
+  PAID
+  IN_ESCROW
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  DISPUTED
+}
+
+enum DealVisibility {
+  PRIVATE
+  PUBLIC
+  LINK_ONLY
+}
+
+enum DealExpiryReason {
+  TIMEOUT
+  CANCELLED_BY_CREATOR
+  CANCELLED_BY_BUYER
+  PAYMENT_FAILED
+}
+
 // MODELS
 
 model User {
@@ -165,6 +190,10 @@ model User {
   searchPreference SearchPreference?
   searchEvents     SearchEvent[]
   searchHistories  SearchHistory[]
+
+  createdDeals Deal[] @relation("DealCreator")
+  buyingDeals  Deal[] @relation("DealBuyer")
+  sellingDeals Deal[] @relation("DealSeller")
 }
 
 model Store {
@@ -614,6 +643,7 @@ model PaymentIntent {
   order   Order          @relation(fields: [orderId], references: [id])
   gateway PaymentGateway @relation(fields: [gatewayId], references: [id])
   escrow  EscrowAccount?
+  deals   Deal[]
 
   @@index([buyerId])
   @@index([sellerId])
@@ -652,6 +682,7 @@ model EscrowAccount {
   paymentIntent PaymentIntent @relation(fields: [paymentIntentId], references: [id])
   dispute       Dispute?
   payouts       Payout[]
+  deals         Deal[]
 }
 
 model BalanceAccount {
@@ -711,4 +742,67 @@ model Dispute {
   resolution DisputeResolution?
 
   escrow EscrowAccount @relation(fields: [escrowId], references: [id])
+  deals  Deal[]
+}
+
+model Deal {
+  id        String @id @default(uuid())
+  reference String @unique
+
+  // Parties
+  creatorId String // who created the deal
+  buyerId   String? // optional until accepted
+  sellerId  String // usually creator, but explicit
+
+  // Deal definition
+  title       String
+  description String
+  terms       Json // delivery terms, scope, etc
+  visibility  DealVisibility @default(PRIVATE)
+
+  // Pricing
+  amountTotal Int
+  currency    String
+
+  platformFee  Int
+  sellerAmount Int
+  escrowAmount Int
+
+  // Lifecycle
+  status DealStatus @default(DRAFT)
+
+  publishedAt  DateTime?
+  acceptedAt   DateTime?
+  paidAt       DateTime?
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+  expiredAt    DateTime?
+  expiryReason DealExpiryReason?
+
+  // Expiry rules
+  acceptBy   DateTime? // buyer must accept before this
+  autoExpire DateTime // hard stop (48h, 72h, etc)
+
+  // Relations
+  paymentIntentId String?
+  escrowId        String?
+  disputeId       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  creator User  @relation("DealCreator", fields: [creatorId], references: [id])
+  buyer   User? @relation("DealBuyer", fields: [buyerId], references: [id])
+  seller  User  @relation("DealSeller", fields: [sellerId], references: [id])
+
+  paymentIntent   PaymentIntent? @relation(fields: [paymentIntentId], references: [id])
+  escrow          EscrowAccount? @relation(fields: [escrowAccountId], references: [id])
+  dispute         Dispute?       @relation(fields: [disputeId], references: [id])
+  escrowAccountId String?
+
+  @@index([creatorId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status, createdAt])
 }
