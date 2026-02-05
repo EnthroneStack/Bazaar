@@ -750,14 +750,14 @@ model Deal {
   reference String @unique
 
   // Parties
-  creatorId String // who created the deal
-  buyerId   String? // optional until accepted
-  sellerId  String // usually creator, but explicit
+  creatorId String
+  buyerId   String?
+  sellerId  String
 
   // Deal definition
   title       String
   description String
-  terms       Json // delivery terms, scope, etc
+  terms       Json
   visibility  DealVisibility @default(PRIVATE)
 
   // Pricing
