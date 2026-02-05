@@ -1,3 +1,4 @@
+import { GatewayProvider } from "@/app/generated/prisma/client";
 import prisma from "./seedClient";
 
 function isNotNull<T>(value: T | null): value is T {
@@ -5,6 +6,46 @@ function isNotNull<T>(value: T | null): value is T {
 }
 
 async function main() {
+  const adminUser = await prisma.user.upsert({
+    where: { email: "admin@bazaar.com" },
+    update: {},
+    create: {
+      id: "user_admin_1",
+      name: "Bazaar Admin",
+      email: "admin@bazaar.com",
+      image: "https://i.pravatar.cc/300",
+    },
+  });
+
+  console.log("Admin user seeded");
+
+  const store = await prisma.store.upsert({
+    where: { slug: "bazaar-main-store" },
+    update: {},
+    create: {
+      id: "store_bazaar_main",
+      name: "Bazaar Main Store",
+      description: "Official Bazaar demo store",
+      username: "bazaar",
+      email: "store@bazaar.com",
+      contact: "08000000000",
+      address: {
+        street: "Demo Street",
+        city: "Lagos",
+        state: "Lagos",
+        country: "Nigeria",
+      },
+      businessType: "COMPANY",
+      status: "APPROVED",
+      isActive: true,
+      slug: "bazaar-main-store",
+      logo: "https://picsum.photos/200",
+      userId: adminUser.id, // ✅ FK satisfied
+    },
+  });
+
+  console.log("Store seeded");
+
   // --------------------
   // Tags
   // --------------------
@@ -195,11 +236,6 @@ async function main() {
     console.log("Sports & Outdoors subcategories seeded");
   }
 
-  const store = await prisma.store.findFirst();
-  if (!store) {
-    throw new Error("No store found. Seed a store first.");
-  }
-
   const categories = await prisma.category.findMany({
     where: { parentId: { not: null } },
     take: 5,
@@ -275,7 +311,6 @@ async function main() {
           orderNumber: `ORD-${Date.now()}-${i}`,
           orderSequence: i + 1,
           total: validProducts[i].price,
-          paymentMethod: "COD",
           userId: user!.id,
           storeId: store.id,
           addressId: addresses[i].id,
@@ -283,7 +318,7 @@ async function main() {
             create: {
               productId: validProducts[i].id,
               quantity: 1,
-              price: validProducts[i].price,
+              checkoutPrice: validProducts[i].price,
             },
           },
         },
@@ -334,6 +369,41 @@ async function main() {
   });
 
   console.log("Consents seeded");
+
+  await prisma.paymentGateway.createMany({
+    data: [
+      {
+        provider: GatewayProvider.PAYSTACK,
+        isActive: true,
+        config: {
+          mode: "test",
+        },
+      },
+      {
+        provider: GatewayProvider.FLUTTERWAVE,
+        isActive: false,
+        config: {},
+      },
+      {
+        provider: GatewayProvider.STRIPE,
+        isActive: false,
+        config: {},
+      },
+      {
+        provider: GatewayProvider.SEERBIT,
+        isActive: false,
+        config: {},
+      },
+      {
+        provider: GatewayProvider.OPAY,
+        isActive: false,
+        config: {},
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log("Payment gateways seeded");
 }
 
 main()

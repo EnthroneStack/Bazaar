@@ -201,7 +201,7 @@ export default function OrderDetailsModal({
         <DialogHeader className="border-b p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <DialogTitle className="text-sm sm:text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xs sm:text-lg font-semibold text-gray-900">
                 Order #{orderData.id}
               </DialogTitle>
               <div className="flex gap-2">
