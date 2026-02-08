@@ -38,3 +38,30 @@ export interface PaymentGateway {
     authorizationUrl: string;
   }>;
 }
+
+type PaymentSuccessEvent = {
+  type: "PAYMENT_SUCCESS";
+  provider: GatewayProvider;
+  gatewayReference: string;
+  amount: number;
+  currency: string;
+  payload?: any;
+};
+
+type PaymentFailedEvent = {
+  type: "PAYMENT_FAILED";
+  provider: GatewayProvider;
+  gatewayReference: string;
+  payload?: any;
+};
+
+type UnhandledGatewayEvent = {
+  type: "UNHANDLED_EVENT";
+  provider: GatewayProvider;
+  payload?: any;
+};
+
+export type NormalizedWebhookEvent =
+  | PaymentSuccessEvent
+  | PaymentFailedEvent
+  | UnhandledGatewayEvent;

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { PAYSTACK_SECRET_KEY } from "@/configs/paystack";
 import { GatewayProvider } from "@/app/generated/prisma/enums";
+import { NormalizedWebhookEvent } from "../../types";
 
 export function verifyPaystackWebhookSignature(
   rawBody: Buffer,
@@ -14,7 +15,7 @@ export function verifyPaystackWebhookSignature(
   return hash === signature;
 }
 
-export function handlePaystackWebhook(event: any) {
+export function handlePaystackWebhook(event: any): NormalizedWebhookEvent {
   const { event: type, data } = event;
 
   switch (type) {
@@ -23,12 +24,9 @@ export function handlePaystackWebhook(event: any) {
         type: "PAYMENT_SUCCESS",
         provider: GatewayProvider.PAYSTACK,
         gatewayReference: data.reference,
-        status: data.status,
         amount: data.amount / 100,
         currency: data.currency,
-        customerEmail: data.customer.email,
-        paidAt: data.paid_at,
-        raw: data,
+        payload: data,
       };
 
     case "charge.failed":
@@ -36,14 +34,14 @@ export function handlePaystackWebhook(event: any) {
         type: "PAYMENT_FAILED",
         provider: GatewayProvider.PAYSTACK,
         gatewayReference: data.reference,
-        raw: data,
+        payload: data,
       };
 
     default:
       return {
         type: "UNHANDLED_EVENT",
         provider: GatewayProvider.PAYSTACK,
-        raw: data,
+        payload: data,
       };
   }
 }
